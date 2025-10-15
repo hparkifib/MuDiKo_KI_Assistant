@@ -6,8 +6,16 @@ export default function PromptPage({ onBack }) {
           <h1 style={{ margin: '0', color: 'var(--font-color)', fontSize: 'var(--title-font-size)' }}>Feedback Prompt</h1>
           <img src="/src/assets/MuDiKo_Logo.svg" alt="MuDiKo Logo" style={{ width: '60px', height: '60px' }} />
         </div>
-        <div style={{ backgroundColor: 'var(--card-color)', borderRadius: '20px', padding: '20px', width: '90%', marginTop: '10px', display: 'flex', justifyContent: 'center' }}>
-          <button style={{ border: '2px solid', borderImage: 'var(--mudiko-gradient) 1' }}>Prompt kopieren</button>
+        <div style={{ backgroundColor: 'var(--card-color)', borderRadius: '20px', padding: '20px', width: '90%', marginTop: '10px' }}>
+          <p style={{ color: 'var(--font-color)', margin: '0 0 20px 0' }}>
+            Super! Der MuDiKo-KI-Assistent hat dir einen Prompt erstellt mit dem du dir, von einer KI deiner Wahl, ein individuelles Feedback zu deiner Musik geben lassen kannst.
+          </p>
+          <p style={{ color: 'var(--font-color)', margin: '0 0 20px 0' }}>
+            Probiere es gleich aus. Drücke auf Prompt kopieren, um den Prompt in die Zwischenablage zu speichern. Füge den Prompt anschließend in einen neuen Chat der Telli-KI!
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <button style={{ border: '2px solid', borderImage: 'var(--mudiko-gradient) 1' }}>Prompt kopieren</button>
+          </div>
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-start', width: '95%', marginBottom: '20px' }}>
