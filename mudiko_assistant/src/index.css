@@ -1,0 +1,36 @@
+/* Minimal global reset for blank canvas */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* Design variables */
+:root {
+  --bg-color: #222222;
+  --card-color: rgba(61, 61, 61, 0.96);
+  --button-color: #575757;
+  --font-color: #FFFFFF;
+  --shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  --mudiko-pink: #FF9EA1;
+  --mudiko-gelb: #FBEAA8;
+  --mudiko-cyan: #87BDCF;
+  --mudiko-flieder: #E3DCF5;
+  --mudiko-gradient: linear-gradient(to right, var(--mudiko-pink) 0%, var(--mudiko-gelb) 34%, var(--mudiko-cyan) 67%, var(--mudiko-flieder) 100%);
+  --title-font-size: 1.3rem;
+}
+
+/* Button styles */
+button {
+  background-color: var(--button-color);
+  color: var(--font-color);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 0px;
+  box-shadow: var(--shadow);
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+}
+
+/* Tailwind is optional — keep the file empty for a neutral canvas */
+

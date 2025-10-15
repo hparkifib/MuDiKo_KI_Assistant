@@ -1,0 +1,8 @@
+/* Minimal app styles for a blank canvas */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+
+/* keep App.css intentionally minimal */
