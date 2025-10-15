@@ -49,10 +49,202 @@ export default function App() {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+        animation: 'fadeIn 1s ease-in-out'
       }}
     >
-      <h1 style={{ textAlign: 'center', color: 'var(--font-color)', marginBottom: '20px', fontSize: 'var(--title-font-size)' }}>Dein KI-Musik-Assistent</h1>
-      <div style={{ backgroundColor: 'var(--card-color)', borderRadius: '20px', padding: '20px', marginBottom: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      {/* Floating musical notes background */}
+      <img 
+        src="/src/assets/noteY.svg" 
+        alt="" 
+        style={{
+          position: 'absolute',
+          top: '5%',
+          left: '3%',
+          width: '40px',
+          height: '40px',
+          opacity: 0.3,
+          animation: 'floatNote1 8s ease-in-out infinite',
+          zIndex: 0
+        }}
+      />
+      <img 
+        src="/src/assets/noteC.svg" 
+        alt="" 
+        style={{
+          position: 'absolute',
+          top: '8%',
+          right: '5%',
+          width: '35px',
+          height: '35px',
+          opacity: 0.25,
+          animation: 'floatNote2 10s ease-in-out infinite 1s',
+          zIndex: 0
+        }}
+      />
+      <img 
+        src="/src/assets/notep.svg" 
+        alt="" 
+        style={{
+          position: 'absolute',
+          bottom: '15%',
+          left: '4%',
+          width: '45px',
+          height: '45px',
+          opacity: 0.2,
+          animation: 'floatNote3 12s ease-in-out infinite 2s',
+          zIndex: 0
+        }}
+      />
+      <img 
+        src="/src/assets/NoteF.svg" 
+        alt="" 
+        style={{
+          position: 'absolute',
+          top: '12%',
+          right: '25%',
+          width: '38px',
+          height: '38px',
+          opacity: 0.35,
+          animation: 'floatNote4 9s ease-in-out infinite 0.5s',
+          zIndex: 0
+        }}
+      />
+      <img 
+        src="/src/assets/noteY.svg" 
+        alt="" 
+        style={{
+          position: 'absolute',
+          bottom: '8%',
+          right: '3%',
+          width: '42px',
+          height: '42px',
+          opacity: 0.28,
+          animation: 'floatNote1 11s ease-in-out infinite 3s',
+          zIndex: 0
+        }}
+      />
+      <img 
+        src="/src/assets/noteC.svg" 
+        alt="" 
+        style={{
+          position: 'absolute',
+          top: '25%',
+          left: '8%',
+          width: '36px',
+          height: '36px',
+          opacity: 0.22,
+          animation: 'floatNote2 13s ease-in-out infinite 1.5s',
+          zIndex: 0
+        }}
+      />
+      <img 
+        src="/src/assets/notep.svg" 
+        alt="" 
+        style={{
+          position: 'absolute',
+          top: '18%',
+          right: '40%',
+          width: '32px',
+          height: '32px',
+          opacity: 0.4,
+          animation: 'floatNote5 7s ease-in-out infinite 4s',
+          zIndex: 0
+        }}
+      />
+      <img 
+        src="/src/assets/NoteF.svg" 
+        alt="" 
+        style={{
+          position: 'absolute',
+          bottom: '20%',
+          left: '15%',
+          width: '48px',
+          height: '48px',
+          opacity: 0.18,
+          animation: 'floatNote6 15s ease-in-out infinite 2.5s',
+          zIndex: 0
+        }}
+      />
+      <img 
+        src="/src/assets/noteY.svg" 
+        alt="" 
+        style={{
+          position: 'absolute',
+          top: '35%',
+          right: '8%',
+          width: '30px',
+          height: '30px',
+          opacity: 0.32,
+          animation: 'floatNote3 10s ease-in-out infinite 5s',
+          zIndex: 0
+        }}
+      />
+      <img 
+        src="/src/assets/noteC.svg" 
+        alt="" 
+        style={{
+          position: 'absolute',
+          top: '45%',
+          left: '20%',
+          width: '44px',
+          height: '44px',
+          opacity: 0.26,
+          animation: 'floatNote4 12s ease-in-out infinite 3.5s',
+          zIndex: 0
+        }}
+      />
+      <img 
+        src="/src/assets/notep.svg" 
+        alt="" 
+        style={{
+          position: 'absolute',
+          bottom: '35%',
+          right: '18%',
+          width: '38px',
+          height: '38px',
+          opacity: 0.3,
+          animation: 'floatNote5 9s ease-in-out infinite 1s',
+          zIndex: 0
+        }}
+      />
+      <img 
+        src="/src/assets/NoteF.svg" 
+        alt="" 
+        style={{
+          position: 'absolute',
+          top: '55%',
+          left: '5%',
+          width: '34px',
+          height: '34px',
+          opacity: 0.24,
+          animation: 'floatNote6 11s ease-in-out infinite 4.5s',
+          zIndex: 0
+        }}
+      />
+
+      <h1 style={{ 
+        textAlign: 'center', 
+        color: 'var(--font-color)', 
+        marginBottom: '20px', 
+        fontSize: 'var(--title-font-size)',
+        position: 'relative',
+        zIndex: 1,
+        animation: 'slideUp 0.8s ease-out 0.2s both'
+      }}>Dein KI-Musik-Assistent</h1>
+      <div style={{ 
+        backgroundColor: 'var(--card-color)', 
+        borderRadius: '20px', 
+        padding: '20px', 
+        marginBottom: '20px', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        position: 'relative',
+        zIndex: 1,
+        animation: 'scaleIn 0.6s ease-out 0.4s both'
+      }}>
         <img src="/src/assets/MuDiKo_Logo.svg" alt="MuDiKo Logo" style={{ width: '150px', height: '150px' }} />
       </div>
       <button 
@@ -66,8 +258,14 @@ export default function App() {
           boxShadow: 'var(--shadow)',
           fontFamily: "'Nunito', sans-serif",
           cursor: 'pointer',
+          position: 'relative',
+          zIndex: 1,
+          animation: 'pulse 2s infinite 0.8s',
+          transition: 'transform 0.2s ease'
         }}
         onClick={() => setPage('AudioUpload_Page')}
+        onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+        onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
       >
         Jetzt Feedback einholen
       </button>
