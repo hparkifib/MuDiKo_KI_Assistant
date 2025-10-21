@@ -235,7 +235,7 @@ export default function App() {
       }}>Dein KI-Musik-Assistent</h1>
       <div style={{ 
         backgroundColor: 'var(--card-color)', 
-        borderRadius: '20px', 
+        borderRadius: '30px', 
         padding: '20px', 
         marginBottom: '20px', 
         display: 'flex', 
@@ -245,7 +245,7 @@ export default function App() {
         zIndex: 1,
         animation: 'scaleIn 0.6s ease-out 0.4s both'
       }}>
-        <img src="/src/assets/MuDiKo_Logo.svg" alt="MuDiKo Logo" style={{ width: '150px', height: '150px' }} />
+        <img src="/src/assets/MuDiKo_Logo.svg" alt="MuDiKo Logo" style={{ width: '160px', height: '160px' }} />
       </div>
       <button 
         style={{
@@ -263,7 +263,6 @@ export default function App() {
           zIndex: 1,
           animation: 'pulse 2s infinite 0.8s',
           transition: 'all 0.3s ease',
-          letterSpacing: '1px'
         }}
         onClick={() => setPage('AudioUpload_Page')}
         onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
