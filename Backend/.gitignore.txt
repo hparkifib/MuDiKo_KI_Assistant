@@ -1,0 +1,20 @@
+# Python Bytecode & Caches
+__pycache__/
+*.pyc
+
+# Hochgeladene Audiodateien
+app/uploads/
+uploads/
+*.wav
+*.mp3
+
+# Umgebungsvariablen
+.env
+.env.*
+
+# IDE/Editoren
+.vscode/
+.idea/
+
+# Sonstiges
+.DS_Store
