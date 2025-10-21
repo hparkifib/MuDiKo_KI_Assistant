@@ -1,34 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function LanguagePage({ onBack, onNext }) {
   const [selectedLanguage, setSelectedLanguage] = useState('Deutsch');
   const [simpleLanguage, setSimpleLanguage] = useState(false);
   const [customLanguage, setCustomLanguage] = useState('');
   const [availableLanguages, setAvailableLanguages] = useState([
-    { value: 'Deutsch', label: 'Deutsch (Deutsch)' },
-    { value: 'Englisch', label: 'Englisch (English)' },
-    { value: 'Französisch', label: 'Französisch (Français)' },
-    { value: 'Spanisch', label: 'Spanisch (Español)' },
-    { value: 'Latein', label: 'Latein (Latin)' },
-    { value: 'Italienisch', label: 'Italienisch (Italiano)' },
-    { value: 'Türkisch', label: 'Türkisch (Türkçe)' },
-    { value: 'Russisch', label: 'Russisch (Русский)' },
-    { value: 'Polnisch', label: 'Polnisch (Polski)' },
-    { value: 'Arabisch', label: 'Arabisch (العربية)' },
-    { value: 'Griechisch', label: 'Griechisch (Ελληνικά)' },
-    { value: 'Kroatisch', label: 'Kroatisch (Hrvatski)' },
-    { value: 'Serbisch', label: 'Serbisch (Српски)' },
-    { value: 'Portugiesisch', label: 'Portugiesisch (Português)' },
-    { value: 'Chinesisch', label: 'Chinesisch (中文)' },
-    { value: 'Japanisch', label: 'Japanisch (日本語)' },
-    { value: 'Koreanisch', label: 'Koreanisch (한국어)' },
-    { value: 'Andere Sprache', label: 'Andere Sprache' }
+    { value: 'deutsch', label: 'Deutsch (Deutsch)' },
+    { value: 'english', label: 'Englisch (English)' },
+    { value: 'français', label: 'Französisch (Français)' },
+    { value: 'español', label: 'Spanisch (Español)' },
+    { value: 'italiano', label: 'Italienisch (Italiano)' },
+    { value: 'türkçe', label: 'Türkisch (Türkçe)' },
+    { value: 'custom', label: 'Andere Sprache' }
   ]);
+
+  // Load saved data on component mount
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem('formData');
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        if (data.language) setSelectedLanguage(data.language);
+        if (data.simpleLanguage !== undefined) setSimpleLanguage(data.simpleLanguage);
+        if (data.customLanguage) setCustomLanguage(data.customLanguage);
+      }
+    } catch (error) {
+      console.error('Error loading saved language data:', error);
+    }
+  }, []);
+
+  const handleNext = () => {
+    // Save current form data to localStorage
+    try {
+      const existingData = JSON.parse(localStorage.getItem('formData') || '{}');
+      const updatedData = {
+        ...existingData,
+        language: selectedLanguage,
+        customLanguage: selectedLanguage === 'custom' ? customLanguage : '',
+        simpleLanguage: simpleLanguage
+      };
+      localStorage.setItem('formData', JSON.stringify(updatedData));
+      onNext();
+    } catch (error) {
+      console.error('Error saving language data:', error);
+      onNext(); // Continue anyway
+    }
+  };
 
   const handleConfirmCustomLanguage = () => {
     if (customLanguage.trim()) {
       const newLanguage = { value: customLanguage.trim(), label: customLanguage.trim() };
-      setAvailableLanguages(prev => [...prev.filter(lang => lang.value !== 'Andere Sprache'), newLanguage, { value: 'Andere Sprache', label: 'Andere Sprache' }]);
+      setAvailableLanguages(prev => [...prev.filter(lang => lang.value !== 'custom'), newLanguage, { value: 'custom', label: 'Andere Sprache' }]);
       setSelectedLanguage(customLanguage.trim());
       setCustomLanguage('');
     }
@@ -64,7 +86,7 @@ export default function LanguagePage({ onBack, onNext }) {
             </select>
           </div>
           
-          {selectedLanguage === 'Andere Sprache' && (
+          {selectedLanguage === 'custom' && (
             <div style={{ marginBottom: '30px', display: 'flex', gap: '10px', alignItems: 'center' }}>
               <input
                 type="text"
@@ -142,8 +164,47 @@ export default function LanguagePage({ onBack, onNext }) {
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '95%', marginBottom: '20px' }}>
-        <button onClick={onBack}>zurück</button>
-        <button style={{ border: '2px solid', borderImage: 'var(--mudiko-gradient) 1' }} onClick={onNext}>weiter</button>
+        <button 
+          onClick={onBack}
+          style={{
+            backgroundColor: 'var(--button-color)',
+            color: 'var(--font-color)',
+            border: '2px solid #666666',
+            padding: '12px 24px',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontFamily: "'Nunito', sans-serif",
+            fontSize: '16px',
+            fontWeight: '600',
+            boxShadow: 'var(--shadow)',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
+          onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+        >
+          ← Zurück
+        </button>
+        <button 
+          style={{ 
+            backgroundColor: 'var(--button-color)',
+            border: '2px solid', 
+            borderImage: 'var(--mudiko-gradient) 1',
+            color: 'var(--font-color)',
+            padding: '12px 24px',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontFamily: "'Nunito', sans-serif",
+            fontSize: '16px',
+            fontWeight: '600',
+            boxShadow: 'var(--shadow)',
+            transition: 'all 0.3s ease'
+          }} 
+          onClick={handleNext}
+          onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
+          onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+        >
+          Weiter →
+        </button>
       </div>
     </div>
   )

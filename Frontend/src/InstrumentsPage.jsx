@@ -1,8 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function InstrumentsPage({ onBack, onNext }) {
   const [referenceInstrument, setReferenceInstrument] = useState('');
   const [userInstrument, setUserInstrument] = useState('');
+
+  // Load saved data on component mount
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem('formData');
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        if (data.referenceInstrument) setReferenceInstrument(data.referenceInstrument);
+        if (data.userInstrument) setUserInstrument(data.userInstrument);
+      }
+    } catch (error) {
+      console.error('Error loading saved instrument data:', error);
+    }
+  }, []);
+
+  const handleNext = () => {
+    // Save current form data to localStorage
+    try {
+      const existingData = JSON.parse(localStorage.getItem('formData') || '{}');
+      const updatedData = {
+        ...existingData,
+        referenceInstrument: referenceInstrument.trim() || 'keine Angabe',
+        userInstrument: userInstrument.trim() || 'keine Angabe'
+      };
+      localStorage.setItem('formData', JSON.stringify(updatedData));
+      onNext();
+    } catch (error) {
+      console.error('Error saving instrument data:', error);
+      onNext(); // Continue anyway
+    }
+  };
   return (
     <div style={{ minHeight: '100vh', width: '100%', backgroundColor: 'var(--bg-color)', backgroundImage: 'url(/src/assets/rainbow-line.svg)', backgroundPosition: 'top', backgroundRepeat: 'no-repeat', backgroundSize: 'contain', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -63,8 +94,47 @@ export default function InstrumentsPage({ onBack, onNext }) {
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '95%', marginBottom: '20px' }}>
-        <button onClick={onBack}>zurück</button>
-        <button style={{ border: '2px solid', borderImage: 'var(--mudiko-gradient) 1' }} onClick={onNext}>weiter</button>
+        <button 
+          onClick={onBack}
+          style={{
+            backgroundColor: 'var(--button-color)',
+            color: 'var(--font-color)',
+            border: '2px solid #666666',
+            padding: '12px 24px',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontFamily: "'Nunito', sans-serif",
+            fontSize: '16px',
+            fontWeight: '600',
+            boxShadow: 'var(--shadow)',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
+          onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+        >
+          ← Zurück
+        </button>
+        <button 
+          style={{ 
+            backgroundColor: 'var(--button-color)',
+            border: '2px solid', 
+            borderImage: 'var(--mudiko-gradient) 1',
+            color: 'var(--font-color)',
+            padding: '12px 24px',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontFamily: "'Nunito', sans-serif",
+            fontSize: '16px',
+            fontWeight: '600',
+            boxShadow: 'var(--shadow)',
+            transition: 'all 0.3s ease'
+          }} 
+          onClick={handleNext}
+          onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
+          onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+        >
+          Weiter →
+        </button>
       </div>
     </div>
   )

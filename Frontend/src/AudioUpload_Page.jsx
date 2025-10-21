@@ -1,9 +1,53 @@
-// Minimal blank canvas App
+// Audio Upload Page with Backend Integration
 import { useState } from 'react'
 
 export default function AudioUpload_Page({ onNext }) {
-  const [refFile, setRefFile] = useState('');
-  const [songFile, setSongFile] = useState('');
+  const [refFile, setRefFile] = useState(null);
+  const [songFile, setSongFile] = useState(null);
+  const [refFileName, setRefFileName] = useState('');
+  const [songFileName, setSongFileName] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState(null);
+
+  const handleUpload = async () => {
+    if (!refFile || !songFile) {
+      setUploadStatus({ type: 'error', message: 'Bitte wählen Sie beide Audiodateien aus' });
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadStatus(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('referenz', refFile);
+      formData.append('schueler', songFile);
+
+      const response = await fetch('http://localhost:5000/api/upload-audio', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setUploadStatus({ type: 'success', message: 'Dateien erfolgreich hochgeladen!' });
+        // Store upload data for next pages
+        localStorage.setItem('uploadData', JSON.stringify(result));
+        // Wait a moment to show success message, then proceed
+        setTimeout(() => {
+          onNext();
+        }, 1500);
+      } else {
+        setUploadStatus({ type: 'error', message: result.error || 'Fehler beim Hochladen' });
+      }
+    } catch (error) {
+      setUploadStatus({ type: 'error', message: 'Verbindungsfehler zum Server' });
+      console.error('Upload error:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
   return (
     <div style={{ minHeight: '100vh', width: '100%', backgroundColor: 'var(--bg-color)', backgroundImage: 'url(/src/assets/rainbow-line.svg)', backgroundPosition: 'top', backgroundRepeat: 'no-repeat', backgroundSize: 'contain', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -21,16 +65,19 @@ export default function AudioUpload_Page({ onNext }) {
                 if (file && !['audio/mpeg', 'audio/wav', 'video/mp4', 'audio/mp4'].includes(file.type)) {
                   alert('Nicht unterstützter Dateityp. Bitte wählen Sie MP3, WAV oder MP4.');
                   e.target.value = '';
-                  setRefFile('');
+                  setRefFile(null);
+                  setRefFileName('');
                   return;
                 }
-                setRefFile(file?.name || '');
+                setRefFile(file);
+                setRefFileName(file?.name || '');
+                setUploadStatus(null); // Clear any previous status
               }} />
             </div>
             <div style={{ marginLeft: '20px', flex: 1 }}>
               <p style={{ color: 'var(--font-color)', margin: '0 0 10px 0' }}>Lade die Musik-Datei deiner Lehrkraft hoch!</p>
               <p style={{ fontSize: '14px', color: 'var(--font-color)', opacity: 0.7, margin: '0 0 10px 0' }}>Tippe auf das "+" und suche in deinen Dateien nach der Musik deiner Lehrkraft. Unterstützte Formate sind: MP3, WAV und MP4</p>
-              {refFile && <p style={{ color: 'var(--font-color)', fontSize: '14px', margin: '0' }}>{refFile}</p>}
+              {refFileName && <p style={{ color: 'var(--font-color)', fontSize: '14px', margin: '0' }}>{refFileName}</p>}
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-start' }}>
@@ -42,22 +89,138 @@ export default function AudioUpload_Page({ onNext }) {
                 if (file && !['audio/mpeg', 'audio/wav', 'video/mp4', 'audio/mp4'].includes(file.type)) {
                   alert('Nicht unterstützter Dateityp. Bitte wählen Sie MP3, WAV oder MP4.');
                   e.target.value = '';
-                  setSongFile('');
+                  setSongFile(null);
+                  setSongFileName('');
                   return;
                 }
-                setSongFile(file?.name || '');
+                setSongFile(file);
+                setSongFileName(file?.name || '');
+                setUploadStatus(null); // Clear any previous status
               }} />
             </div>
             <div style={{ marginLeft: '20px', flex: 1 }}>
               <p style={{ color: 'var(--font-color)', margin: '0 0 10px 0' }}>Lade deine Musik hoch</p>
               <p style={{ fontSize: '14px', color: 'var(--font-color)', opacity: 0.7, margin: '0 0 10px 0' }}>Tippe auf das "+" und suche in deinen Dateien nach deiner Musik. Unterstützte Formate sind: MP3, WAV und MP4</p>
-              {songFile && <p style={{ color: 'var(--font-color)', fontSize: '14px', margin: '0' }}>{songFile}</p>}
+              {songFileName && <p style={{ color: 'var(--font-color)', fontSize: '14px', margin: '0' }}>{songFileName}</p>}
             </div>
           </div>
         </div>
+        
+        {/* Status Message - Redesigned to match app style */}
+        {uploadStatus && (
+          <div style={{ 
+            backgroundColor: 'var(--card-color)',
+            borderRadius: '20px', 
+            padding: '20px', 
+            margin: '10px 0', 
+            width: '90%',
+            border: uploadStatus.type === 'error' ? '3px solid #ff6b6b' : '3px solid transparent',
+            borderImage: uploadStatus.type === 'success' ? 'var(--mudiko-gradient) 1' : 'none',
+            boxShadow: 'var(--shadow)',
+            animation: 'scaleIn 0.4s ease-out',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Success gradient overlay */}
+            {uploadStatus.type === 'success' && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'var(--mudiko-gradient)',
+                opacity: 0.1,
+                pointerEvents: 'none'
+              }} />
+            )}
+            
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+              {/* Icon */}
+              <div style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '50%',
+                backgroundColor: uploadStatus.type === 'error' ? '#ff6b6b' : 'var(--mudiko-cyan)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: '15px',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                color: 'white'
+              }}>
+                {uploadStatus.type === 'error' ? '✕' : '✓'}
+              </div>
+              
+              {/* Message */}
+              <p style={{ 
+                color: 'var(--font-color)', 
+                margin: '0', 
+                textAlign: 'center',
+                fontWeight: '600',
+                fontSize: '16px',
+                fontFamily: "'Nunito', sans-serif"
+              }}>
+                {uploadStatus.message}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
+      
       <div style={{ display: 'flex', justifyContent: 'flex-end', width: '95%', marginBottom: '20px' }}>
-        <button style={{ border: '2px solid', borderImage: 'var(--mudiko-gradient) 1' }} onClick={onNext}>Musik hochladen</button>
+        <button 
+          style={{ 
+            background: isUploading ? 'var(--button-color)' : 'var(--button-color)',
+            border: '2px solid',
+            borderImage: isUploading ? 'none' : 'var(--mudiko-gradient) 1',
+            borderColor: isUploading ? '#999999' : 'transparent',
+            color: isUploading ? '#aaaaaa' : 'var(--font-color)',
+            padding: '12px 24px',
+            borderRadius: '10px',
+            cursor: isUploading ? 'not-allowed' : 'pointer',
+            fontFamily: "'Nunito', sans-serif",
+            fontSize: '16px',
+            fontWeight: '600',
+            boxShadow: isUploading ? 'none' : 'var(--shadow)',
+            transition: 'all 0.3s ease',
+            opacity: isUploading ? 0.6 : 1,
+            transform: isUploading ? 'scale(0.98)' : 'scale(1)',
+            position: 'relative',
+            overflow: 'hidden'
+          }} 
+          onClick={handleUpload}
+          disabled={isUploading}
+          onMouseEnter={(e) => {
+            if (!isUploading) {
+              e.target.style.transform = 'scale(1.02)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isUploading) {
+              e.target.style.transform = 'scale(1)';
+            }
+          }}
+        >
+          {/* Loading animation overlay */}
+          {isUploading && (
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'var(--mudiko-gradient)',
+              opacity: 0.3,
+              animation: 'pulse 1.5s infinite'
+            }} />
+          )}
+          
+          <span style={{ position: 'relative', zIndex: 1 }}>
+            {isUploading ? '🎵 Hochladen...' : '🎵 Musik hochladen'}
+          </span>
+        </button>
       </div>
     </div>
   )
