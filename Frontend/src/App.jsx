@@ -250,18 +250,20 @@ export default function App() {
       <button 
         style={{
           background: 'var(--button-color)',
-          border: '2px solid',
+          border: '3px solid',
           borderImage: 'var(--mudiko-gradient) 1',
           color: 'var(--font-color)',
-          padding: '10px 20px',
-          borderRadius: '10px',
+          padding: '15px 30px',
+          borderRadius: '0px',
           boxShadow: 'var(--shadow)',
           fontFamily: "'Nunito', sans-serif",
+          fontSize: 'var(--button-font-size)',
           cursor: 'pointer',
           position: 'relative',
           zIndex: 1,
           animation: 'pulse 2s infinite 0.8s',
-          transition: 'transform 0.2s ease'
+          transition: 'all 0.3s ease',
+          letterSpacing: '1px'
         }}
         onClick={() => setPage('AudioUpload_Page')}
         onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}

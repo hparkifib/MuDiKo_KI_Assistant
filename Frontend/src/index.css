@@ -18,6 +18,9 @@ html, body, #root {
   --mudiko-flieder: #E3DCF5;
   --mudiko-gradient: linear-gradient(to right, var(--mudiko-pink) 0%, var(--mudiko-gelb) 34%, var(--mudiko-cyan) 67%, var(--mudiko-flieder) 100%);
   --title-font-size: 1.3rem;
+  --navigation-spacing: 10px;
+  --button-font-size: 16px;
+  --button-font-weight: 600;
 }
 
 /* Button styles */
@@ -29,6 +32,8 @@ button {
   border-radius: 0px;
   box-shadow: var(--shadow);
   font-family: 'Nunito', sans-serif;
+  font-size: var(--button-font-size);
+  font-weight: var(--button-font-weight);
   cursor: pointer;
 }
 

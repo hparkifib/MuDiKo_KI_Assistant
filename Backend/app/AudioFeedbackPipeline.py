@@ -657,11 +657,11 @@ class AudioFeedbackPipeline:
         language,
         referenz_instrument,
         schueler_instrument,
-        topics,
+        personal_message,
         use_simple_language=False,
     ):
         """Erstellt den System-Prompt für kontextuelles Feedback."""
-        topics_section = self._build_topics_section(topics)
+        personal_message_section = self._build_personal_message_section(personal_message)
 
         simple_language_note = ""
         if use_simple_language:
@@ -678,6 +678,7 @@ class AudioFeedbackPipeline:
             "Formuliere die Ergebnisse so, dass sie für einen Schüler der Sekundarstufe 1 (Alter: 12-16) verständlich sind. "
             "Das bedeutet der Fokus liegt auf der Musik und nicht auf den technischen Begriffen oder genauen Messwerten.\n"
             f"{simple_language_note} \n"
+            f"{personal_message_section}"
             "Anweisungen:\n"
             "Sollte in den Daten eine Unterteilung in Segmente erfolgen, dann gib sowohl Feedback zu einzelnen Abschnitten, als auch zur Gesamtleistung.\n"
             "Halte es kurz: Maximal 1-3 Sätze sollen zu jedem Segment gegeben werden.\n"
@@ -698,13 +699,12 @@ class AudioFeedbackPipeline:
             "Biete auch weitere Hilfe und die Möglichkeit zu Rückfragen an.\n\n"
         )
 
-    def _build_topics_section(self, topics):
-        """Erstellt den Abschnitt für ausgewählte Themenschwerpunkte."""
-        if topics:
-            topics_str = ", ".join(topics)
-            return f"Schwerpunkt im Feedback: {topics_str}"
+    def _build_personal_message_section(self, personal_message):
+        """Erstellt den Abschnitt für persönliche Nachrichten/Hinweise."""
+        if personal_message and personal_message.strip():
+            return f"Zusätzliche Hinweise: {personal_message.strip()}\n"
         else:
-            return "Allgemeine Analyse aller musikalischen Aspekte"
+            return ""
 
     def generate_feedback_prompt(
         self,
@@ -712,7 +712,7 @@ class AudioFeedbackPipeline:
         language,
         referenz_instrument,
         schueler_instrument,
-        topics,
+        personal_message,
         prompt_type="contextual",
         use_simple_language=False,  # <-- NEU: Parameter ergänzt
     ):
@@ -722,7 +722,7 @@ class AudioFeedbackPipeline:
             language,
             referenz_instrument,
             schueler_instrument,
-            topics,
+            personal_message,
             use_simple_language,  # <-- NEU
         )
 
@@ -743,7 +743,7 @@ class AudioFeedbackPipeline:
         language,
         referenz_instrument,
         schueler_instrument,
-        topics,
+        personal_message,
         prompt_type="contextual",
         use_simple_language=False,  # <-- NEU: Parameter ergänzt
     ):
@@ -757,7 +757,7 @@ class AudioFeedbackPipeline:
             language,
             referenz_instrument,
             schueler_instrument,
-            topics,
+            personal_message,
             prompt_type,
             use_simple_language,  # <-- NEU
         )

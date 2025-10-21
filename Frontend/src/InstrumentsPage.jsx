@@ -93,6 +93,10 @@ export default function InstrumentsPage({ onBack, onNext }) {
           </div>
         </div>
       </div>
+      
+      {/* Spacing zwischen Content und Navigation */}
+      <div style={{ height: 'var(--navigation-spacing)' }}></div>
+      
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '95%', marginBottom: '20px' }}>
         <button 
           onClick={onBack}
@@ -104,8 +108,8 @@ export default function InstrumentsPage({ onBack, onNext }) {
             borderRadius: '10px',
             cursor: 'pointer',
             fontFamily: "'Nunito', sans-serif",
-            fontSize: '16px',
-            fontWeight: '600',
+            fontSize: 'var(--button-font-size)',
+            fontWeight: 'var(--button-font-weight)',
             boxShadow: 'var(--shadow)',
             transition: 'all 0.3s ease'
           }}
@@ -117,15 +121,14 @@ export default function InstrumentsPage({ onBack, onNext }) {
         <button 
           style={{ 
             backgroundColor: 'var(--button-color)',
-            border: '2px solid', 
-            borderImage: 'var(--mudiko-gradient) 1',
+            border: '2px solid #666666', 
             color: 'var(--font-color)',
             padding: '12px 24px',
             borderRadius: '10px',
             cursor: 'pointer',
             fontFamily: "'Nunito', sans-serif",
-            fontSize: '16px',
-            fontWeight: '600',
+            fontSize: 'var(--button-font-size)',
+            fontWeight: 'var(--button-font-weight)',
             boxShadow: 'var(--shadow)',
             transition: 'all 0.3s ease'
           }} 

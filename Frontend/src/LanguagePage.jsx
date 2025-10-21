@@ -108,14 +108,28 @@ export default function LanguagePage({ onBack, onNext }) {
                 onClick={handleConfirmCustomLanguage}
                 disabled={!customLanguage.trim()}
                 style={{
-                  padding: '10px 15px',
+                  padding: '12px 20px',
                   backgroundColor: 'var(--button-color)',
                   color: 'var(--font-color)',
-                  border: 'none',
-                  borderRadius: '5px',
+                  border: '2px solid #666666',
+                  borderRadius: '10px',
                   fontFamily: "'Nunito', sans-serif",
+                  fontSize: 'var(--button-font-size)',
+                  fontWeight: 'var(--button-font-weight)',
                   cursor: customLanguage.trim() ? 'pointer' : 'not-allowed',
-                  opacity: customLanguage.trim() ? 1 : 0.5
+                  opacity: customLanguage.trim() ? 1 : 0.5,
+                  boxShadow: customLanguage.trim() ? 'var(--shadow)' : 'none',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (customLanguage.trim()) {
+                    e.target.style.transform = 'scale(1.02)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (customLanguage.trim()) {
+                    e.target.style.transform = 'scale(1)';
+                  }
                 }}
               >
                 bestätigen
@@ -163,6 +177,10 @@ export default function LanguagePage({ onBack, onNext }) {
           </p>
         </div>
       </div>
+      
+      {/* Spacing zwischen Content und Navigation */}
+      <div style={{ height: 'var(--navigation-spacing)' }}></div>
+      
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '95%', marginBottom: '20px' }}>
         <button 
           onClick={onBack}
@@ -174,8 +192,8 @@ export default function LanguagePage({ onBack, onNext }) {
             borderRadius: '10px',
             cursor: 'pointer',
             fontFamily: "'Nunito', sans-serif",
-            fontSize: '16px',
-            fontWeight: '600',
+            fontSize: 'var(--button-font-size)',
+            fontWeight: 'var(--button-font-weight)',
             boxShadow: 'var(--shadow)',
             transition: 'all 0.3s ease'
           }}
@@ -187,15 +205,14 @@ export default function LanguagePage({ onBack, onNext }) {
         <button 
           style={{ 
             backgroundColor: 'var(--button-color)',
-            border: '2px solid', 
-            borderImage: 'var(--mudiko-gradient) 1',
+            border: '2px solid #666666', 
             color: 'var(--font-color)',
             padding: '12px 24px',
             borderRadius: '10px',
             cursor: 'pointer',
             fontFamily: "'Nunito', sans-serif",
-            fontSize: '16px',
-            fontWeight: '600',
+            fontSize: 'var(--button-font-size)',
+            fontWeight: 'var(--button-font-weight)',
             boxShadow: 'var(--shadow)',
             transition: 'all 0.3s ease'
           }} 

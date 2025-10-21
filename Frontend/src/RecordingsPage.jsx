@@ -47,7 +47,7 @@ export default function RecordingsPage({ onBack, onNext }) {
           ) : error ? (
             <div style={{ 
               backgroundColor: 'rgba(255, 107, 107, 0.1)',
-              borderRadius: '10px', 
+              borderRadius: '0px', 
               padding: '20px',
               border: '2px solid #ff6b6b',
               textAlign: 'center'
@@ -57,35 +57,32 @@ export default function RecordingsPage({ onBack, onNext }) {
               </p>
             </div>
           ) : uploadData ? (
-            <>
-              <p style={{ color: 'var(--font-color)', margin: '0 0 25px 0', fontSize: '16px', textAlign: 'center' }}>
-                Hier sind deine hochgeladenen Aufnahmen. Du kannst sie anhören, bevor wir zum nächsten Schritt gehen.
-              </p>
-              
+            <>            
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {/* Reference Audio */}
                 <div style={{ 
                   backgroundColor: 'rgba(135, 189, 207, 0.1)',
                   borderRadius: '15px',
-                  padding: '20px',
+                  padding: '15px',
                   border: '2px solid var(--mudiko-cyan)'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                    <div style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      backgroundColor: 'var(--mudiko-cyan)',
-                      marginRight: '10px'
-                    }} />
-                    <h3 style={{ color: 'var(--font-color)', margin: '0', fontSize: '18px', fontWeight: '600' }}>
-                      Referenz-Aufnahme
-                    </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: 'var(--mudiko-cyan)',
+                        marginRight: '10px'
+                      }} />
+                      <h3 style={{ color: 'var(--font-color)', margin: '0', fontSize: '18px', fontWeight: '600' }}>
+                        Referenz-Aufnahme
+                      </h3>
+                    </div>
+                    <p style={{ color: 'var(--font-color)', margin: '0', fontSize: '14px', opacity: 0.8 }}>
+                      🎵 {uploadData.original_filenames?.referenz || 'Unbekannte Datei'}
+                    </p>
                   </div>
-                  
-                  <p style={{ color: 'var(--font-color)', margin: '0 0 15px 0', fontSize: '14px', opacity: 0.8 }}>
-                    📁 {uploadData.original_filenames?.referenz || 'Unbekannte Datei'}
-                  </p>
                   
                   {uploadData.file_map?.referenz ? (
                     <audio 
@@ -115,25 +112,26 @@ export default function RecordingsPage({ onBack, onNext }) {
                 <div style={{ 
                   backgroundColor: 'rgba(255, 158, 161, 0.1)',
                   borderRadius: '15px',
-                  padding: '20px',
+                  padding: '15px',
                   border: '2px solid var(--mudiko-pink)'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                    <div style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      backgroundColor: 'var(--mudiko-pink)',
-                      marginRight: '10px'
-                    }} />
-                    <h3 style={{ color: 'var(--font-color)', margin: '0', fontSize: '18px', fontWeight: '600' }}>
-                      Deine Aufnahme
-                    </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: 'var(--mudiko-pink)',
+                        marginRight: '10px'
+                      }} />
+                      <h3 style={{ color: 'var(--font-color)', margin: '0', fontSize: '18px', fontWeight: '600' }}>
+                        Deine Aufnahme
+                      </h3>
+                    </div>
+                    <p style={{ color: 'var(--font-color)', margin: '0', fontSize: '14px', opacity: 0.8 }}>
+                      🎵 {uploadData.original_filenames?.schueler || 'Unbekannte Datei'}
+                    </p>
                   </div>
-                  
-                  <p style={{ color: 'var(--font-color)', margin: '0 0 15px 0', fontSize: '14px', opacity: 0.8 }}>
-                    📁 {uploadData.original_filenames?.schueler || 'Unbekannte Datei'}
-                  </p>
                   
                   {uploadData.file_map?.schueler ? (
                     <audio 
@@ -169,6 +167,10 @@ export default function RecordingsPage({ onBack, onNext }) {
           )}
         </div>
       </div>
+      
+      {/* Spacing zwischen Content und Navigation */}
+      <div style={{ height: 'var(--navigation-spacing)' }}></div>
+      
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '95%', marginBottom: '20px' }}>
         <button 
           onClick={onBack}
@@ -180,8 +182,8 @@ export default function RecordingsPage({ onBack, onNext }) {
             borderRadius: '10px',
             cursor: 'pointer',
             fontFamily: "'Nunito', sans-serif",
-            fontSize: '16px',
-            fontWeight: '600',
+            fontSize: 'var(--button-font-size)',
+            fontWeight: 'var(--button-font-weight)',
             boxShadow: 'var(--shadow)',
             transition: 'all 0.3s ease'
           }}
@@ -194,15 +196,14 @@ export default function RecordingsPage({ onBack, onNext }) {
         <button 
           style={{ 
             backgroundColor: 'var(--button-color)',
-            border: '2px solid', 
-            borderImage: 'var(--mudiko-gradient) 1',
+            border: '2px solid #666666', 
             color: 'var(--font-color)',
             padding: '12px 24px',
             borderRadius: '10px',
             cursor: 'pointer',
             fontFamily: "'Nunito', sans-serif",
-            fontSize: '16px',
-            fontWeight: '600',
+            fontSize: 'var(--button-font-size)',
+            fontWeight: 'var(--button-font-weight)',
             boxShadow: 'var(--shadow)',
             transition: 'all 0.3s ease'
           }} 

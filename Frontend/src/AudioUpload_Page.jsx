@@ -110,11 +110,11 @@ export default function AudioUpload_Page({ onNext }) {
         {uploadStatus && (
           <div style={{ 
             backgroundColor: 'var(--card-color)',
-            borderRadius: '20px', 
-            padding: '20px', 
+            borderRadius: '15px', 
+            padding: '10px 16px', 
             margin: '10px 0', 
             width: '90%',
-            border: uploadStatus.type === 'error' ? '3px solid #ff6b6b' : '3px solid transparent',
+            border: uploadStatus.type === 'error' ? '2px solid #ff6b6b' : '2px solid transparent',
             borderImage: uploadStatus.type === 'success' ? 'var(--mudiko-gradient) 1' : 'none',
             boxShadow: 'var(--shadow)',
             animation: 'scaleIn 0.4s ease-out',
@@ -138,15 +138,15 @@ export default function AudioUpload_Page({ onNext }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
               {/* Icon */}
               <div style={{
-                width: '30px',
-                height: '30px',
+                width: '24px',
+                height: '24px',
                 borderRadius: '50%',
                 backgroundColor: uploadStatus.type === 'error' ? '#ff6b6b' : 'var(--mudiko-cyan)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginRight: '15px',
-                fontSize: '18px',
+                marginRight: '12px',
+                fontSize: '14px',
                 fontWeight: 'bold',
                 color: 'white'
               }}>
@@ -158,8 +158,8 @@ export default function AudioUpload_Page({ onNext }) {
                 color: 'var(--font-color)', 
                 margin: '0', 
                 textAlign: 'center',
-                fontWeight: '600',
-                fontSize: '16px',
+                fontWeight: 'var(--button-font-weight)',
+                fontSize: 'var(--button-font-size)',
                 fontFamily: "'Nunito', sans-serif"
               }}>
                 {uploadStatus.message}
@@ -168,6 +168,9 @@ export default function AudioUpload_Page({ onNext }) {
           </div>
         )}
       </div>
+      
+      {/* Spacing zwischen Content und Navigation */}
+      <div style={{ height: 'var(--navigation-spacing)' }}></div>
       
       <div style={{ display: 'flex', justifyContent: 'flex-end', width: '95%', marginBottom: '20px' }}>
         <button 
@@ -178,11 +181,11 @@ export default function AudioUpload_Page({ onNext }) {
             borderColor: isUploading ? '#999999' : 'transparent',
             color: isUploading ? '#aaaaaa' : 'var(--font-color)',
             padding: '12px 24px',
-            borderRadius: '10px',
+            borderRadius: '0px',
             cursor: isUploading ? 'not-allowed' : 'pointer',
             fontFamily: "'Nunito', sans-serif",
-            fontSize: '16px',
-            fontWeight: '600',
+            fontSize: 'var(--button-font-size)',
+            fontWeight: 'var(--button-font-weight)',
             boxShadow: isUploading ? 'none' : 'var(--shadow)',
             transition: 'all 0.3s ease',
             opacity: isUploading ? 0.6 : 1,
@@ -211,7 +214,7 @@ export default function AudioUpload_Page({ onNext }) {
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'var(--mudiko-gradient)',
+              background: 'var(--mudiko-blue)',
               opacity: 0.3,
               animation: 'pulse 1.5s infinite'
             }} />

@@ -154,7 +154,7 @@ def generate_feedback():
         customLanguage: Benutzerdefinierte Sprache (falls 'custom' gewählt)
         referenzInstrument: Instrument der Referenzaufnahme
         schuelerInstrument: Instrument der Schüleraufnahme
-        topics: Liste der Feedback-Schwerpunkte
+        personalMessage: Persönliche Nachricht/Anweisungen für das Feedback
         prompt_type: Art des Prompts (contextual oder data_only)
         use_simple_language: Boolean für einfache Sprache
     
@@ -167,7 +167,7 @@ def generate_feedback():
     custom_language = data.get("customLanguage", "")
     referenz_instrument = data.get("referenzInstrument", "").strip() or "keine Angabe"
     schueler_instrument = data.get("schuelerInstrument", "").strip() or "keine Angabe"
-    selected_topics = data.get("topics", [])
+    personal_message = data.get("personalMessage", "").strip()
     prompt_type = data.get("prompt_type", "contextual")
     use_simple_language = data.get("use_simple_language", False)
 
@@ -219,7 +219,7 @@ def generate_feedback():
         
         # Führe die komplette Audio-Analyse durch und generiere Feedback
         result = feedback_pipeline.analyze_and_generate_feedback(
-            ref_segments, sch_segments, selected_language, referenz_instrument, schueler_instrument, selected_topics, prompt_type, use_simple_language
+            ref_segments, sch_segments, selected_language, referenz_instrument, schueler_instrument, personal_message, prompt_type, use_simple_language
         )
         
         feedback_prompt = result['feedback_prompt']
