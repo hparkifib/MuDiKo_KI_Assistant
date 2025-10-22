@@ -2,7 +2,7 @@
 
 **Webbasierte Audio-Upload-Anwendung für die Musikpädagogik**
 
-Ein einfaches System zum Hochladen und Verwalten von Musikaufnahmen mit moderner Web-Oberfläche und Audio-Verarbeitung.
+Die Software ermöglicht Schülerinnen und Schüler die Erstellung von Prompts, um ein personalisertes Feedback zu ihrer Musik von einem LLM generieren zu lassen. 
 
 ---
 
@@ -19,7 +19,7 @@ docker-compose up -d
 ```
 **➜ Dann öffnen:** http://localhost
 
-### Option 2: Lokal entwickeln (Für Programmierer)
+### Option 2: Lokal weiterentwickeln (Für Programmierer)
 ```powershell
 # Backend starten (Terminal 1)
 cd Backend\app
@@ -49,15 +49,9 @@ npm run dev
 ### Grundfunktionen
 - **🎼 Audio-Dateien hochladen**: MP3, WAV und MP4 Dateien unterstützt
 - **📁 Datei-Verwaltung**: Hochgeladene Dateien sicher speichern
-- **🎨 Moderne Oberfläche**: Einfach zu bedienen auf Computer und Tablet
-- **🌐 Web-basiert**: Läuft im Browser - keine Installation nötig
+- **🌐 Web-basiert**: Läuft plattformunabhängig über Browser - keine Installation nötig
 - **📱 Responsive**: Funktioniert auf verschiedenen Bildschirmgrößen
-
-### Für Musikpädagogik gedacht
-- **👨‍🏫 Lehrkräfte**: Schüleraufnahmen einfach sammeln
-- **👨‍🎓 Schüler**: Eigene Aufnahmen unkompliziert hochladen  
-- **🏫 Schulen**: Zentrale Plattform für Audio-Material
-- **🎼 Instrumente**: Alle Instrumente - Klavier, Gitarre, Gesang, etc.
+- **🐳 Container-Ready**: Docker für einfache Bereitstellung
 
 ---
 
@@ -96,7 +90,7 @@ MuDiKo_KI_Assistant/
 ### Server (Backend)  
 - **Python**: Programmiersprache für den Server
 - **Flask**: Web-Framework für Python APIs
-- **Audio-Bibliotheken**: Für das Verarbeiten von Musikdateien
+- **Audio-Bibliotheken**: Librosa für das Verarbeiten von Musikdateien
 
 ### Installation und Betrieb
 - **Docker**: Automatische Installation aller Komponenten
@@ -117,62 +111,3 @@ MuDiKo_KI_Assistant/
 - **Python**: Version 3.11 oder neuer
 - **Node.js**: Version 18 oder neuer
 - **Git**: Für das Herunterladen des Codes
-
----
-
-## 🎓 Wie benutze ich es?
-
-### Schritt-für-Schritt
-1. **Anwendung öffnen**: http://localhost im Browser
-2. **Audio-Datei auswählen**: MP3, WAV oder MP4 von Computer auswählen
-3. **Hochladen**: Auf "Upload" klicken und warten
-4. **Bestätigung**: Erfolgsmeldung erscheint wenn fertig
-5. **Wiederholen**: Weitere Dateien hochladen nach Bedarf
-
-### Tipps für die Nutzung
-- **Datei-Größe**: Bis zu 50MB pro Datei möglich
-- **Dateiformate**: .mp3, .wav, .mp4 funktionieren am besten
-- **Internet**: Stabiles WLAN für größere Dateien empfohlen
-- **Browser**: Chrome, Firefox, Safari oder Edge verwenden
-
----
-
-## 📊 Aktueller Stand
-
-- ✅ **Web-Oberfläche**: Komplett fertig und getestet
-- ✅ **Audio-Upload**: Funktioniert mit allen gängigen Formaten
-- ✅ **Server-API**: Läuft stabil und sicher
-- ✅ **Docker-Setup**: Einfache Installation möglich
-- ✅ **Anleitungen**: Umfassende Dokumentation vorhanden
-- 🔄 **KI-Features**: Vorbereitung für zukünftige Erweiterungen
-
----
-
-## 🛠️ Hilfe bei Problemen
-
-### Schnelle Lösungen
-```powershell
-# Alles neustarten
-docker-compose restart
-
-# Status der Container prüfen  
-docker-compose ps
-
-# Fehlermeldungen anschauen
-docker-compose logs
-```
-
-### Häufige Probleme
-- **"Port bereits belegt"**: Anderen Browser-Tab schließen oder Computer neustarten
-- **"Docker-Fehler"**: Docker Desktop neustarten
-- **"Seite lädt nicht"**: 1-2 Minuten warten, Container brauchen Zeit zum Starten
-- **"Upload funktioniert nicht"**: Backend-Logs mit `docker-compose logs backend` prüfen
-
-### Wo finde ich mehr Hilfe?
-- [Windows-Anleitung](docs/WINDOWS_SETUP.md) für detaillierte Schritte
-- [Entwickler-Guide](docs/DEVELOPMENT.md) für technische Probleme
-- GitHub Issues für Fehler-Meldungen
-
----
-
-**🎵 Einfach Musik hochladen und verwalten!**
