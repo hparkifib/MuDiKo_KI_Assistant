@@ -1,0 +1,48 @@
+# MuDiKo KI Assistant - Git Ignore
+
+# Environment Variables
+.env
+.env.local
+.env.production
+
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Build Outputs
+Frontend/dist/
+Frontend/build/
+Backend/uploads/*
+!Backend/uploads/.gitkeep
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+*.out
+
+# Docker
+docker-compose.override.yml
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Testing
+coverage/
+.pytest_cache/
+.coverage
+
+# Temporary Files
+*.temp
+*.bak

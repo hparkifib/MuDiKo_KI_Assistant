@@ -41,7 +41,7 @@ export default function App() {
         minHeight: '100vh',
         width: '100%',
         backgroundColor: 'var(--bg-color)',
-        backgroundImage: 'url(/src/assets/rainbow-line.svg)',
+        backgroundImage: 'url(/Rainbow-Line.svg)',
         backgroundPosition: 'bottom',
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'contain',
@@ -56,7 +56,7 @@ export default function App() {
     >
       {/* Floating musical notes background */}
       <img 
-        src="/src/assets/noteY.svg" 
+        src="/noteY.svg" 
         alt="" 
         style={{
           position: 'absolute',
@@ -70,7 +70,7 @@ export default function App() {
         }}
       />
       <img 
-        src="/src/assets/noteC.svg" 
+        src="/noteC.svg" 
         alt="" 
         style={{
           position: 'absolute',
@@ -84,7 +84,7 @@ export default function App() {
         }}
       />
       <img 
-        src="/src/assets/notep.svg" 
+        src="/notep.svg" 
         alt="" 
         style={{
           position: 'absolute',
@@ -98,7 +98,7 @@ export default function App() {
         }}
       />
       <img 
-        src="/src/assets/NoteF.svg" 
+        src="/NoteF.svg" 
         alt="" 
         style={{
           position: 'absolute',
@@ -112,7 +112,7 @@ export default function App() {
         }}
       />
       <img 
-        src="/src/assets/noteY.svg" 
+        src="/noteY.svg" 
         alt="" 
         style={{
           position: 'absolute',
@@ -126,7 +126,7 @@ export default function App() {
         }}
       />
       <img 
-        src="/src/assets/noteC.svg" 
+        src="/noteC.svg" 
         alt="" 
         style={{
           position: 'absolute',
@@ -140,7 +140,7 @@ export default function App() {
         }}
       />
       <img 
-        src="/src/assets/notep.svg" 
+        src="/notep.svg" 
         alt="" 
         style={{
           position: 'absolute',
@@ -154,7 +154,7 @@ export default function App() {
         }}
       />
       <img 
-        src="/src/assets/NoteF.svg" 
+        src="/NoteF.svg" 
         alt="" 
         style={{
           position: 'absolute',
@@ -168,7 +168,7 @@ export default function App() {
         }}
       />
       <img 
-        src="/src/assets/noteY.svg" 
+        src="/noteY.svg" 
         alt="" 
         style={{
           position: 'absolute',
@@ -182,7 +182,7 @@ export default function App() {
         }}
       />
       <img 
-        src="/src/assets/noteC.svg" 
+        src="/noteC.svg" 
         alt="" 
         style={{
           position: 'absolute',
@@ -196,7 +196,7 @@ export default function App() {
         }}
       />
       <img 
-        src="/src/assets/notep.svg" 
+        src="/notep.svg" 
         alt="" 
         style={{
           position: 'absolute',
@@ -210,7 +210,7 @@ export default function App() {
         }}
       />
       <img 
-        src="/src/assets/NoteF.svg" 
+        src="/NoteF.svg" 
         alt="" 
         style={{
           position: 'absolute',
@@ -245,7 +245,7 @@ export default function App() {
         zIndex: 1,
         animation: 'scaleIn 0.6s ease-out 0.4s both'
       }}>
-        <img src="/src/assets/MuDiKo_Logo.svg" alt="MuDiKo Logo" style={{ width: '160px', height: '160px' }} />
+        <img src="/MuDiKo_Logo.svg" alt="MuDiKo Logo" style={{ width: '160px', height: '160px' }} />
       </div>
       <button 
         style={{

@@ -1,0 +1,55 @@
+# MuDiKo KI Assistant - Docker Compose Configuration
+# 
+# Dieses Setup startet:
+# - Backend: Flask API (Python) auf Port 5000 
+# - Frontend: React App (nginx) auf Port 80
+# - Automatisches Health Monitoring
+#
+# Start: docker-compose up -d
+# Stop:  docker-compose down
+# Logs:  docker-compose logs
+
+services:
+  # Backend Service - Flask API + Audio Processing
+  backend:
+    build: ./Backend
+    container_name: mudiko-backend
+    ports:
+      - "5000:5000"              # API verfügbar auf localhost:5000
+    volumes:
+      - ./Backend/uploads:/app/uploads  # Persistente Audio-Speicherung
+    environment:
+      - FLASK_ENV=production     # Produktions-Modus
+      - PYTHONUNBUFFERED=1       # Live-Logging
+    restart: unless-stopped      # Auto-Restart bei Fehlern
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s             # Alle 30 Sekunden prüfen
+      timeout: 10s              # 10 Sekunden Timeout
+      retries: 3                # 3 Versuche vor "unhealthy"
+    networks:
+      - mudiko-network
+
+  # Frontend Service - React App mit nginx
+  frontend:
+    build: ./Frontend
+    container_name: mudiko-frontend
+    ports:
+      - "80:80"                  # Web-Interface auf localhost:80
+    depends_on:
+      - backend                  # Startet erst nach Backend
+    restart: unless-stopped      # Auto-Restart bei Fehlern
+    networks:
+      - mudiko-network
+
+# Netzwerk für Container-Kommunikation
+networks:
+  mudiko-network:
+    driver: bridge
+    name: mudiko-network
+
+# Persistente Volumes
+volumes:
+  uploads:
+    driver: local
+    name: mudiko-uploads
