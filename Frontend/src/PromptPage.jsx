@@ -73,43 +73,108 @@ export default function PromptPage({ onBack }) {
   };
 
   const copyToClipboard = async () => {
+    const button = document.getElementById('copy-button');
+    const originalText = button.textContent;
+    
+    // Schritt 1: Moderne Clipboard API versuchen
     try {
-      await navigator.clipboard.writeText(generatedPrompt);
-      
-      // Visual feedback
-      const button = document.getElementById('copy-button');
-      const originalText = button.textContent;
-      button.textContent = '✓ Kopiert!';
-      button.style.backgroundColor = 'var(--mudiko-pink)';
-      button.style.border = '3px solid var(--mudiko-pink)';
-      button.style.borderImage = 'none';
-      
-      setTimeout(() => {
-        button.textContent = originalText;
-        button.style.backgroundColor = 'var(--button-color)';
-        button.style.border = '3px solid';
-        button.style.borderImage = 'var(--mudiko-gradient) 1';
-      }, 2000);
-      
+      // Prüfen ob Clipboard API verfügbar ist
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(generatedPrompt);
+        
+        // Erfolg - visuelles Feedback
+        button.textContent = '✓ Kopiert!';
+        button.style.backgroundColor = 'var(--mudiko-pink)';
+        button.style.border = '3px solid var(--mudiko-pink)';
+        button.style.borderImage = 'none';
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.style.backgroundColor = 'var(--button-color)';
+          button.style.border = '3px solid';
+          button.style.borderImage = 'var(--mudiko-gradient) 1';
+        }, 2000);
+        
+        return; // Erfolgreich beendet
+      }
     } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
-      // Fallback for older browsers
+      console.log('Clipboard API fehlgeschlagen, versuche Fallback:', error);
+    }
+    
+    // Schritt 2: execCommand Fallback (funktioniert auf mehr Geräten)
+    try {
       const textArea = document.createElement('textarea');
       textArea.value = generatedPrompt;
+      
+      // Wichtig für mobile Geräte: Textarea sichtbar aber außerhalb des Viewports
+      textArea.style.position = 'fixed';
+      textArea.style.top = '0';
+      textArea.style.left = '0';
+      textArea.style.width = '2em';
+      textArea.style.height = '2em';
+      textArea.style.padding = '0';
+      textArea.style.border = 'none';
+      textArea.style.outline = 'none';
+      textArea.style.boxShadow = 'none';
+      textArea.style.background = 'transparent';
+      textArea.style.fontSize = '16px'; // Wichtig für iOS: verhindert Zoom
+      
       document.body.appendChild(textArea);
+      
+      // Fokussieren und auswählen
+      textArea.focus();
       textArea.select();
-      document.execCommand('copy');
+      textArea.setSelectionRange(0, textArea.value.length);
+      
+      // Kopieren
+      const successful = document.execCommand('copy');
       document.body.removeChild(textArea);
+      
+      if (successful) {
+        // Erfolg - visuelles Feedback
+        button.textContent = '✓ Kopiert!';
+        button.style.backgroundColor = 'var(--mudiko-pink)';
+        button.style.border = '3px solid var(--mudiko-pink)';
+        button.style.borderImage = 'none';
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.style.backgroundColor = 'var(--button-color)';
+          button.style.border = '3px solid';
+          button.style.borderImage = 'var(--mudiko-gradient) 1';
+        }, 2000);
+        
+        return; // Erfolgreich beendet
+      }
+    } catch (error) {
+      console.log('execCommand fehlgeschlagen:', error);
     }
+    
+    // Schritt 3: Wenn alles fehlschlägt - Benutzer informieren
+    button.textContent = '❌ Kopieren nicht möglich';
+    button.style.backgroundColor = '#ff6b6b';
+    button.style.border = '3px solid #ff6b6b';
+    button.style.borderImage = 'none';
+    
+    // Tipp für den Benutzer
+    setTimeout(() => {
+      alert('Kopieren automatisch nicht möglich.\n\nTipp: Drücke "Prompt anzeigen" und wähle den Text manuell aus.');
+      
+      button.textContent = originalText;
+      button.style.backgroundColor = 'var(--button-color)';
+      button.style.border = '3px solid';
+      button.style.borderImage = 'var(--mudiko-gradient) 1';
+    }, 1000);
   };
 
   const copyToClipboardFromModal = async () => {
+    const button = document.getElementById('modal-copy-button');
+    const originalText = button.textContent;
+    
     try {
       await navigator.clipboard.writeText(generatedPrompt);
       
       // Visual feedback for modal button
-      const button = document.getElementById('modal-copy-button');
-      const originalText = button.textContent;
       button.textContent = '✓ Kopiert!';
       button.style.backgroundColor = 'var(--mudiko-pink)';
       button.style.border = '3px solid var(--mudiko-pink)';
@@ -131,6 +196,18 @@ export default function PromptPage({ onBack }) {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
+      
+      button.textContent = '✓ Kopiert!';
+      button.style.backgroundColor = 'var(--mudiko-pink)';
+      button.style.border = '3px solid var(--mudiko-pink)';
+      button.style.borderImage = 'none';
+      
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.style.backgroundColor = 'var(--button-color)';
+        button.style.border = '3px solid';
+        button.style.borderImage = 'var(--mudiko-gradient) 1';
+      }, 2000);
     }
   };
 
@@ -141,13 +218,25 @@ export default function PromptPage({ onBack }) {
     onBack();
   };
   return (
-    <div style={{ minHeight: '100vh', width: '100%', backgroundColor: 'var(--bg-color)', backgroundImage: 'url(/Rainbow-Line.svg)', backgroundPosition: 'top', backgroundRepeat: 'no-repeat', backgroundSize: 'contain', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
-      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{ 
+      height: '100vh', /* Fallback für ältere Browser */
+      height: '100dvh', /* Dynamic Viewport Height - berücksichtigt Toolbar */
+      width: '100%', 
+      backgroundColor: 'var(--bg-color)', 
+      backgroundImage: 'url(/Rainbow-Line.svg)', 
+      backgroundPosition: 'top', 
+      backgroundRepeat: 'no-repeat', 
+      backgroundSize: 'contain', 
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center' 
+    }}>
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'flex-start', minHeight: '0', overflow: 'auto' }}>
         <div style={{ backgroundColor: 'var(--card-color)', borderRadius: '20px', padding: '20px', marginTop: '20px', width: '90%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h1 style={{ margin: '0', color: 'var(--font-color)', fontSize: 'var(--title-font-size)' }}>Feedback Prompt</h1>
           <img src="/MuDiKo_Logo.svg" alt="MuDiKo Logo" style={{ width: '60px', height: '60px' }} />
         </div>
-        <div style={{ backgroundColor: 'var(--card-color)', borderRadius: '20px', padding: '20px', width: '90%', marginTop: '10px' }}>
+        <div style={{ backgroundColor: 'var(--card-color)', borderRadius: '20px', padding: '20px', width: '90%', marginTop: '10px', marginBottom: '20px' }}>
           {isGenerating ? (
             <div style={{ textAlign: 'center', padding: '40px' }}>
               <div style={{ 
@@ -249,7 +338,7 @@ export default function PromptPage({ onBack }) {
                   onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
                   onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                 >
-                  📋 Prompt kopieren
+                  Prompt kopieren
                 </button>
               </div>
 
@@ -280,10 +369,8 @@ export default function PromptPage({ onBack }) {
         </div>
       </div>
       
-      {/* Spacing zwischen Content und Navigation */}
-      <div style={{ height: 'var(--navigation-spacing)' }}></div>
-      
-      <div style={{ display: 'flex', justifyContent: 'flex-start', width: '95%', marginBottom: '20px' }}>
+      {/* Navigation am unteren Ende der Seite */}
+      <div style={{ display: 'flex', justifyContent: 'flex-start', width: '95%', padding: '20px 0', flexShrink: 0 }}>
         <button 
           onClick={handleNewFeedback}
           style={{
@@ -348,7 +435,7 @@ export default function PromptPage({ onBack }) {
                 fontSize: '20px',
                 fontWeight: '600'
               }}>
-                📋 Feedback-Prompt
+                Feedback-Prompt
               </h3>
               <button
                 onClick={() => setShowPromptModal(false)}
@@ -429,7 +516,7 @@ export default function PromptPage({ onBack }) {
                 onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
                 onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
               >
-                📋 Kopieren
+                Kopieren
               </button>
               <button 
                 onClick={() => setShowPromptModal(false)}

@@ -3,6 +3,18 @@ html, body, #root {
   height: 100%;
   margin: 0;
   font-family: 'Nunito', sans-serif;
+  background-color: #222222; /* Verhindert weißen Hintergrund beim Scrollen */
+}
+
+/* Mobile safe area handling for notch and rounded corners */
+html {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Prevent overscroll bounce showing white background */
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Design variables */

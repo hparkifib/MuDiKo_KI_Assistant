@@ -38,11 +38,13 @@ export default function App() {
     <div
       id="canvas"
       style={{
-        minHeight: '100vh',
+        minHeight: '100vh', /* Fallback für ältere Browser */
+        minHeight: '100dvh', /* Dynamic Viewport Height - berücksichtigt Toolbar */
+        height: '100dvh', /* Feste Höhe für optimale Platznutzung */
         width: '100%',
         backgroundColor: 'var(--bg-color)',
         backgroundImage: 'url(/Rainbow-Line.svg)',
-        backgroundPosition: 'bottom',
+        backgroundPosition: 'bottom 20px center', /* 20px Abstand vom unteren Rand */
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'contain',
         display: 'flex',
@@ -88,7 +90,7 @@ export default function App() {
         alt="" 
         style={{
           position: 'absolute',
-          bottom: '15%',
+          bottom: '20%', /* Von 15% auf 20% erhöht */
           left: '4%',
           width: '45px',
           height: '45px',
@@ -116,7 +118,7 @@ export default function App() {
         alt="" 
         style={{
           position: 'absolute',
-          bottom: '8%',
+          bottom: '13%', /* Von 8% auf 13% erhöht */
           right: '3%',
           width: '42px',
           height: '42px',
@@ -158,7 +160,7 @@ export default function App() {
         alt="" 
         style={{
           position: 'absolute',
-          bottom: '20%',
+          bottom: '25%', /* Von 20% auf 25% erhöht */
           left: '15%',
           width: '48px',
           height: '48px',
@@ -200,7 +202,7 @@ export default function App() {
         alt="" 
         style={{
           position: 'absolute',
-          bottom: '35%',
+          bottom: '40%', /* Von 35% auf 40% erhöht */
           right: '18%',
           width: '38px',
           height: '38px',
@@ -228,7 +230,7 @@ export default function App() {
         textAlign: 'center', 
         color: 'var(--font-color)', 
         marginBottom: '20px', 
-        fontSize: 'var(--title-font-size)',
+        fontSize: '30px',
         position: 'relative',
         zIndex: 1,
         animation: 'slideUp 0.8s ease-out 0.2s both'

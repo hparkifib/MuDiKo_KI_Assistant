@@ -27,7 +27,21 @@ export default function RecordingsPage({ onBack, onNext }) {
     return `/api/audio/${filename}`;
   };
   return (
-    <div style={{ minHeight: '100vh', width: '100%', backgroundColor: 'var(--bg-color)', backgroundImage: 'url(/Rainbow-Line.svg)', backgroundPosition: 'top', backgroundRepeat: 'no-repeat', backgroundSize: 'contain', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ 
+      minHeight: '100vh', /* Fallback für ältere Browser */
+      minHeight: '100dvh', /* Dynamic Viewport Height - berücksichtigt Toolbar */
+      height: '100dvh', /* Feste Höhe für optimale Platznutzung */
+      width: '100%', 
+      backgroundColor: 'var(--bg-color)', 
+      backgroundImage: 'url(/Rainbow-Line.svg)', 
+      backgroundPosition: 'top', 
+      backgroundRepeat: 'no-repeat', 
+      backgroundSize: 'contain', 
+      display: 'flex', 
+      flexDirection: 'column', 
+      justifyContent: 'space-between', 
+      alignItems: 'center' 
+    }}>
       <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ backgroundColor: 'var(--card-color)', borderRadius: '20px', padding: '20px', marginTop: '20px', width: '90%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h1 style={{ margin: '0', color: 'var(--font-color)', fontSize: 'var(--title-font-size)' }}>Deine Aufnahmen</h1>
