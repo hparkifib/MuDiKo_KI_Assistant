@@ -41,7 +41,6 @@ cd Frontend && npm install && npm run dev
 ## 🎯 Funktionen
 
 - **🎼 Audio-Upload**: Unterstützung für MP3, WAV, MP4 Dateien
-- **🤖 KI-Analyse**: Intelligente Bewertung mit OpenAI Integration
 - **📊 Feedback-System**: Detaillierte Verbesserungsvorschläge
 - **🎨 Responsive UI**: Moderne, benutzerfreundliche Oberfläche
 - **🌐 Web-basiert**: Plattformunabhängig über Browser
