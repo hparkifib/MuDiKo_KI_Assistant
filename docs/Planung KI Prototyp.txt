@@ -1,0 +1,187 @@
+Ich würde gerne im bestehenden Projekt ein neues Feature prototypen. Mir wäre es wichtig, dass ich jederzeit zurück zu diesem Punkt kann und das Feature in einer Config einschalten und ausschalten kann. 
+
+Ich habe einen Plan erstellt, mit dem wir mein neues Feature schrittweise implementieren können. 
+
+Ich beschreibe dir jetzt wie das Feature aussehen soll und überreiche dir den Plan. Anschließend kommuniziere mit mir verständlich und schrittweise über deine Entwicklungsprozesse. 
+
+
+# Textuelle Beschreibung 
+
+Es soll eine neue Seite geben, die von #file:PersonalizationPage.jsx über einen Button "LLM Prototyp" erreichbar ist. Auf der neu erstellten Seite "LLMFeedbackPrototype" soll eine Applikation erstellt werden, mit der Schüler*innen sich von einer KI Feedback generieren lassen können. Der Prompt, der vom Backend zur Musik generiert wird soll hier genutzt werden, um in Segmente aufgeteiltes Feedback über eine LLM API zu generieren und in passenden Chats darzustellen und Nachfragen zu erlauben. 
+
+Beschreibung des UX: 
+Das Design der neuen Seite soll sich nahtlos an die anderen Seiten anschließen und die selben Farb- und Layout-Konzepte nutzen. 
+
+Unten, zentral ist ein Audio-Player für die Referenz-Audio-Datei, über den man die Musik anhören kann. Direkt dadrüber liegt eine Reihe von Buttons. Die Buttons sind über die Audio-Spur gelegt. Die Breite jedes Buttons ist abhängig von der Anzahl der errechneten Segmente im Prompt (Backend-Logik) der Referenz-Datei. Durch das klicken jedes Buttons öffnet man innerhalb einen Chat-Fenster-Containers die zum Segment zugehörigen LLM-Chats. Die Buttons sind farblich gekennzeichnet und darüber mit einem Emoji versehen. Die Farbe ist abhängig vom Feedback (grüner Button + lachender Emoji = gutes Feedback; orangener Button + neutraler Emoji = neutral teilweise gut und schlecht; roter Button + trauriger Emoji = kritisches Feedback). Das LLM soll diese Farben und Emojis auswählen je nach dem wie das Feedback aussieht. 
+
+Das LLM-Chatfenster liegt über dem Audio-Player und den Buttons+ Emojis.
+
+Das LLM-Chatfenster ist ein klassischer Content-Container (dunkelgrau, transparenter Hintergrund). Die Nachrichten vom Chatbot sind auf der linken Seite, darüber findet man den Namen (MuDiKo-KI-Assistent) Entlang der Nachricht des Chatbots soll eine vertikale Linie in Farbe des Feedbacks erfolgen (rot, orange, grün). Die Antwort der Schüler auf der rechten Seite, darüber der Name (Erstmal nur "Schüler"). Beim Schüler hätte ich gerne eine vertikale Linie entlang der Nachrichten in Mudiko-pink. Die Nachrichten sind in einem hellgrauen Container mit weißer Schrift und klassischem Schatten. Wie in einem klassischen Chatfenster hat der User die Möglichkeit mit dem Assistenten zu chatten. Das Chatfenster sollt einen eigenen Scroller an der Seite haben. 
+
+Ich brauche einen übergreifenden Prompt durch den die KI versteht, was sie machen muss und um ein über die ermittelten Segmente übergreifendes Feedback zu ermitteln: Overall-Prompt zur Generierung von Segment Prompts.
+
+
+
+
+# LLM Feedback Prototyp - Implementierungsplan
+
+## 1. Feature Configuration
+- [ ] Feature-Flag in einer zentralen Config-Datei erstellen
+- [ ] Toggle-Mechanismus für einfaches Ein-/Ausschalten
+- [ ] Fallback auf ursprüngliche Funktionalität wenn deaktiviert
+
+## 2. UI/UX Struktur
+
+### 2.1 PersonalizationPage Erweiterung
+- [ ] Button "LLM Prototyp" hinzufügen (nur sichtbar wenn Feature-Flag aktiv)
+- [ ] Navigation zur neuen LLMFeedbackPrototype Seite
+- [ ] Bestehende Funktionalität unverändert lassen
+
+### 2.2 Neue Seite: LLMFeedbackPrototype
+**Layout-Struktur (von oben nach unten):**
+1. Header mit Titel und MuDiKo Logo (konsistent mit anderen Seiten)
+2. Chat-Container (scrollbar, über Audio-Player positioniert)
+3. Segment-Buttons-Container (über Audio-Spur gelegt)
+4. Audio-Player (Referenz-Audio-Datei)
+5. Navigation (Zurück-Button)
+
+## 3. Backend-Integration
+
+### 3.1 Prompt-Analyse-Endpoint
+- [ ] Endpoint zur Analyse des generierten Prompts
+- [ ] Segmentierung der Audio-Datei basierend auf Prompt-Inhalt
+- [ ] Rückgabe: Anzahl Segmente, Zeitstempel, Segment-Beschreibungen
+
+### 3.2 LLM-Integration
+- [ ] Overall-Prompt für Segment-basiertes Feedback
+- [ ] Segment-spezifische Prompts basierend auf Musik-Analyse
+- [ ] Feedback-Bewertung (gut/neutral/kritisch) für Farb-/Emoji-Zuordnung
+- [ ] Chat-Funktionalität für Nachfragen
+
+## 4. Audio-Player Komponente
+- [ ] Integration der Referenz-Audio-Datei
+- [ ] Play/Pause/Seek Funktionalität
+- [ ] Synchronisation mit Segment-Buttons
+- [ ] Responsive Design für mobile Geräte
+
+## 5. Segment-Buttons System
+
+### 5.1 Button-Generierung
+- [ ] Dynamische Button-Erstellung basierend auf Segment-Anzahl
+- [ ] Breiten-Berechnung: 100% / Anzahl Segmente
+- [ ] Positionierung über Audio-Player
+
+### 5.2 Feedback-Visualisierung
+- [ ] Farb-System: Grün (gut), Orange (neutral), Rot (kritisch)
+- [ ] Emoji-System: 😊 (gut), 😐 (neutral), 😟 (kritisch)
+- [ ] LLM-gesteuerte Bewertung pro Segment
+
+## 6. Chat-System
+
+### 6.1 Chat-Container
+- [ ] Overlay über Audio-Player und Buttons
+- [ ] Dunkelgrauer Container mit Transparenz
+- [ ] Eigener Scrollbereich
+- [ ] Toggle-Funktion (öffnen/schließen)
+
+### 6.2 Nachrichten-Design
+**MuDiKo-KI-Assistent (Links):**
+- [ ] Name: "MuDiKo-KI-Assistent"
+- [ ] Vertikale Linie in Feedback-Farbe (grün/orange/rot)
+- [ ] Hellgrauer Container mit weißer Schrift
+
+**Schüler (Rechts):**
+- [ ] Name: "Schüler"
+- [ ] Vertikale Linie in MuDiKo-Pink
+- [ ] Hellgrauer Container mit weißer Schrift
+
+### 6.3 Chat-Funktionalität
+- [ ] Eingabefeld für Schüler-Nachrichten
+- [ ] Send-Button
+- [ ] LLM-API Integration für Antworten
+- [ ] Message-History pro Segment
+- [ ] Auto-Scroll zu neuesten Nachrichten
+
+## 7. LLM-Prompting-System
+
+### 7.1 Overall-Prompt Template
+```
+Du bist MuDiKo-KI-Assistent, ein spezialisierter Musik-Feedback-Assistent.
+Basierend auf dem analysierten Musik-Prompt und den identifizierten Segmenten,
+generiere segment-spezifisches Feedback.
+
+Aufgaben:
+1. Bewerte jedes Segment (gut/neutral/kritisch)
+2. Generiere konstruktives Feedback pro Segment
+3. Beantworte Schüler-Nachfragen segment-spezifisch
+4. Bleibe motivierend und pädagogisch wertvoll
+```
+
+### 7.2 Segment-Prompt Generation
+- [ ] Basis-Prompt + Segment-spezifische Informationen
+- [ ] Zeitstempel-Integration
+- [ ] Kontext aus Original-Prompt
+- [ ] Feedback-Bewertung für UI-Darstellung
+
+## 8. Responsive Design & Accessibility
+- [ ] Mobile-First Approach
+- [ ] Touch-friendly Button-Größen
+- [ ] Keyboard-Navigation Support
+- [ ] Screen-Reader Kompatibilität
+- [ ] Performance-Optimierung für Audio-Playback
+
+## 9. Error Handling & Fallbacks
+- [ ] LLM-API Fehlerbehandlung
+- [ ] Audio-Loading Fehlerbehandlung
+- [ ] Graceful Degradation bei Feature-Flag disabled
+- [ ] Loading States für alle Async-Operationen
+
+## 10. Testing & Integration
+- [ ] Unit Tests für neue Komponenten
+- [ ] Integration Tests für LLM-Pipeline
+- [ ] User Testing der Chat-Funktionalität
+- [ ] Performance Tests mit verschiedenen Audio-Dateien
+
+## 11. Schrittweise Implementierung
+
+### Phase 1: Grundstruktur
+
+
+
+
+
+1. Feature-Flag Setup
+2. PersonalizationPage Button hinzufügen
+3. LLMFeedbackPrototype Seite erstellen (ohne LLM)
+4. Audio-Player Integration
+
+### Phase 2: Segment-System
+1. Backend Segment-Analyse
+2. Segment-Buttons generieren
+3. Farb-/Emoji-System implementieren
+
+### Phase 3: Chat-System
+1. Chat-Container und UI
+2. Nachrichten-Design implementieren
+3. Basic Chat-Funktionalität
+
+### Phase 4: LLM-Integration
+1. Overall-Prompt System
+2. LLM-API Integration
+3. Feedback-Generierung und -Bewertung
+
+### Phase 5: Polish & Testing
+1. Responsive Design verfeinern
+2. Error Handling implementieren
+3. Testing und Bug-Fixes
+
+## Konfiguration für Feature-Toggle
+```javascript
+// config/features.js
+export const FEATURES = {
+  LLM_FEEDBACK_PROTOTYPE: process.env.ENABLE_LLM_PROTOTYPE === 'true' || false
+};
+```
+
+Dieser Plan ermöglicht eine schrittweise Implementierung mit der Möglichkeit, 
+jederzeit zum ursprünglichen Zustand zurückzukehren.
