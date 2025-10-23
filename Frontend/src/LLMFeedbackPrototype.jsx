@@ -48,14 +48,25 @@ export default function LLMFeedbackPrototype({ onBack }) {
         
         // Segment-Analyse und initiales Feedback laden
         const mockSegments = [
-          { id: 1, startTime: 0, endTime: 30, feedback: 'good', emoji: '😊', color: '#4CAF50' },
-          { id: 2, startTime: 30, endTime: 60, feedback: 'neutral', emoji: '😐', color: '#FF9800' },
-          { id: 3, startTime: 60, endTime: 90, feedback: 'critical', emoji: '😟', color: '#F44336' }
+          { id: 1, startTime: 0, endTime: 24, feedback: 'good', emoji: '😊', color: '#4CAF50' },
+          { id: 2, startTime: 24, endTime: 48, feedback: 'critical', emoji: '😟', color: '#F44336' },
+          { id: 3, startTime: 48, endTime: 72, feedback: 'neutral', emoji: '😐', color: '#FF9800' },
+          { id: 4, startTime: 72, endTime: 96, feedback: 'good', emoji: '😊', color: '#4CAF50' },
+          { id: 5, startTime: 96, endTime: 120, feedback: 'neutral', emoji: '😐', color: '#FF9800' }
         ];
         setSegments(mockSegments);
 
         // Initiales LLM Feedback für jedes Segment laden
-        await loadInitialFeedback(mockSegments, uploadDataObj);
+        // Immer Mock-Daten im Demo-Modus verwenden
+        loadMockFeedback(mockSegments);
+        
+        // Zusätzlich versuchen, echtes LLM-Feedback zu laden (falls verfügbar)
+        try {
+          await loadInitialFeedback(mockSegments, uploadDataObj);
+        } catch (error) {
+          console.log('LLM nicht verfügbar, verwende Mock-Daten:', error);
+          // Mock-Daten sind bereits geladen
+        }
         
         // Initial leere Chat-Messages (werden durch LLM gefüllt)
         const initialMessages = {};
@@ -257,8 +268,15 @@ export default function LLMFeedbackPrototype({ onBack }) {
         {
           id: 1,
           sender: 'assistant',
-          message: 'Fantastisch! Dein Rhythmus in diesem Segment ist sehr präzise und musikalisch ausgewogen. Die Dynamik ist gut kontrolliert.',
-          timestamp: new Date(),
+          message: 'Fantastisch! Der Einstieg ist sehr präzise und musikalisch ausgewogen. Die Dynamik ist gut kontrolliert.',
+          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 Minuten früher
+          feedbackType: 'good'
+        },
+        {
+          id: 2,
+          sender: 'assistant',
+          message: 'Hast du Fragen zu diesem Einstieg oder möchtest du etwas Bestimmtes verbessern? 😊',
+          timestamp: new Date(Date.now() - 4 * 60 * 1000), // 4 Minuten früher
           feedbackType: 'good'
         }
       ],
@@ -266,18 +284,64 @@ export default function LLMFeedbackPrototype({ onBack }) {
         {
           id: 1,
           sender: 'assistant', 
-          message: 'Hier gibt es sowohl positive als auch verbesserungswürdige Aspekte. Die Melodieführung ist gut, aber achte auf die Intonation in den höheren Lagen.',
-          timestamp: new Date(),
-          feedbackType: 'neutral'
+          message: 'In diesem Abschnitt sollten wir gezielt arbeiten. Der Rhythmus wird unregelmäßig und die Intonation schwankt. Lass uns das gemeinsam angehen!',
+          timestamp: new Date(Date.now() - 5 * 60 * 1000),
+          feedbackType: 'critical'
+        },
+        {
+          id: 2,
+          sender: 'assistant',
+          message: 'Keine Sorge, diese Passage ist technisch anspruchsvoll! Was ist dir beim Spielen schwer gefallen?',
+          timestamp: new Date(Date.now() - 4 * 60 * 1000),
+          feedbackType: 'critical'
         }
       ],
       3: [
         {
           id: 1,
           sender: 'assistant',
-          message: 'In diesem Segment sollten wir gezielt arbeiten. Der Rhythmus ist unregelmäßig und die Tonqualität könnte verbessert werden. Lass uns das gemeinsam angehen!',
-          timestamp: new Date(),
-          feedbackType: 'critical'
+          message: 'Hier gibt es sowohl positive als auch verbesserungswürdige Aspekte. Die Melodieführung ist gut, aber achte auf die Artikulation.',
+          timestamp: new Date(Date.now() - 5 * 60 * 1000),
+          feedbackType: 'neutral'
+        },
+        {
+          id: 2,
+          sender: 'assistant',
+          message: 'Was denkst du denn über diesen mittleren Abschnitt? Hast du beim Spielen etwas Bestimmtes bemerkt?',
+          timestamp: new Date(Date.now() - 4 * 60 * 1000),
+          feedbackType: 'neutral'
+        }
+      ],
+      4: [
+        {
+          id: 1,
+          sender: 'assistant',
+          message: 'Sehr gut! Hier zeigst du wieder eine stabile Technik und gute musikalische Gestaltung. Die Tempoführung ist konstant.',
+          timestamp: new Date(Date.now() - 5 * 60 * 1000),
+          feedbackType: 'good'
+        },
+        {
+          id: 2,
+          sender: 'assistant',
+          message: 'Dieser Abschnitt gelingt dir bereits sehr gut! Gibt es etwas, womit du besonders zufrieden bist? 😊',
+          timestamp: new Date(Date.now() - 4 * 60 * 1000),
+          feedbackType: 'good'
+        }
+      ],
+      5: [
+        {
+          id: 1,
+          sender: 'assistant',
+          message: 'Der Schluss ist solide, aber es gibt noch Potential für mehr Ausdruck. Die technische Ausführung ist korrekt.',
+          timestamp: new Date(Date.now() - 5 * 60 * 1000),
+          feedbackType: 'neutral'
+        },
+        {
+          id: 2,
+          sender: 'assistant',
+          message: 'Wie empfindest du denn das Ende des Stücks? Bist du mit dem Schluss zufrieden?',
+          timestamp: new Date(Date.now() - 4 * 60 * 1000),
+          feedbackType: 'neutral'
         }
       ]
     };
@@ -445,12 +509,11 @@ export default function LLMFeedbackPrototype({ onBack }) {
         {/* Chat Area - am oberen Rand */}
         {activeSegment && (
           <div style={{
-            width: 'calc(100% - 40px)', // Berücksichtigt 20px Margin links und rechts
-            height: 'calc(100dvh - 300px)', // DVH richtig nutzen, Platz für Header und Player
             backgroundColor: 'var(--card-color)',
             borderRadius: '20px',
             padding: '20px',
             margin: '0 20px 20px 20px', // Gleiche Margins wie Header
+            height: 'calc(100dvh - 300px)', // DVH richtig nutzen, Platz für Header und Player
             boxShadow: 'var(--shadow)',
             display: 'flex',
             flexDirection: 'column',
@@ -508,13 +571,15 @@ export default function LLMFeedbackPrototype({ onBack }) {
                 }}>
                   <div style={{ 
                     maxWidth: '85%', // Breiter für bessere Lesbarkeit
-                    position: 'relative'
+                    position: 'relative',
+                    paddingLeft: msg.sender === 'assistant' ? '15px' : '0px',
+                    paddingRight: msg.sender === 'user' ? '15px' : '0px'
                   }}>
                     {/* Vertikale Farbline am Rand */}
                     <div style={{
                       position: 'absolute',
-                      left: msg.sender === 'user' ? 'auto' : '-4px',
-                      right: msg.sender === 'user' ? '-4px' : 'auto',
+                      left: msg.sender === 'user' ? 'auto' : '0px',
+                      right: msg.sender === 'user' ? '0px' : 'auto',
                       top: 0,
                       bottom: 0,
                       width: '4px',
@@ -618,7 +683,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
           </div>
         )}
 
-        {/* Audio Player und Segment Buttons - am unteren Rand */}
+        {/* Audio Player mit integrierten Segment Buttons - am unteren Rand */}
         <div style={{
           flexShrink: 0, // Behält feste Größe
           backgroundColor: 'var(--card-color)',
@@ -627,75 +692,16 @@ export default function LLMFeedbackPrototype({ onBack }) {
           margin: '0 20px 20px 20px', // Gleiche Margins wie Header und Chat
           boxShadow: 'var(--shadow)'
         }}>
-          {/* Segment Buttons mit Emojis - exakt gleiche Breite wie Audio Player */}
-          {segments.length > 0 && (
-            <div style={{
-              display: 'flex',
-              width: '100%',
-              height: '50px', // Etwas höher für Emoji
-              marginBottom: '15px',
-              gap: '2px', // Kleiner Spalt
-              borderRadius: '10px',
-              overflow: 'hidden'
-            }}>
-              {segments.map((segment) => {
-                const isCurrentSegment = currentSegment && currentSegment.id === segment.id;
-                const isActiveSegment = activeSegment && activeSegment.id === segment.id;
-                
-                return (
-                  <button
-                    key={segment.id}
-                    onClick={() => handleSegmentClick(segment)}
-                    style={{
-                      flex: 1,
-                      backgroundColor: segment.color,
-                      border: isCurrentSegment 
-                        ? '3px solid #ffffff' 
-                        : isActiveSegment 
-                          ? '3px solid #ffeb3b' 
-                          : 'none',
-                      cursor: 'pointer',
-                      height: '100%',
-                      transition: 'all 0.3s ease',
-                      opacity: isActiveSegment ? 1 : 0.8,
-                      position: 'relative',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isCurrentSegment) {
-                        e.target.style.opacity = '1';
-                        e.target.style.transform = 'translateY(-2px)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isCurrentSegment && !isActiveSegment) {
-                        e.target.style.opacity = '0.8';
-                        e.target.style.transform = 'translateY(0)';
-                      }
-                    }}
-                  >
-                    {/* Emoji im Button */}
-                    <span style={{
-                      fontSize: '24px',
-                      textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
-                    }}>
-                      {segment.emoji}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Audio Player */}
+          {/* Audio Player mit integrierten Segment Buttons */}
           <div style={{ 
             width: '100%'
           }}>
             <AudioPlayer 
               uploadData={uploadData} 
               segments={segments}
+              activeSegment={activeSegment}
+              currentSegment={currentSegment}
+              onSegmentClick={handleSegmentClick}
               onTimeUpdate={(currentTime) => {
                 // Bestimme aktuelles Segment basierend auf Audio-Zeit
                 const current = segments.find(segment => 
