@@ -2,6 +2,9 @@
 
 **Webbasierte Audio-Upload-Anwendung für die Musikpädagogik**
 
+Figma UX-Design: https://www.figma.com/design/TbnOyWdiYdRzgERlU6SzWU/Music-KI-Assistent?node-id=0-1&p=f&t=DLTMI83OCbv2EKoi-0
+
+
 Die Software ermöglicht Schülerinnen und Schüler die Erstellung von Prompts, um ein personalisertes Feedback zu ihrer Musik von einem LLM generieren zu lassen. 
 
 ---
