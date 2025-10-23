@@ -4,8 +4,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+import asyncio
 from AudioManager import AudioManager
 from AudioFeedbackPipeline import AudioFeedbackPipeline
+from llm_service import handle_llm_feedback_request, llm_service
 
 # Flask-App initialisieren
 app = Flask(__name__)
@@ -243,6 +245,89 @@ def generate_feedback():
 def serve_audio(filename):
     """API Endpoint zum Servieren hochgeladener Audio-Dateien für Wiedergabe."""
     return audio_mgr.serve(filename)
+
+@app.route('/api/llm/feedback', methods=['POST'])
+def llm_feedback():
+    """
+    LLM Feedback API Endpoint für Segment-basiertes Feedback
+    
+    Request Body:
+    {
+        "segment": {
+            "id": 1,
+            "startTime": 0.0,
+            "endTime": 30.0,
+            "feedback": "good|neutral|critical"
+        },
+        "musicContext": {
+            "referenceInstrument": "Klavier",
+            "userInstrument": "Klavier"
+        },
+        "userContext": {
+            "language": "Deutsch",
+            "simpleLanguage": false,
+            "personalMessage": "Ich möchte mein Timing verbessern"
+        },
+        "conversationHistory": [
+            {"role": "user", "content": "..."},
+            {"role": "assistant", "content": "..."}
+        ],
+        "userMessage": "Warum klingt das hier schief?",  // nur für followup
+        "type": "initial|followup"
+    }
+    
+    Returns:
+        JSON Response mit LLM-generierter Antwort
+    """
+    try:
+        # Request-Daten validieren
+        data = request.json or {}
+        
+        if not data.get('segment'):
+            return jsonify({
+                'success': False,
+                'error': 'Segment-Daten fehlen'
+            }), 400
+        
+        # Async LLM Call in Sync Flask Handler
+        def run_async_llm_request():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                return loop.run_until_complete(handle_llm_feedback_request(data))
+            finally:
+                loop.close()
+        
+        result = run_async_llm_request()
+        
+        # Erfolgreiche Antwort
+        if result.get('success', False):
+            return jsonify(result)
+        else:
+            return jsonify(result), 500
+            
+    except Exception as e:
+        print(f"Fehler im LLM Feedback Endpoint: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'Server-Fehler: {str(e)}',
+            'response': llm_service._generate_fallback_response()
+        }), 500
+
+@app.route('/api/llm/status', methods=['GET'])
+def llm_status():
+    """
+    LLM Service Status Check - inkl. Test-Mode Information
+    """
+    return jsonify({
+        'llmAvailable': llm_service._api_available(),
+        'provider': llm_service.provider,
+        'model': llm_service.model,
+        'testMode': llm_service.test_mode,
+        'status': 'test-mode' if llm_service.test_mode else ('ready' if llm_service._api_available() else 'fallback'),
+        'message': '🧪 Test-Modus aktiv - Demo-Responses' if llm_service.test_mode else 
+                  ('🤖 LLM bereit' if llm_service._api_available() else '⚠️ Fallback-Modus')
+    })
 
 # Starte die Flask-Anwendung
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { isFeatureEnabled } from './config/features';
 
-export default function PersonalizationPage({ onBack, onNext }) {
+export default function PersonalizationPage({ onBack, onNext, onPrototype }) {
   const [personalMessage, setPersonalMessage] = useState('');
 
   // Load saved data on component mount
@@ -79,7 +80,7 @@ export default function PersonalizationPage({ onBack, onNext }) {
             }}
           />
           
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
             <button 
               onClick={handleNext}
               style={{ 
@@ -102,6 +103,45 @@ export default function PersonalizationPage({ onBack, onNext }) {
             >
               Feedback generieren
             </button>
+            
+            {/* LLM Prototyp Button - nur sichtbar wenn Feature aktiv */}
+            {isFeatureEnabled('LLM_FEEDBACK_PROTOTYPE') && (
+              <button 
+                onClick={onPrototype}
+                style={{ 
+                  backgroundColor: 'var(--button-color)',
+                  border: '2px solid var(--mudiko-cyan)',
+                  color: 'var(--font-color)',
+                  padding: '15px 30px',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  fontFamily: "'Nunito', sans-serif",
+                  fontSize: 'var(--button-font-size)',
+                  fontWeight: 'var(--button-font-weight)',
+                  boxShadow: 'var(--shadow)',
+                  transition: 'all 0.3s ease',
+                  letterSpacing: '1px',
+                  position: 'relative'
+                }}
+                onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+                onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+              >
+                🤖 LLM Prototyp
+                <span style={{
+                  position: 'absolute',
+                  top: '-8px',
+                  right: '-8px',
+                  backgroundColor: 'var(--mudiko-pink)',
+                  color: 'white',
+                  fontSize: '10px',
+                  padding: '2px 6px',
+                  borderRadius: '10px',
+                  fontWeight: 'bold'
+                }}>
+                  BETA
+                </span>
+              </button>
+            )}
           </div>
         </div>
       </div>
