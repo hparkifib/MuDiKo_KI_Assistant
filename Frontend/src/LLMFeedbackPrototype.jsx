@@ -22,6 +22,50 @@ export default function LLMFeedbackPrototype({ onBack }) {
     }
   }, [chatMessages, activeSegment]);
 
+  // Hilfsfunktion für Chat-Emoji basierend auf feedbackType
+  const getChatEmoji = (feedbackType) => {
+    switch (feedbackType) {
+      case 'good':
+        return '/Emoji_grün_positiv_chat.svg';
+      case 'critical':
+        return '/Emoji_rot_negativ_chat.svg';
+      case 'neutral':
+        return '/Emoji_orange_neutral_chat.svg';
+      default:
+        return '/Emoji_orange_neutral_chat.svg';
+    }
+  };
+
+  // Hilfsfunktion für normale Emojis (ohne _chat) für Segment-Buttons
+  const getSegmentEmoji = (feedbackType) => {
+    switch (feedbackType) {
+      case 'good':
+        return '/Emoji_grün_positiv.svg';
+      case 'critical':
+        return '/Emoji_rot_negativ.svg';
+      case 'neutral':
+        return '/Emoji_orange_neutral.svg';
+      default:
+        return '/Emoji_orange_neutral.svg';
+    }
+  };
+
+  // Hilfsfunktion für Zeitformatierung
+  const formatSegmentTime = (startTime, endTime) => {
+    const duration = endTime - startTime;
+    const minutes = Math.floor(duration / 60);
+    const seconds = Math.floor(duration % 60);
+    const startMin = Math.floor(startTime / 60);
+    const startSec = Math.floor(startTime % 60);
+    const endMin = Math.floor(endTime / 60);
+    const endEndSec = Math.floor(endTime % 60);
+    
+    return {
+      duration: `${minutes}:${seconds.toString().padStart(2, '0')}`,
+      timeRange: `${startMin}:${startSec.toString().padStart(2, '0')} - ${endMin}:${endEndSec.toString().padStart(2, '0')}`
+    };
+  };
+
   // Load saved data on component mount
   useEffect(() => {
     initializeData();
@@ -48,11 +92,11 @@ export default function LLMFeedbackPrototype({ onBack }) {
         
         // Segment-Analyse und initiales Feedback laden
         const mockSegments = [
-          { id: 1, startTime: 0, endTime: 24, feedback: 'good', emoji: '😊', color: '#4CAF50' },
-          { id: 2, startTime: 24, endTime: 48, feedback: 'critical', emoji: '😟', color: '#F44336' },
-          { id: 3, startTime: 48, endTime: 72, feedback: 'neutral', emoji: '😐', color: '#FF9800' },
-          { id: 4, startTime: 72, endTime: 96, feedback: 'good', emoji: '😊', color: '#4CAF50' },
-          { id: 5, startTime: 96, endTime: 120, feedback: 'neutral', emoji: '😐', color: '#FF9800' }
+          { id: 1, startTime: 0, endTime: 24, feedback: 'good', emoji: '/Emoji_grün_positiv_chat.svg', segmentEmoji: '/Emoji_grün_positiv.svg', color: '#4CAF50', bgColor: '#EDF8F0' },
+          { id: 2, startTime: 24, endTime: 48, feedback: 'critical', emoji: '/Emoji_rot_negativ_chat.svg', segmentEmoji: '/Emoji_rot_negativ.svg', color: '#F44336', bgColor: '#F9EBEB' },
+          { id: 3, startTime: 48, endTime: 72, feedback: 'neutral', emoji: '/Emoji_orange_neutral_chat.svg', segmentEmoji: '/Emoji_orange_neutral.svg', color: '#FF9800', bgColor: '#FFF3E6' },
+          { id: 4, startTime: 72, endTime: 96, feedback: 'good', emoji: '/Emoji_grün_positiv_chat.svg', segmentEmoji: '/Emoji_grün_positiv.svg', color: '#4CAF50', bgColor: '#EDF8F0' },
+          { id: 5, startTime: 96, endTime: 120, feedback: 'neutral', emoji: '/Emoji_orange_neutral_chat.svg', segmentEmoji: '/Emoji_orange_neutral.svg', color: '#FF9800', bgColor: '#FFF3E6' }
         ];
         setSegments(mockSegments);
 
@@ -399,7 +443,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
             animation: 'spin 1s linear infinite',
             marginBottom: '20px'
           }} />
-          <h3 style={{ color: 'var(--font-color)', margin: '0' }}>
+          <h3 style={{ color: 'white', margin: '0' }}>
             🎵 LLM Prototyp wird geladen...
           </h3>
           {isLoadingFeedback && (
@@ -449,7 +493,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
             onClick={onBack}
             style={{
               backgroundColor: 'transparent',
-              color: 'var(--font-color)',
+              color: 'white',
               border: '2px solid rgba(255,255,255,0.2)',
               padding: '8px 12px',
               borderRadius: '10px',
@@ -468,7 +512,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <h1 style={{ 
               margin: '0', 
-              color: 'var(--font-color)', 
+              color: 'white', 
               fontSize: 'clamp(16px, 4vw, 24px)'
             }}>
               🤖 LLM Feedback Prototyp
@@ -487,6 +531,23 @@ export default function LLMFeedbackPrototype({ onBack }) {
               </div>
             )}
           </div>
+          
+          {/* Dateiname */}
+          {uploadData?.original_filenames?.schueler && (
+            <div style={{
+              fontSize: '14px',
+              color: 'white',
+              backgroundColor: 'rgba(255,255,255,0.1)',
+              padding: '6px 12px',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              border: '1px solid rgba(255,255,255,0.2)'
+            }}>
+              🎵 {uploadData.original_filenames.schueler}
+            </div>
+          )}
         </div>
         <img src="/MuDiKo_Logo.svg" alt="MuDiKo Logo" style={{ 
           width: 'clamp(45px, 8vw, 60px)', // Responsive Logo
@@ -530,25 +591,52 @@ export default function LLMFeedbackPrototype({ onBack }) {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ 
-                  width: '40px', 
-                  height: '40px', 
-                  borderRadius: '12px', 
-                  backgroundColor: activeSegment.color, 
+                  width: '50px', 
+                  height: '50px', 
+                  borderRadius: '16px', 
+                  backgroundColor: 'var(--button-color)', 
                   display: 'flex', 
                   alignItems: 'center', 
-                  justifyContent: 'center', 
-                  fontSize: '20px' 
+                  justifyContent: 'center',
+                  border: '2px solid rgba(255,255,255,0.1)'
                 }}>
-                  {activeSegment.emoji}
+                  <img 
+                    src={activeSegment.emoji} 
+                    alt={`${activeSegment.feedback} emoji`}
+                    style={{
+                      width: '30px',
+                      height: '30px'
+                    }}
+                  />
                 </div>
                 <div>
-                  <div style={{ color: 'var(--font-color)', fontWeight: 'var(--button-font-weight)', fontSize: '18px' }}>
+                  <div style={{ color: 'white', fontWeight: 'var(--button-font-weight)', fontSize: '18px' }}>
                     Segment {activeSegment.id}
                   </div>
                   <div style={{ fontSize: '14px', color: activeSegment.color, fontWeight: '600' }}>
                     {activeSegment.feedback === 'good' ? 'Positives Feedback' : 
                      activeSegment.feedback === 'neutral' ? 'Neutrales Feedback' : 
                      'Verbesserungsvorschläge'}
+                  </div>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: 'white', 
+                    marginTop: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <img 
+                      src="/clock-icon.svg" 
+                      alt="Zeit"
+                      style={{
+                        width: '14px',
+                        height: '14px',
+                        filter: 'brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)'
+                      }}
+                    />
+                    {formatSegmentTime(activeSegment.startTime, activeSegment.endTime).timeRange} 
+                    ({formatSegmentTime(activeSegment.startTime, activeSegment.endTime).duration})
                   </div>
                 </div>
               </div>
@@ -594,15 +682,32 @@ export default function LLMFeedbackPrototype({ onBack }) {
                       color: msg.sender === 'assistant' ? activeSegment.color : 'var(--mudiko-pink)', 
                       marginBottom: '6px', 
                       fontWeight: '600',
-                      textAlign: msg.sender === 'user' ? 'right' : 'left'
+                      textAlign: msg.sender === 'user' ? 'right' : 'left',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start'
                     }}>
-                      {msg.sender === 'assistant' ? '🤖 KI-Assistent' : '👤 Schüler'}
+                      {msg.sender === 'assistant' && msg.feedbackType && (
+                        <img 
+                          src={getChatEmoji(msg.feedbackType)} 
+                          alt={`${msg.feedbackType} feedback`}
+                          style={{ 
+                            width: '20px', 
+                            height: '20px',
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(255,255,255,0.1)',
+                            padding: '2px'
+                          }} 
+                        />
+                      )}
+                      {msg.sender === 'assistant' ? 'KI-Assistent' : '👤 Schüler'}
                     </div>
                     
                     {/* Nachricht */}
                     <div style={{ 
                       backgroundColor: 'var(--button-color)', 
-                      color: 'var(--font-color)', 
+                      color: 'white', 
                       padding: '12px 16px', 
                       borderRadius: msg.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                       border: `2px solid ${msg.sender === 'assistant' ? activeSegment.color + '40' : 'var(--mudiko-pink)40'}`,
@@ -611,7 +716,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
                       <div style={{ fontSize: '14px', lineHeight: '1.4' }}>{msg.message}</div>
                       <div style={{ 
                         fontSize: '10px', 
-                        color: 'rgba(255,255,255,0.5)', 
+                        color: 'white', 
                         marginTop: '8px', 
                         textAlign: 'right' 
                       }}>
@@ -643,7 +748,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
                   borderRadius: '10px', 
                   border: '2px solid rgba(255,255,255,0.1)', 
                   background: 'var(--button-color)', 
-                  color: 'var(--font-color)',
+                  color: 'white',
                   fontSize: '14px',
                   outline: 'none',
                   fontFamily: "'Nunito', sans-serif"
@@ -683,34 +788,26 @@ export default function LLMFeedbackPrototype({ onBack }) {
           </div>
         )}
 
-        {/* Audio Player mit integrierten Segment Buttons - am unteren Rand */}
+        {/* Audio Player direkt ohne Container */}
         <div style={{
           flexShrink: 0, // Behält feste Größe
-          backgroundColor: 'var(--card-color)',
-          borderRadius: '20px', // Vollständig abgerundet wie Header
-          padding: '20px',
           margin: '0 20px 20px 20px', // Gleiche Margins wie Header und Chat
-          boxShadow: 'var(--shadow)'
+          paddingTop: '50px' // Platz für herausragende Emojis
         }}>
-          {/* Audio Player mit integrierten Segment Buttons */}
-          <div style={{ 
-            width: '100%'
-          }}>
-            <AudioPlayer 
-              uploadData={uploadData} 
-              segments={segments}
-              activeSegment={activeSegment}
-              currentSegment={currentSegment}
-              onSegmentClick={handleSegmentClick}
-              onTimeUpdate={(currentTime) => {
-                // Bestimme aktuelles Segment basierend auf Audio-Zeit
-                const current = segments.find(segment => 
-                  currentTime >= segment.startTime && currentTime < segment.endTime
-                );
-                setCurrentSegment(current);
-              }}
-            />
-          </div>
+          <AudioPlayer 
+            uploadData={uploadData} 
+            segments={segments}
+            activeSegment={activeSegment}
+            currentSegment={currentSegment}
+            onSegmentClick={handleSegmentClick}
+            onTimeUpdate={(currentTime) => {
+              // Bestimme aktuelles Segment basierend auf Audio-Zeit
+              const current = segments.find(segment => 
+                currentTime >= segment.startTime && currentTime < segment.endTime
+              );
+              setCurrentSegment(current);
+            }}
+          />
         </div>
       </div>
 

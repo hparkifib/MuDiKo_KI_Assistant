@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import playIcon from '../assets/playbutton.svg';
+import pauseIcon from '../assets/pausebutton.svg';
+import volumeIcon from '../assets/Lautstärkeregler.svg';
 
 const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, currentSegment, onSegmentClick, onTimeUpdate }, ref) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -109,11 +112,15 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
 
   return (
     <div style={{
-      backgroundColor: 'var(--button-color)',
+      backgroundColor: '#3D3D3D',
       borderRadius: '15px',
       padding: '20px',
       border: '2px solid rgba(255,255,255,0.1)',
-      boxShadow: 'var(--shadow)'
+      boxShadow: 'var(--shadow)',
+      height: '120px', // Feste Höhe
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'relative' // Für absolute Positionierung der Segmente
     }}>
       {/* Audio Element (hidden) */}
       <audio
@@ -125,111 +132,122 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
         preload="metadata"
       />
 
-      {/* Segment Buttons - oben integriert */}
+      {/* Segment Buttons - herausragend aus dem Container */}
       {segments.length > 0 && (
         <div style={{
           display: 'flex',
-          width: '100%',
-          height: '40px',
-          marginBottom: '15px',
-          gap: '2px',
-          borderRadius: '8px',
-          overflow: 'hidden',
-          border: '1px solid rgba(255,255,255,0.1)'
+          width: 'calc(100% - 40px)', // Anpassung an AudioPlayer-Breite (minus Padding)
+          gap: '8px',
+          alignItems: 'flex-start', // Emojis oben ausrichten - wachsen nach unten
+          position: 'absolute',
+          top: '-40px', // Herausragen aus dem Container
+          left: '20px', // Container-Padding berücksichtigen
+          zIndex: 10 // Über anderen Elementen
         }}>
           {segments.map((segment) => {
             const isCurrentSegment = currentSegment && currentSegment.id === segment.id;
             const isActiveSegment = activeSegment && activeSegment.id === segment.id;
             
             return (
-              <button
+              <div
                 key={segment.id}
-                onClick={() => onSegmentClick && onSegmentClick(segment)}
                 style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
                   flex: 1,
-                  backgroundColor: segment.color,
-                  border: 'none',
                   cursor: 'pointer',
-                  height: '100%',
                   transition: 'all 0.3s ease',
-                  opacity: isActiveSegment ? 1 : 0.85,
-                  position: 'relative',
+                  alignSelf: 'flex-start' // Jedes Segment startet oben und wächst nach unten
+                }}
+                onClick={() => onSegmentClick && onSegmentClick(segment)}
+              >
+                {/* Emoji Container mit farbigem Hintergrund */}
+                <div style={{
+                  backgroundColor: segment.bgColor,
+                  borderRadius: '20px',
+                  width: isActiveSegment ? '70px' : '60px',
+                  height: isActiveSegment ? '70px' : '60px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  outline: isCurrentSegment 
-                    ? '3px solid #ffffff' 
-                    : isActiveSegment 
-                      ? '3px solid #ffeb3b' 
-                      : 'none',
-                  outlineOffset: '-3px'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.opacity = '1';
-                  e.target.style.transform = 'translateY(-1px)';
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActiveSegment) {
-                    e.target.style.opacity = '0.85';
-                  }
-                  e.target.style.transform = 'translateY(0)';
-                }}
-              >
-                {/* Emoji */}
-                <span style={{
-                  fontSize: '20px',
-                  lineHeight: '1',
-                  textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+                  marginBottom: '15px', // Mehr Abstand zum Container
+                  transition: 'all 0.3s ease',
+                  border: isCurrentSegment ? '3px solid #ffffff' : 'none',
+                  boxShadow: isActiveSegment ? 'var(--shadow)' : '2px 2px 8px rgba(0,0,0,0.3)' // Schatten für bessere Sichtbarkeit
                 }}>
-                  {segment.emoji}
-                </span>
-              </button>
+                  <img 
+                    src={segment.segmentEmoji || segment.emoji} 
+                    alt={`${segment.feedback} emoji`}
+                    style={{
+                      width: isActiveSegment ? '35px' : '30px',
+                      height: isActiveSegment ? '35px' : '30px',
+                      transition: 'all 0.3s ease'
+                    }}
+                  />
+                </div>
+                
+                {/* Flacher Button darunter */}
+                <div style={{
+                  width: '100%',
+                  height: '8px',
+                  backgroundColor: segment.color,
+                  borderRadius: '4px',
+                  opacity: isActiveSegment ? 1 : 0.7,
+                  transition: 'all 0.3s ease'
+                }} />
+              </div>
             );
           })}
         </div>
       )}
+
+      {/* Platz für herausragende Segmente */}
+      <div style={{ marginTop: '25px' }} />
 
       {/* Progress Bar - unter den Segment Buttons */}
       <div
         onClick={handleSeek}
         style={{
           width: '100%',
-          height: '8px',
-          backgroundColor: 'rgba(255,255,255,0.2)',
-          borderRadius: '4px',
+          height: '20px',
+          backgroundColor: 'rgba(255,255,255,0.3)',
+          borderRadius: '10px',
           cursor: 'pointer',
           position: 'relative',
           overflow: 'hidden',
           marginBottom: '15px'
         }}
       >
+        {/* Segment Background Colors - Hintergrundfarben der Segmente */}
+        {segments.map((segment) => (
+          <div
+            key={`background-${segment.id}`}
+            style={{
+              position: 'absolute',
+              left: duration > 0 ? `${(segment.startTime / duration) * 100}%` : '0%',
+              width: duration > 0 ? `${((segment.endTime - segment.startTime) / duration) * 100}%` : '0%',
+              height: '100%',
+              backgroundColor: segment.bgColor,
+              opacity: 0.6,
+              borderRadius: '8px',
+              pointerEvents: 'none'
+            }}
+          />
+        ))}
+
         {/* Progress Fill */}
         <div
           style={{
             width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%',
             height: '100%',
             backgroundColor: 'var(--mudiko-pink)',
-            borderRadius: '4px',
-            transition: 'width 0.1s ease'
+            borderRadius: '10px',
+            transition: 'width 0.1s ease',
+            position: 'relative',
+            zIndex: 2
           }}
         />
-        
-        {/* Segment Markers in Progress Bar */}
-        {segments.map((segment) => (
-          <div
-            key={`marker-${segment.id}`}
-            style={{
-              position: 'absolute',
-              left: duration > 0 ? `${(segment.startTime / duration) * 100}%` : '0%',
-              width: duration > 0 ? `${((segment.endTime - segment.startTime) / duration) * 100}%` : '0%',
-              height: '100%',
-              backgroundColor: segment.color,
-              opacity: 0.4,
-              borderRadius: '2px',
-              pointerEvents: 'none'
-            }}
-          />
-        ))}
         
         {/* Segment Separators */}
         {segments.slice(0, -1).map((segment, index) => (
@@ -240,8 +258,9 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
               left: duration > 0 ? `${(segment.endTime / duration) * 100}%` : '0%',
               width: '1px',
               height: '100%',
-              backgroundColor: 'rgba(255,255,255,0.6)',
-              pointerEvents: 'none'
+              backgroundColor: 'white',
+              pointerEvents: 'none',
+              zIndex: 3
             }}
           />
         ))}
@@ -251,14 +270,15 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '15px'
+        gap: '15px',
+        marginTop: 'auto' // Push nach unten im Flex-Container
       }}>
         {/* Play/Pause Button */}
         <button
           onClick={togglePlayPause}
           style={{
-            backgroundColor: 'var(--button-color)',
-            border: '2px solid rgba(255,255,255,0.2)',
+            backgroundColor: 'transparent',
+            border: 'none',
             borderRadius: '50%',
             width: '50px',
             height: '50px',
@@ -266,22 +286,26 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            fontSize: '18px',
-            color: 'var(--font-color)',
-            boxShadow: 'var(--shadow)',
             transition: 'all 0.3s ease',
-            flexShrink: 0
+            flexShrink: 0,
+            padding: '0'
           }}
           onMouseEnter={(e) => {
-            e.target.style.backgroundColor = 'rgba(255,255,255,0.1)';
-            e.target.style.borderColor = 'rgba(255,255,255,0.4)';
+            e.target.style.transform = 'scale(1.1)';
           }}
           onMouseLeave={(e) => {
-            e.target.style.backgroundColor = 'var(--button-color)';
-            e.target.style.borderColor = 'rgba(255,255,255,0.2)';
+            e.target.style.transform = 'scale(1)';
           }}
         >
-          {isPlaying ? '⏸️' : '▶️'}
+          <img 
+            src={isPlaying ? pauseIcon : playIcon} 
+            alt={isPlaying ? 'Pause' : 'Play'}
+            style={{
+              width: '16px',
+              height: '18px',
+              filter: 'brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)'
+            }}
+          />
         </button>
 
         {/* Volume Control */}
@@ -291,7 +315,15 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
           gap: '8px',
           flexShrink: 0
         }}>
-          <span style={{ fontSize: '16px', color: 'rgba(255,255,255,0.7)' }}>🔊</span>
+          <img 
+            src={volumeIcon} 
+            alt="Volume"
+            style={{
+              width: '16px',
+              height: '16px',
+              filter: 'brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)'
+            }}
+          />
           <input
             type="range"
             min="0"
@@ -303,7 +335,7 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
               width: '80px',
               height: '4px',
               borderRadius: '2px',
-              background: `linear-gradient(to right, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.6) ${volume * 100}%, rgba(255,255,255,0.2) ${volume * 100}%, rgba(255,255,255,0.2) 100%)`,
+              background: `linear-gradient(to right, white 0%, white ${volume * 100}%, rgba(255,255,255,0.2) ${volume * 100}%, rgba(255,255,255,0.2) 100%)`,
               outline: 'none',
               cursor: 'pointer',
               appearance: 'none',
@@ -314,7 +346,7 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
 
         {/* Time Display */}
         <div style={{
-          color: 'var(--font-color)',
+          color: 'white',
           fontSize: '14px',
           fontWeight: '600',
           flexShrink: 0,
@@ -324,16 +356,6 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
         </div>
       </div>
 
-      {/* Audio Info */}
-      <div style={{
-        marginTop: '10px',
-        fontSize: '12px',
-        color: 'rgba(255,255,255,0.7)',
-        textAlign: 'center'
-      }}>
-        🎵 {uploadData?.original_filenames?.schueler || 'Deine Aufnahme'}
-      </div>
-
       {/* Custom Range Slider Styles */}
       <style>{`
         input[type="range"]::-webkit-slider-thumb {
@@ -341,15 +363,15 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
           width: 14px;
           height: 14px;
           border-radius: 50%;
-          background: rgba(255,255,255,0.8);
+          background: white;
           cursor: pointer;
-          border: 1px solid rgba(255,255,255,0.3);
+          border: 1px solid white;
           box-shadow: 0 1px 3px rgba(0,0,0,0.2);
           transition: all 0.2s ease;
         }
         
         input[type="range"]::-webkit-slider-thumb:hover {
-          background: rgba(255,255,255,1);
+          background: white;
           transform: scale(1.1);
         }
         
@@ -357,9 +379,9 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
           width: 14px;
           height: 14px;
           border-radius: 50%;
-          background: rgba(255,255,255,0.8);
+          background: white;
           cursor: pointer;
-          border: 1px solid rgba(255,255,255,0.3);
+          border: 1px solid white;
           box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
       `}</style>
