@@ -21,11 +21,6 @@ services:
     environment:
       - FLASK_ENV=production     # Produktions-Modus
       - PYTHONUNBUFFERED=1       # Live-Logging
-      # LLM API Configuration
-      - LLM_PROVIDER=${LLM_PROVIDER:-openai}        # 'openai' or 'anthropic'
-      - LLM_MODEL=${LLM_MODEL:-gpt-4o-mini}         # Model to use
-      - OPENAI_API_KEY=${OPENAI_API_KEY}            # OpenAI API Key
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}      # Anthropic API Key
     restart: unless-stopped      # Auto-Restart bei Fehlern
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]

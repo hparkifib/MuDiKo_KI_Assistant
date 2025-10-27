@@ -6,7 +6,6 @@ import LanguagePage from './LanguagePage.jsx'
 import InstrumentsPage from './InstrumentsPage.jsx'
 import PersonalizationPage from './PersonalizationPage.jsx'
 import PromptPage from './PromptPage.jsx'
-import LLMFeedbackPrototype from './LLMFeedbackPrototype.jsx'
 
 export default function App() {
   const [page, setPage] = useState('home')
@@ -28,15 +27,7 @@ export default function App() {
   }
 
   if (page === 'personalization') {
-    return <PersonalizationPage 
-      onBack={() => setPage('instruments')} 
-      onNext={() => setPage('prompt')}
-      onPrototype={() => setPage('llmPrototype')}
-    />
-  }
-
-  if (page === 'llmPrototype') {
-    return <LLMFeedbackPrototype onBack={() => setPage('personalization')} />
+    return <PersonalizationPage onBack={() => setPage('instruments')} onNext={() => setPage('prompt')} />
   }
 
   if (page === 'prompt') {

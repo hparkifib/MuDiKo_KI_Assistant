@@ -4,4 +4,3 @@ openai
 librosa
 soundfile
 numpy
-aiohttp
