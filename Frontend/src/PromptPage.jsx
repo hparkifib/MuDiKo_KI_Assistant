@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function PromptPage({ onBack }) {
+export default function PromptPage({ onBack, onNavigate }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState('');
   const [error, setError] = useState(null);
@@ -542,6 +542,28 @@ export default function PromptPage({ onBack }) {
           </div>
         </div>
       )}
+
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+          0%, 100% { 
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% { 
+            transform: scale(1.1);
+            opacity: 0.8;
+          }
+        }
+        @keyframes rotate {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   )
 }

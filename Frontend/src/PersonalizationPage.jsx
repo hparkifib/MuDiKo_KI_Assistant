@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function PersonalizationPage({ onBack, onNext }) {
+export default function PersonalizationPage({ onBack, onNext, onNavigate }) {
   const [personalMessage, setPersonalMessage] = useState('');
 
   // Load saved data on component mount
@@ -79,7 +79,7 @@ export default function PersonalizationPage({ onBack, onNext }) {
             }}
           />
           
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
             <button 
               onClick={handleNext}
               style={{ 
@@ -101,6 +101,47 @@ export default function PersonalizationPage({ onBack, onNext }) {
               onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
             >
               Feedback generieren
+            </button>
+
+            <button
+              onClick={() => onNavigate && onNavigate('llm-feedback-prototype')}
+              style={{
+                backgroundColor: 'var(--button-color)',
+                color: 'var(--font-color)',
+                border: '2px solid var(--mudiko-pink)',
+                padding: '15px 30px',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontFamily: "'Nunito', sans-serif",
+                fontSize: 'var(--button-font-size)',
+                fontWeight: 'var(--button-font-weight)',
+                boxShadow: 'var(--shadow)',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'scale(1.05)';
+                e.target.style.borderColor = '#ff69b4';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'scale(1)';
+                e.target.style.borderColor = 'var(--mudiko-pink)';
+              }}
+            >
+              <span>🤖</span>
+              LLM Beta testen
+              <span style={{ 
+                backgroundColor: 'var(--mudiko-pink)', 
+                color: 'white', 
+                padding: '2px 6px', 
+                borderRadius: '4px', 
+                fontSize: '10px', 
+                fontWeight: '700'
+              }}>
+                BETA
+              </span>
             </button>
           </div>
         </div>
