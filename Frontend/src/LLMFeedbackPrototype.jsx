@@ -78,6 +78,12 @@ export default function LLMFeedbackPrototype({ onBack }) {
     }
   }, [segments, activeSegment]);
 
+  // Reset isTyping beim Wechsel des aktiven Segments
+  useEffect(() => {
+    setIsTyping(false);
+    setCurrentMessage('');
+  }, [activeSegment]);
+
   const initializeData = async () => {
     try {
       // LLM Status abrufen
@@ -101,8 +107,9 @@ export default function LLMFeedbackPrototype({ onBack }) {
         setSegments(mockSegments);
 
         // Initiales LLM Feedback für jedes Segment laden
-        // Immer Mock-Daten im Demo-Modus verwenden
-        loadMockFeedback(mockSegments);
+        // Erst Mock-Daten laden (sofort verfügbar)
+        const mockMessages = generateMockMessages(mockSegments);
+        setChatMessages(mockMessages);
         
         // Zusätzlich versuchen, echtes LLM-Feedback zu laden (falls verfügbar)
         try {
@@ -111,10 +118,6 @@ export default function LLMFeedbackPrototype({ onBack }) {
           console.log('LLM nicht verfügbar, verwende Mock-Daten:', error);
           // Mock-Daten sind bereits geladen
         }
-        
-        // Initial leere Chat-Messages (werden durch LLM gefüllt)
-        const initialMessages = {};
-        setChatMessages(initialMessages);
       } else {
         console.warn('Keine Upload-Daten gefunden für LLM Prototype');
       }
@@ -165,9 +168,14 @@ export default function LLMFeedbackPrototype({ onBack }) {
     // Typing-Indikator anzeigen
     setIsTyping(true);
 
+    // Simulierte Typing-Verzögerung (1-2 Sekunden)
+    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+
     // LLM API Call für Followup-Antwort
     try {
       const assistantMessage = await callLLMApi(activeSegment, currentMessage, 'followup');
+      
+      setIsTyping(false);
       
       setChatMessages(prev => ({
         ...prev,
@@ -176,6 +184,8 @@ export default function LLMFeedbackPrototype({ onBack }) {
       
     } catch (error) {
       console.error('LLM API Error:', error);
+      
+      setIsTyping(false);
       
       // Fallback zu Mock-Antwort bei API-Fehler
       const fallbackMessage = {
@@ -190,8 +200,6 @@ export default function LLMFeedbackPrototype({ onBack }) {
         ...prev,
         [activeSegment.id]: [...(prev[activeSegment.id] || []), fallbackMessage]
       }));
-    } finally {
-      setIsTyping(false);
     }
   };
 
@@ -307,20 +315,19 @@ export default function LLMFeedbackPrototype({ onBack }) {
   };
 
   const loadMockFeedback = (segments) => {
+    const mockMessages = generateMockMessages(segments);
+    // Nachrichten direkt setzen ohne Animation beim initialen Laden aller Segmente
+    setChatMessages(mockMessages);
+  };
+
+  const generateMockMessages = (segments) => {
     const mockMessages = {
       1: [
         {
           id: 1,
           sender: 'assistant',
-          message: 'Fantastisch! Der Einstieg ist sehr präzise und musikalisch ausgewogen. Die Dynamik ist gut kontrolliert.',
-          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 Minuten früher
-          feedbackType: 'good'
-        },
-        {
-          id: 2,
-          sender: 'assistant',
-          message: 'Hast du Fragen zu diesem Einstieg oder möchtest du etwas Bestimmtes verbessern? 😊',
-          timestamp: new Date(Date.now() - 4 * 60 * 1000), // 4 Minuten früher
+          message: 'Fantastisch! Der Einstieg ist sehr präzise und musikalisch ausgewogen. Die Dynamik ist gut kontrolliert. Hast du Fragen zu diesem Einstieg oder möchtest du etwas Bestimmtes verbessern? 😊',
+          timestamp: new Date(),
           feedbackType: 'good'
         }
       ],
@@ -328,15 +335,8 @@ export default function LLMFeedbackPrototype({ onBack }) {
         {
           id: 1,
           sender: 'assistant', 
-          message: 'In diesem Abschnitt sollten wir gezielt arbeiten. Der Rhythmus wird unregelmäßig und die Intonation schwankt. Lass uns das gemeinsam angehen!',
-          timestamp: new Date(Date.now() - 5 * 60 * 1000),
-          feedbackType: 'critical'
-        },
-        {
-          id: 2,
-          sender: 'assistant',
-          message: 'Keine Sorge, diese Passage ist technisch anspruchsvoll! Was ist dir beim Spielen schwer gefallen?',
-          timestamp: new Date(Date.now() - 4 * 60 * 1000),
+          message: 'In diesem Abschnitt sollten wir gezielt arbeiten. Der Rhythmus wird unregelmäßig und die Intonation schwankt. Lass uns das gemeinsam angehen! Keine Sorge, diese Passage ist technisch anspruchsvoll – was ist dir beim Spielen schwer gefallen?',
+          timestamp: new Date(),
           feedbackType: 'critical'
         }
       ],
@@ -344,15 +344,8 @@ export default function LLMFeedbackPrototype({ onBack }) {
         {
           id: 1,
           sender: 'assistant',
-          message: 'Hier gibt es sowohl positive als auch verbesserungswürdige Aspekte. Die Melodieführung ist gut, aber achte auf die Artikulation.',
-          timestamp: new Date(Date.now() - 5 * 60 * 1000),
-          feedbackType: 'neutral'
-        },
-        {
-          id: 2,
-          sender: 'assistant',
-          message: 'Was denkst du denn über diesen mittleren Abschnitt? Hast du beim Spielen etwas Bestimmtes bemerkt?',
-          timestamp: new Date(Date.now() - 4 * 60 * 1000),
+          message: 'Hier gibt es sowohl positive als auch verbesserungswürdige Aspekte. Die Melodieführung ist gut, aber achte auf die Artikulation. Was denkst du denn über diesen mittleren Abschnitt? Hast du beim Spielen etwas Bestimmtes bemerkt?',
+          timestamp: new Date(),
           feedbackType: 'neutral'
         }
       ],
@@ -360,15 +353,8 @@ export default function LLMFeedbackPrototype({ onBack }) {
         {
           id: 1,
           sender: 'assistant',
-          message: 'Sehr gut! Hier zeigst du wieder eine stabile Technik und gute musikalische Gestaltung. Die Tempoführung ist konstant.',
-          timestamp: new Date(Date.now() - 5 * 60 * 1000),
-          feedbackType: 'good'
-        },
-        {
-          id: 2,
-          sender: 'assistant',
-          message: 'Dieser Abschnitt gelingt dir bereits sehr gut! Gibt es etwas, womit du besonders zufrieden bist? 😊',
-          timestamp: new Date(Date.now() - 4 * 60 * 1000),
+          message: 'Sehr gut! Hier zeigst du wieder eine stabile Technik und gute musikalische Gestaltung. Die Tempoführung ist konstant. Dieser Abschnitt gelingt dir bereits sehr gut – gibt es etwas, womit du besonders zufrieden bist? 😊',
+          timestamp: new Date(),
           feedbackType: 'good'
         }
       ],
@@ -376,20 +362,13 @@ export default function LLMFeedbackPrototype({ onBack }) {
         {
           id: 1,
           sender: 'assistant',
-          message: 'Der Schluss ist solide, aber es gibt noch Potential für mehr Ausdruck. Die technische Ausführung ist korrekt.',
-          timestamp: new Date(Date.now() - 5 * 60 * 1000),
-          feedbackType: 'neutral'
-        },
-        {
-          id: 2,
-          sender: 'assistant',
-          message: 'Wie empfindest du denn das Ende des Stücks? Bist du mit dem Schluss zufrieden?',
-          timestamp: new Date(Date.now() - 4 * 60 * 1000),
+          message: 'Der Schluss ist solide, aber es gibt noch Potential für mehr Ausdruck. Die technische Ausführung ist korrekt. Wie empfindest du denn das Ende des Stücks? Bist du mit dem Schluss zufrieden?',
+          timestamp: new Date(),
           feedbackType: 'neutral'
         }
       ]
     };
-    setChatMessages(mockMessages);
+    return mockMessages;
   };
 
   const generateMockResponse = (userMessage, segment) => {
@@ -725,6 +704,93 @@ export default function LLMFeedbackPrototype({ onBack }) {
                   </div>
                 </div>
               ))}
+              
+              {/* Typing Indicator */}
+              {isTyping && (
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'flex-start',
+                  padding: '0 10px'
+                }}>
+                  <div style={{ 
+                    position: 'relative',
+                    paddingLeft: '15px'
+                  }}>
+                    {/* Vertikale Farbline am Rand */}
+                    <div style={{
+                      position: 'absolute',
+                      left: '0px',
+                      top: 0,
+                      bottom: 0,
+                      width: '4px',
+                      backgroundColor: activeSegment.color,
+                      borderRadius: '2px',
+                      opacity: 0.8
+                    }} />
+                    
+                    {/* Name über der Typing-Bubble */}
+                    <div style={{ 
+                      fontSize: '12px', 
+                      color: activeSegment.color, 
+                      marginBottom: '6px', 
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <img 
+                        src={getChatEmoji(activeSegment.feedback)} 
+                        alt="typing"
+                        style={{ 
+                          width: '20px', 
+                          height: '20px',
+                          borderRadius: '50%',
+                          backgroundColor: 'rgba(255,255,255,0.1)',
+                          padding: '2px'
+                        }} 
+                      />
+                      KI-Assistent
+                    </div>
+                    
+                    {/* Typing Bubble */}
+                    <div style={{ 
+                      backgroundColor: 'var(--button-color)', 
+                      padding: '12px 16px', 
+                      borderRadius: '16px 16px 16px 4px',
+                      border: `2px solid ${activeSegment.color}40`,
+                      boxShadow: 'var(--shadow)',
+                      display: 'flex',
+                      gap: '6px',
+                      alignItems: 'center'
+                    }}>
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: activeSegment.color,
+                        animation: 'typingDot 1.4s infinite ease-in-out',
+                        animationDelay: '0s'
+                      }} />
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: activeSegment.color,
+                        animation: 'typingDot 1.4s infinite ease-in-out',
+                        animationDelay: '0.2s'
+                      }} />
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: activeSegment.color,
+                        animation: 'typingDot 1.4s infinite ease-in-out',
+                        animationDelay: '0.4s'
+                      }} />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Chat Input */}
