@@ -114,6 +114,7 @@ export default function RecordingsPage({ onBack, onNext }) {
                       <source src={getAudioUrl(uploadData.file_map.referenz)} type="audio/wav" />
                       <source src={getAudioUrl(uploadData.file_map.referenz)} type="audio/mp4" />
                       Ihr Browser unterstützt das Audio-Element nicht.
+                      Dein Browser unterstützt das Audio-Element nicht.
                     </audio>
                   ) : (
                     <div style={{ color: '#ff6b6b', fontSize: '14px' }}>
@@ -163,6 +164,7 @@ export default function RecordingsPage({ onBack, onNext }) {
                       <source src={getAudioUrl(uploadData.file_map.schueler)} type="audio/wav" />
                       <source src={getAudioUrl(uploadData.file_map.schueler)} type="audio/mp4" />
                       Ihr Browser unterstützt das Audio-Element nicht.
+                      Dein Browser unterstützt das Audio-Element nicht.
                     </audio>
                   ) : (
                     <div style={{ color: '#ff6b6b', fontSize: '14px' }}>

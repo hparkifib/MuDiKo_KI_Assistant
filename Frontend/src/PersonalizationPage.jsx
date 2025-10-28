@@ -55,6 +55,7 @@ export default function PersonalizationPage({ onBack, onNext, onNavigate }) {
         <div style={{ backgroundColor: 'var(--card-color)', borderRadius: '20px', padding: '20px', width: '90%', marginTop: '10px' }}>
           <p style={{ color: 'var(--font-color)', margin: '0 0 15px 0' }}>
             Jetzt hast du die Möglichkeit, dein Feedback noch persönlicher zu gestalten.Du kannst beispielsweise sagen, worauf sie beim Feedback einen besonderen Fokus legen soll oder wo du noch Schwierigkeiten hast.
+            Jetzt hast du die Möglichkeit, dein Feedback noch persönlicher zu gestalten. Du kannst beispielsweise sagen, worauf die KI beim Feedback einen besonderen Fokus legen soll oder wo du noch Schwierigkeiten hast.
           </p>
           
           
