@@ -13,6 +13,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
   const [llmError, setLlmError] = useState(null);
   const [llmStatus, setLlmStatus] = useState(null);
+  const [showGeneralChat, setShowGeneralChat] = useState(false); // Allgemeiner Chat
   const chatMessagesRef = useRef(null);
 
     // Auto-scroll zu neuesten Nachrichten
@@ -73,16 +74,16 @@ export default function LLMFeedbackPrototype({ onBack }) {
 
   // Auto-open ersten Segment Chat beim Start
   useEffect(() => {
-    if (segments.length > 0 && !activeSegment) {
-      setActiveSegment(segments[0]); // Erstes Segment automatisch öffnen
+    if (segments.length > 0 && !activeSegment && !showGeneralChat) {
+      setShowGeneralChat(true); // Starte mit allgemeinem Chat
     }
-  }, [segments, activeSegment]);
+  }, [segments, activeSegment, showGeneralChat]);
 
   // Reset isTyping beim Wechsel des aktiven Segments
   useEffect(() => {
     setIsTyping(false);
     setCurrentMessage('');
-  }, [activeSegment]);
+  }, [activeSegment, showGeneralChat]);
 
   const initializeData = async () => {
     try {
@@ -98,11 +99,11 @@ export default function LLMFeedbackPrototype({ onBack }) {
         
         // Segment-Analyse und initiales Feedback laden
         const mockSegments = [
-          { id: 1, startTime: 0, endTime: 24, feedback: 'good', emoji: '/Emoji_grün_positiv_chat.svg', segmentEmoji: '/Emoji_grün_positiv.svg', color: '#4CAF50', bgColor: '#EDF8F0' },
-          { id: 2, startTime: 24, endTime: 48, feedback: 'critical', emoji: '/Emoji_rot_negativ_chat.svg', segmentEmoji: '/Emoji_rot_negativ.svg', color: '#F44336', bgColor: '#F9EBEB' },
-          { id: 3, startTime: 48, endTime: 72, feedback: 'neutral', emoji: '/Emoji_orange_neutral_chat.svg', segmentEmoji: '/Emoji_orange_neutral.svg', color: '#FF9800', bgColor: '#FFF3E6' },
-          { id: 4, startTime: 72, endTime: 96, feedback: 'good', emoji: '/Emoji_grün_positiv_chat.svg', segmentEmoji: '/Emoji_grün_positiv.svg', color: '#4CAF50', bgColor: '#EDF8F0' },
-          { id: 5, startTime: 96, endTime: 120, feedback: 'neutral', emoji: '/Emoji_orange_neutral_chat.svg', segmentEmoji: '/Emoji_orange_neutral.svg', color: '#FF9800', bgColor: '#FFF3E6' }
+          { id: 1, startTime: 0, endTime: 8, feedback: 'good', emoji: '/Emoji_grün_positiv_chat.svg', segmentEmoji: '/Emoji_grün_positiv.svg', color: '#4CAF50', bgColor: '#EDF8F0' },
+          { id: 2, startTime: 8, endTime: 16, feedback: 'neutral', emoji: '/Emoji_orange_neutral_chat.svg', segmentEmoji: '/Emoji_orange_neutral.svg', color: '#FF9800', bgColor: '#FFF3E6' },
+          { id: 3, startTime: 16, endTime: 24, feedback: 'neutral', emoji: '/Emoji_orange_neutral_chat.svg', segmentEmoji: '/Emoji_orange_neutral.svg', color: '#FF9800', bgColor: '#FFF3E6' },
+          { id: 4, startTime: 24, endTime: 32, feedback: 'critical', emoji: '/Emoji_rot_negativ_chat.svg', segmentEmoji: '/Emoji_rot_negativ.svg', color: '#F44336', bgColor: '#F9EBEB' },
+          { id: 5, startTime: 32, endTime: 40, feedback: 'critical', emoji: '/Emoji_rot_negativ_chat.svg', segmentEmoji: '/Emoji_rot_negativ.svg', color: '#F44336', bgColor: '#F9EBEB' }
         ];
         setSegments(mockSegments);
 
@@ -146,7 +147,9 @@ export default function LLMFeedbackPrototype({ onBack }) {
   };
 
   const sendMessage = async () => {
-    if (!currentMessage.trim() || !activeSegment) return;
+    if (!currentMessage.trim() || (!activeSegment && !showGeneralChat)) return;
+
+    const chatId = showGeneralChat ? 'general' : activeSegment.id;
 
     const userMessage = {
       id: Date.now(),
@@ -159,7 +162,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
     // Nachricht zu Chat hinzufügen
     setChatMessages(prev => ({
       ...prev,
-      [activeSegment.id]: [...(prev[activeSegment.id] || []), userMessage]
+      [chatId]: [...(prev[chatId] || []), userMessage]
     }));
 
     // Input leeren
@@ -173,13 +176,15 @@ export default function LLMFeedbackPrototype({ onBack }) {
 
     // LLM API Call für Followup-Antwort
     try {
-      const assistantMessage = await callLLMApi(activeSegment, currentMessage, 'followup');
+      const assistantMessage = showGeneralChat 
+        ? await callLLMApi(null, currentMessage, 'general')
+        : await callLLMApi(activeSegment, currentMessage, 'followup');
       
       setIsTyping(false);
       
       setChatMessages(prev => ({
         ...prev,
-        [activeSegment.id]: [...(prev[activeSegment.id] || []), assistantMessage]
+        [chatId]: [...(prev[chatId] || []), assistantMessage]
       }));
       
     } catch (error) {
@@ -193,12 +198,12 @@ export default function LLMFeedbackPrototype({ onBack }) {
         sender: 'assistant',
         message: 'Entschuldigung, ich kann momentan keine detaillierte Antwort generieren. Bitte versuche es später nochmal.',
         timestamp: new Date(),
-        feedbackType: activeSegment.feedback
+        feedbackType: showGeneralChat ? 'neutral' : activeSegment.feedback
       };
 
       setChatMessages(prev => ({
         ...prev,
-        [activeSegment.id]: [...(prev[activeSegment.id] || []), fallbackMessage]
+        [chatId]: [...(prev[chatId] || []), fallbackMessage]
       }));
     }
   };
@@ -326,7 +331,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
         {
           id: 1,
           sender: 'assistant',
-          message: 'Fantastisch! Der Einstieg ist sehr präzise und musikalisch ausgewogen. Die Dynamik ist gut kontrolliert. Hast du Fragen zu diesem Einstieg oder möchtest du etwas Bestimmtes verbessern? 😊',
+          message: 'Du hast hier die gleichen Akkorde und die richtige Tonart (F-Dur) wie die Lehrkraft verwendet. Super! Dein Klang ist etwas heller und lauter, was Kraft zeigt. Versuch beim nächsten Mal, die Lautstärke etwas gleichmäßiger zu halten, damit es ruhiger wirkt.',
           timestamp: new Date(),
           feedbackType: 'good'
         }
@@ -335,16 +340,16 @@ export default function LLMFeedbackPrototype({ onBack }) {
         {
           id: 1,
           sender: 'assistant', 
-          message: 'In diesem Abschnitt sollten wir gezielt arbeiten. Der Rhythmus wird unregelmäßig und die Intonation schwankt. Lass uns das gemeinsam angehen! Keine Sorge, diese Passage ist technisch anspruchsvoll – was ist dir beim Spielen schwer gefallen?',
+          message: 'Du hast das Tempo leicht verlangsamt und einige kleine Pausen eingebaut. Das Stück klingt dadurch etwas zögerlich. Übe, die Töne fließender aneinanderzureihen – zähle innerlich mit, um im Rhythmus zu bleiben.',
           timestamp: new Date(),
-          feedbackType: 'critical'
+          feedbackType: 'neutral'
         }
       ],
       3: [
         {
           id: 1,
           sender: 'assistant',
-          message: 'Hier gibt es sowohl positive als auch verbesserungswürdige Aspekte. Die Melodieführung ist gut, aber achte auf die Artikulation. Was denkst du denn über diesen mittleren Abschnitt? Hast du beim Spielen etwas Bestimmtes bemerkt?',
+          message: 'Die Akkorde stimmen weiterhin, sehr gut! Allerdings sind manche Töne etwas zu hoch und du machst zusätzliche Pausen. Spiele die Passage einmal mit der Referenzaufnahme zusammen – das hilft dir, die Töne besser abzustimmen.',
           timestamp: new Date(),
           feedbackType: 'neutral'
         }
@@ -353,16 +358,25 @@ export default function LLMFeedbackPrototype({ onBack }) {
         {
           id: 1,
           sender: 'assistant',
-          message: 'Sehr gut! Hier zeigst du wieder eine stabile Technik und gute musikalische Gestaltung. Die Tempoführung ist konstant. Dieser Abschnitt gelingt dir bereits sehr gut – gibt es etwas, womit du besonders zufrieden bist? 😊',
+          message: 'Hier hast du zwar dieselben Akkorde, aber dein Klang ist deutlich heller und das Spiel etwas unruhig. Vermutlich warst du an dieser Stelle etwas zu schnell. Versuch, gleichmäßig zu bleiben und die Töne sanfter anzuschlagen.',
           timestamp: new Date(),
-          feedbackType: 'good'
+          feedbackType: 'critical'
         }
       ],
       5: [
         {
           id: 1,
           sender: 'assistant',
-          message: 'Der Schluss ist solide, aber es gibt noch Potential für mehr Ausdruck. Die technische Ausführung ist korrekt. Wie empfindest du denn das Ende des Stücks? Bist du mit dem Schluss zufrieden?',
+          message: 'In diesem Abschnitt sind die Töne deutlich höher und unregelmäßiger. Auch die Lautstärke schwankt stark. Übe diese Stelle in kleinen Abschnitten – lieber langsam und sicher, bevor du das Tempo wieder erhöhst.',
+          timestamp: new Date(),
+          feedbackType: 'critical'
+        }
+      ],
+      general: [
+        {
+          id: 1,
+          sender: 'assistant',
+          message: 'Hallo! Ich bin dein Musik-KI-Assistent und habe deine Aufnahme sorgfältig mit der Referenzaufnahme deiner Lehrkraft verglichen. Ich möchte dir ein ehrliches und hilfreiches Feedback geben, damit du genau weißt, was du schon gut machst – und wo du dich noch verbessern kannst.\n\n🌟 Lob\n\nDu hast dich hörbar bemüht, das Stück nachzuspielen und dich an der Tonart sowie den Akkorden der Lehrkraft orientiert. Besonders schön ist, dass du die Harmonien in allen Segmenten gut getroffen hast – die Grundakkorde stimmen meist mit der Vorlage überein!\n\nAuch dein Tempo ist über weite Strecken recht konstant, was zeigt, dass du den musikalischen Fluss schon gut im Gefühl hast.\n\n⚠️ Fehleranalyse\n\nIn mehreren Abschnitten fällt auf, dass deine Töne oft höher klingen als in der Referenz – also leicht „überzogen" in der Tonhöhe.\n\nAußerdem sind die Lautstärken manchmal sehr unterschiedlich, wodurch dein Vortrag etwas unruhig wirkt. Auch deine Dynamik (also die Unterschiede zwischen laut und leise) ist stärker ausgeprägt als bei der Lehrkraft. Das ist grundsätzlich gut, aber manchmal übertreibst du es ein wenig, wodurch der Zusammenhang zwischen den einzelnen Phrasen verloren geht.\n\nGelegentlich machst du kleine Pausen oder Stopps, die im Original nicht vorkommen – vielleicht hast du an diesen Stellen kurz gezögert oder geatmet. Das ist normal, aber übe, die Übergänge flüssiger zu gestalten.\n\n💡 Tipps zur Verbesserung\n\n• Achte auf gleichmäßigere Lautstärke. Übe das Stück einmal sehr langsam und konzentriere dich darauf, dass alle Töne etwa gleich stark klingen.\n\n• Tonhöhe kontrollieren: Spiele (oder singe) jeden Abschnitt mit einem Stimmgerät oder Klavier als Orientierung, um sicherzugehen, dass du die richtigen Töne triffst.\n\n• Pausen vermeiden: Versuche, durchzuspielen, auch wenn dir ein kleiner Fehler passiert – das hilft, das Gefühl für den musikalischen Fluss zu behalten.\n\n• Dynamik üben: Spiele dieselbe Passage einmal „ruhiger" und einmal „ausdrucksstärker". So lernst du besser, wie du die Lautstärke gezielt einsetzt.\n\n🪶 Zusammenfassung\n\nDu bist auf einem guten Weg! Du kennst die Harmonien und hast ein Gespür für Rhythmus und Ausdruck.\n\nArbeite jetzt daran, dein Spiel gleichmäßiger und sicherer zu gestalten. Achte vor allem auf Tonhöhe und Lautstärke.\n\nWenn du magst, kann ich dir beim nächsten Üben gezielte Übungen oder Playbacks zum Mitspielen vorschlagen, die genau zu deinem aktuellen Stand passen.',
           timestamp: new Date(),
           feedbackType: 'neutral'
         }
@@ -466,7 +480,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
         zIndex: 10,
         flexShrink: 0 // Header behält feste Größe
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', flex: 1 }}>
           {/* Back Button integriert in Header */}
           <button 
             onClick={onBack}
@@ -488,7 +502,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
             ← Zurück
           </button>
           
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
             <h1 style={{ 
               margin: '0', 
               color: 'white', 
@@ -547,78 +561,126 @@ export default function LLMFeedbackPrototype({ onBack }) {
       }}>
         
         {/* Chat Area - am oberen Rand */}
-        {activeSegment && (
+        <div style={{
+          backgroundColor: 'var(--card-color)',
+          borderRadius: '20px',
+          padding: '0',
+          margin: '0 20px 20px 20px', // Gleiche Margins wie Header
+          height: 'calc(100dvh - 300px)', // DVH richtig nutzen, Platz für Header und Player
+          boxShadow: 'var(--shadow)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden' // Chat soll intern scrollen
+        }}>
+          {/* Chat Tabs - Browser-Style */}
           <div style={{
-            backgroundColor: 'var(--card-color)',
-            borderRadius: '20px',
+            display: 'flex',
+            gap: '4px',
+            padding: '8px 8px 0 8px',
+            backgroundColor: 'rgba(0,0,0,0.2)',
+            borderRadius: '20px 20px 0 0',
+            overflowX: 'auto',
+            flexShrink: 0
+          }}>
+            {/* Allgemeiner Chat Tab */}
+            <button
+              onClick={() => {
+                setShowGeneralChat(true);
+                setActiveSegment(null);
+              }}
+              style={{
+                backgroundColor: showGeneralChat ? 'var(--card-color)' : 'transparent',
+                color: 'white',
+                border: 'none',
+                padding: '10px 16px',
+                borderRadius: '10px 10px 0 0',
+                cursor: 'pointer',
+                fontFamily: "'Nunito', sans-serif",
+                fontSize: '14px',
+                fontWeight: 'var(--button-font-weight)',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                whiteSpace: 'nowrap',
+                borderBottom: showGeneralChat ? '3px solid var(--mudiko-pink)' : 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (!showGeneralChat) {
+                  e.target.style.backgroundColor = 'rgba(255,255,255,0.1)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!showGeneralChat) {
+                  e.target.style.backgroundColor = 'transparent';
+                }
+              }}
+            >
+              <span>💬</span>
+              <span>Allgemein</span>
+            </button>
+
+            {/* Segment Tabs */}
+            {segments.map((segment) => {
+              const isActive = activeSegment && activeSegment.id === segment.id;
+              return (
+                <button
+                  key={segment.id}
+                  onClick={() => {
+                    setActiveSegment(segment);
+                    setShowGeneralChat(false);
+                  }}
+                  style={{
+                    backgroundColor: isActive ? 'var(--card-color)' : 'transparent',
+                    color: 'white',
+                    border: 'none',
+                    padding: '10px 16px',
+                    borderRadius: '10px 10px 0 0',
+                    cursor: 'pointer',
+                    fontFamily: "'Nunito', sans-serif",
+                    fontSize: '14px',
+                    fontWeight: 'var(--button-font-weight)',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    whiteSpace: 'nowrap',
+                    borderBottom: isActive ? `3px solid ${segment.color}` : 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.target.style.backgroundColor = 'rgba(255,255,255,0.1)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.target.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  <img 
+                    src={getChatEmoji(segment.feedback)} 
+                    alt={`${segment.feedback} emoji`}
+                    style={{
+                      width: '20px',
+                      height: '20px'
+                    }}
+                  />
+                  <span>Segment {segment.id}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Chat Content */}
+          <div style={{
             padding: '20px',
-            margin: '0 20px 20px 20px', // Gleiche Margins wie Header
-            height: 'calc(100dvh - 300px)', // DVH richtig nutzen, Platz für Header und Player
-            boxShadow: 'var(--shadow)',
             display: 'flex',
             flexDirection: 'column',
             gap: '15px',
-            overflow: 'hidden' // Chat soll intern scrollen
+            flex: 1,
+            overflow: 'hidden'
           }}>
-            {/* Chat Header - vereinfacht ohne Close Button */}
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'flex-start', 
-              alignItems: 'center', 
-              paddingBottom: '15px',
-              borderBottom: '1px solid rgba(255,255,255,0.1)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ 
-                  width: '50px', 
-                  height: '50px', 
-                  borderRadius: '16px', 
-                  backgroundColor: 'var(--button-color)', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  border: '2px solid rgba(255,255,255,0.1)'
-                }}>
-                  <img 
-                    src={activeSegment.emoji} 
-                    alt={`${activeSegment.feedback} emoji`}
-                    style={{
-                      width: '30px',
-                      height: '30px'
-                    }}
-                  />
-                </div>
-                <div>
-                  <div style={{ color: 'white', fontWeight: 'var(--button-font-weight)', fontSize: '18px' }}>
-                    Segment {activeSegment.id}
-                  </div>
-                  <div style={{ fontSize: '14px', color: activeSegment.color, fontWeight: '600' }}>
-                    {activeSegment.feedback === 'good' ? 'Positives Feedback' : 
-                     activeSegment.feedback === 'neutral' ? 'Neutrales Feedback' : 
-                     'Verbesserungsvorschläge'}
-                  </div>
-                  <div style={{ 
-                    fontSize: '12px', 
-                    color: 'white', 
-                    marginTop: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    <img 
-                      src="/clock-icon.svg" 
-                      alt="Zeit"
-                      style={{
-                        width: '14px',
-                        height: '14px',
-                        filter: 'brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)'
-                      }}
-                    />
-                    {formatSegmentTime(activeSegment.startTime, activeSegment.endTime).timeRange}
-                  </div>
-                </div>
-              </div>
-            </div>
 
             {/* Chat Messages */}
             <div ref={chatMessagesRef} style={{ 
@@ -629,81 +691,84 @@ export default function LLMFeedbackPrototype({ onBack }) {
               flexDirection: 'column', 
               gap: '16px'
             }}>
-              {(chatMessages[activeSegment.id] || []).map(msg => (
-                <div key={msg.id} style={{ 
-                  display: 'flex', 
-                  justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                  padding: '0 10px' // Mehr Abstand zu den Seiten
-                }}>
-                  <div style={{ 
-                    maxWidth: '85%', // Breiter für bessere Lesbarkeit
-                    position: 'relative',
-                    paddingLeft: msg.sender === 'assistant' ? '15px' : '0px',
-                    paddingRight: msg.sender === 'user' ? '15px' : '0px'
+              {(chatMessages[showGeneralChat ? 'general' : activeSegment?.id] || []).map(msg => {
+                const segmentColor = showGeneralChat ? '#FF9800' : activeSegment?.color;
+                return (
+                  <div key={msg.id} style={{ 
+                    display: 'flex', 
+                    justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                    padding: '0 10px' // Mehr Abstand zu den Seiten
                   }}>
-                    {/* Vertikale Farbline am Rand */}
-                    <div style={{
-                      position: 'absolute',
-                      left: msg.sender === 'user' ? 'auto' : '0px',
-                      right: msg.sender === 'user' ? '0px' : 'auto',
-                      top: 0,
-                      bottom: 0,
-                      width: '4px',
-                      backgroundColor: msg.sender === 'assistant' ? activeSegment.color : 'var(--mudiko-pink)',
-                      borderRadius: '2px',
-                      opacity: 0.8
-                    }} />
-                    
-                    {/* Name über der Nachricht */}
                     <div style={{ 
-                      fontSize: '12px', 
-                      color: msg.sender === 'assistant' ? activeSegment.color : 'var(--mudiko-pink)', 
-                      marginBottom: '6px', 
-                      fontWeight: '600',
-                      textAlign: msg.sender === 'user' ? 'right' : 'left',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start'
+                      maxWidth: '85%', // Breiter für bessere Lesbarkeit
+                      position: 'relative',
+                      paddingLeft: msg.sender === 'assistant' ? '15px' : '0px',
+                      paddingRight: msg.sender === 'user' ? '15px' : '0px'
                     }}>
-                      {msg.sender === 'assistant' && msg.feedbackType && (
-                        <img 
-                          src={getChatEmoji(msg.feedbackType)} 
-                          alt={`${msg.feedbackType} feedback`}
-                          style={{ 
-                            width: '20px', 
-                            height: '20px',
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(255,255,255,0.1)',
-                            padding: '2px'
-                          }} 
-                        />
-                      )}
-                      {msg.sender === 'assistant' ? 'KI-Assistent' : '👤 Schüler'}
-                    </div>
-                    
-                    {/* Nachricht */}
-                    <div style={{ 
-                      backgroundColor: 'var(--button-color)', 
-                      color: 'white', 
-                      padding: '12px 16px', 
-                      borderRadius: msg.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-                      border: `2px solid ${msg.sender === 'assistant' ? activeSegment.color + '40' : 'var(--mudiko-pink)40'}`,
-                      boxShadow: 'var(--shadow)'
-                    }}>
-                      <div style={{ fontSize: '14px', lineHeight: '1.4' }}>{msg.message}</div>
+                      {/* Vertikale Farbline am Rand */}
+                      <div style={{
+                        position: 'absolute',
+                        left: msg.sender === 'user' ? 'auto' : '0px',
+                        right: msg.sender === 'user' ? '0px' : 'auto',
+                        top: 0,
+                        bottom: 0,
+                        width: '4px',
+                        backgroundColor: msg.sender === 'assistant' ? segmentColor : 'var(--mudiko-pink)',
+                        borderRadius: '2px',
+                        opacity: 0.8
+                      }} />
+                      
+                      {/* Name über der Nachricht */}
                       <div style={{ 
-                        fontSize: '10px', 
-                        color: 'white', 
-                        marginTop: '8px', 
-                        textAlign: 'right' 
+                        fontSize: '12px', 
+                        color: msg.sender === 'assistant' ? segmentColor : 'var(--mudiko-pink)', 
+                        marginBottom: '6px', 
+                        fontWeight: '600',
+                        textAlign: msg.sender === 'user' ? 'right' : 'left',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start'
                       }}>
-                        {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        {msg.sender === 'assistant' && msg.feedbackType && !showGeneralChat && (
+                          <img 
+                            src={getChatEmoji(msg.feedbackType)} 
+                            alt={`${msg.feedbackType} feedback`}
+                            style={{ 
+                              width: '20px', 
+                              height: '20px',
+                              borderRadius: '50%',
+                              backgroundColor: 'rgba(255,255,255,0.1)',
+                              padding: '2px'
+                            }} 
+                          />
+                        )}
+                        {msg.sender === 'assistant' ? 'KI-Assistent' : '👤 Schüler'}
+                      </div>
+                      
+                      {/* Nachricht */}
+                      <div style={{ 
+                        backgroundColor: 'var(--button-color)', 
+                        color: 'white', 
+                        padding: '12px 16px', 
+                        borderRadius: msg.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                        border: `2px solid ${msg.sender === 'assistant' ? segmentColor + '40' : 'var(--mudiko-pink)40'}`,
+                        boxShadow: 'var(--shadow)'
+                      }}>
+                        <div style={{ fontSize: '14px', lineHeight: '1.4' }}>{msg.message}</div>
+                        <div style={{ 
+                          fontSize: '10px', 
+                          color: 'white', 
+                          marginTop: '8px', 
+                          textAlign: 'right' 
+                        }}>
+                          {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               
               {/* Typing Indicator */}
               {isTyping && (
@@ -723,7 +788,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
                       top: 0,
                       bottom: 0,
                       width: '4px',
-                      backgroundColor: activeSegment.color,
+                      backgroundColor: showGeneralChat ? '#FF9800' : activeSegment?.color,
                       borderRadius: '2px',
                       opacity: 0.8
                     }} />
@@ -731,24 +796,26 @@ export default function LLMFeedbackPrototype({ onBack }) {
                     {/* Name über der Typing-Bubble */}
                     <div style={{ 
                       fontSize: '12px', 
-                      color: activeSegment.color, 
+                      color: showGeneralChat ? '#FF9800' : activeSegment?.color, 
                       marginBottom: '6px', 
                       fontWeight: '600',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px'
                     }}>
-                      <img 
-                        src={getChatEmoji(activeSegment.feedback)} 
-                        alt="typing"
-                        style={{ 
-                          width: '20px', 
-                          height: '20px',
-                          borderRadius: '50%',
-                          backgroundColor: 'rgba(255,255,255,0.1)',
-                          padding: '2px'
-                        }} 
-                      />
+                      {!showGeneralChat && activeSegment?.feedbackType && (
+                        <img 
+                          src={getChatEmoji(activeSegment.feedback)} 
+                          alt="typing"
+                          style={{ 
+                            width: '20px', 
+                            height: '20px',
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(255,255,255,0.1)',
+                            padding: '2px'
+                          }} 
+                        />
+                      )}
                       KI-Assistent
                     </div>
                     
@@ -757,7 +824,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
                       backgroundColor: 'var(--button-color)', 
                       padding: '12px 16px', 
                       borderRadius: '16px 16px 16px 4px',
-                      border: `2px solid ${activeSegment.color}40`,
+                      border: `2px solid ${showGeneralChat ? '#FF9800' : activeSegment?.color}40`,
                       boxShadow: 'var(--shadow)',
                       display: 'flex',
                       gap: '6px',
@@ -767,7 +834,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
                         width: '8px',
                         height: '8px',
                         borderRadius: '50%',
-                        backgroundColor: activeSegment.color,
+                        backgroundColor: showGeneralChat ? '#FF9800' : activeSegment?.color,
                         animation: 'typingDot 1.4s infinite ease-in-out',
                         animationDelay: '0s'
                       }} />
@@ -775,7 +842,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
                         width: '8px',
                         height: '8px',
                         borderRadius: '50%',
-                        backgroundColor: activeSegment.color,
+                        backgroundColor: showGeneralChat ? '#FF9800' : activeSegment?.color,
                         animation: 'typingDot 1.4s infinite ease-in-out',
                         animationDelay: '0.2s'
                       }} />
@@ -783,7 +850,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
                         width: '8px',
                         height: '8px',
                         borderRadius: '50%',
-                        backgroundColor: activeSegment.color,
+                        backgroundColor: showGeneralChat ? '#FF9800' : activeSegment?.color,
                         animation: 'typingDot 1.4s infinite ease-in-out',
                         animationDelay: '0.4s'
                       }} />
@@ -806,7 +873,7 @@ export default function LLMFeedbackPrototype({ onBack }) {
                 value={currentMessage} 
                 onChange={(e) => setCurrentMessage(e.target.value)} 
                 onKeyPress={handleKeyPress} 
-                placeholder={`Frage an Segment ${activeSegment.id}...`} 
+                placeholder={showGeneralChat ? 'Deine Frage...' : `Frage an Segment ${activeSegment?.id}...`} 
                 style={{ 
                   flex: 1, 
                   padding: '12px 16px', 
@@ -851,20 +918,22 @@ export default function LLMFeedbackPrototype({ onBack }) {
               </button>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Audio Player direkt ohne Container */}
         <div style={{
           flexShrink: 0, // Behält feste Größe
-          margin: '0 20px 20px 20px', // Gleiche Margins wie Header und Chat
-          paddingTop: '50px' // Platz für herausragende Emojis
+          margin: '0 20px 20px 20px' // Gleiche Margins wie Header und Chat
         }}>
           <AudioPlayer 
             uploadData={uploadData} 
             segments={segments}
             activeSegment={activeSegment}
             currentSegment={currentSegment}
-            onSegmentClick={handleSegmentClick}
+            onSegmentClick={(segment) => {
+              setActiveSegment(segment);
+              setShowGeneralChat(false);
+            }}
             onTimeUpdate={(currentTime) => {
               // Bestimme aktuelles Segment basierend auf Audio-Zeit
               const current = segments.find(segment => 

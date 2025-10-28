@@ -132,86 +132,13 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
         preload="metadata"
       />
 
-      {/* Segment Buttons - herausragend aus dem Container */}
-      {segments.length > 0 && (
-        <div style={{
-          display: 'flex',
-          width: 'calc(100% - 40px)', // Anpassung an AudioPlayer-Breite (minus Padding)
-          gap: '8px',
-          alignItems: 'flex-start', // Emojis oben ausrichten - wachsen nach unten
-          position: 'absolute',
-          top: '-40px', // Herausragen aus dem Container
-          left: '20px', // Container-Padding berücksichtigen
-          zIndex: 10 // Über anderen Elementen
-        }}>
-          {segments.map((segment) => {
-            const isCurrentSegment = currentSegment && currentSegment.id === segment.id;
-            const isActiveSegment = activeSegment && activeSegment.id === segment.id;
-            
-            return (
-              <div
-                key={segment.id}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  flex: 1,
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  alignSelf: 'flex-start' // Jedes Segment startet oben und wächst nach unten
-                }}
-                onClick={() => onSegmentClick && onSegmentClick(segment)}
-              >
-                {/* Emoji Container mit farbigem Hintergrund */}
-                <div style={{
-                  backgroundColor: segment.bgColor,
-                  borderRadius: '20px',
-                  width: isActiveSegment ? '70px' : '60px',
-                  height: isActiveSegment ? '70px' : '60px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: '15px', // Mehr Abstand zum Container
-                  transition: 'all 0.3s ease',
-                  border: isCurrentSegment ? '3px solid #ffffff' : 'none',
-                  boxShadow: isActiveSegment ? 'var(--shadow)' : '2px 2px 8px rgba(0,0,0,0.3)' // Schatten für bessere Sichtbarkeit
-                }}>
-                  <img 
-                    src={segment.segmentEmoji || segment.emoji} 
-                    alt={`${segment.feedback} emoji`}
-                    style={{
-                      width: isActiveSegment ? '35px' : '30px',
-                      height: isActiveSegment ? '35px' : '30px',
-                      transition: 'all 0.3s ease'
-                    }}
-                  />
-                </div>
-                
-                {/* Flacher Button darunter */}
-                <div style={{
-                  width: '100%',
-                  height: '8px',
-                  backgroundColor: segment.color,
-                  borderRadius: '4px',
-                  opacity: isActiveSegment ? 1 : 0.7,
-                  transition: 'all 0.3s ease'
-                }} />
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Platz für herausragende Segmente */}
-      <div style={{ marginTop: '25px' }} />
-
       {/* Progress Bar - unter den Segment Buttons */}
       <div
         onClick={handleSeek}
         style={{
           width: '100%',
           height: '20px',
-          backgroundColor: 'rgba(255,255,255,0.3)',
+          backgroundColor: '#2a2a2a',
           borderRadius: '10px',
           cursor: 'pointer',
           position: 'relative',
@@ -220,34 +147,56 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
         }}
       >
         {/* Segment Background Colors - Hintergrundfarben der Segmente */}
-        {segments.map((segment) => (
-          <div
-            key={`background-${segment.id}`}
-            style={{
-              position: 'absolute',
-              left: duration > 0 ? `${(segment.startTime / duration) * 100}%` : '0%',
-              width: duration > 0 ? `${((segment.endTime - segment.startTime) / duration) * 100}%` : '0%',
-              height: '100%',
-              backgroundColor: segment.bgColor,
-              opacity: 0.6,
-              borderRadius: '8px',
-              pointerEvents: 'none'
-            }}
-          />
-        ))}
+        {segments.map((segment) => {
+          const isCurrentSegment = currentSegment && currentSegment.id === segment.id;
+          return (
+            <div
+              key={`background-${segment.id}`}
+              style={{
+                position: 'absolute',
+                left: duration > 0 ? `${(segment.startTime / duration) * 100}%` : '0%',
+                width: duration > 0 ? `${((segment.endTime - segment.startTime) / duration) * 100}%` : '0%',
+                height: '100%',
+                backgroundColor: segment.color,
+                opacity: 1,
+                borderRadius: '8px',
+                pointerEvents: 'none',
+                boxShadow: isCurrentSegment 
+                  ? 'inset 0 0 20px rgba(255,255,255,0.6), inset 0 2px 4px rgba(0,0,0,0.3)' 
+                  : 'inset 0 2px 4px rgba(0,0,0,0.3)',
+                transition: 'all 0.3s ease'
+              }}
+            />
+          );
+        })}
 
         {/* Progress Fill */}
         <div
           style={{
             width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%',
             height: '100%',
-            backgroundColor: 'var(--mudiko-pink)',
+            backgroundColor: 'rgba(255,255,255,0.7)',
             borderRadius: '10px',
             transition: 'width 0.1s ease',
             position: 'relative',
             zIndex: 2
           }}
-        />
+        >
+          {/* Cursor - aktuelle Position */}
+          <div
+            style={{
+              position: 'absolute',
+              right: '-10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: '20px',
+              height: '20px',
+              backgroundColor: 'white',
+              borderRadius: '50%',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+            }}
+          />
+        </div>
         
         {/* Segment Separators */}
         {segments.slice(0, -1).map((segment, index) => (
