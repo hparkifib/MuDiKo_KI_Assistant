@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 export default function InstrumentsPage({ onBack, onNext }) {
-  const [referenceInstrument, setReferenceInstrument] = useState('');
-  const [userInstrument, setUserInstrument] = useState('');
   const [referenceInstrument, setReferenceInstrument] = useState('Klavier');
   const [userInstrument, setUserInstrument] = useState('Klavier');
   const [customReferenceInstrument, setCustomReferenceInstrument] = useState('');
@@ -45,8 +43,6 @@ export default function InstrumentsPage({ onBack, onNext }) {
       const existingData = JSON.parse(localStorage.getItem('formData') || '{}');
       const updatedData = {
         ...existingData,
-        referenceInstrument: referenceInstrument.trim() || 'keine Angabe',
-        userInstrument: userInstrument.trim() || 'keine Angabe'
         referenceInstrument: referenceInstrument === 'custom' ? customReferenceInstrument : referenceInstrument,
         userInstrument: userInstrument === 'custom' ? customUserInstrument : userInstrument,
         customReferenceInstrument: referenceInstrument === 'custom' ? customReferenceInstrument : '',
@@ -100,33 +96,12 @@ export default function InstrumentsPage({ onBack, onNext }) {
         </div>
         <div style={{ backgroundColor: 'var(--card-color)', borderRadius: '20px', padding: '20px', width: '90%', marginTop: '10px' }}>
           <p style={{ color: 'var(--font-color)', margin: '0 0 20px 0' }}>
-            Es hilft der Künstlichen Intelligenz zu wissen, mit welchem Instrument deine Lehrkraft und du eure Audio-Aufnahme eingespeilt habt. Gib daher bitte die verwendeten Instrumente an:
             Es hilft der Künstlichen Intelligenz zu wissen, mit welchem Instrument deine Lehrkraft und du eure Audio-Aufnahme eingespielt habt. Gib daher bitte die verwendeten Instrumente an:
           </p>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
             {/* Referenz-Instrument */}
             <div>
-              <label style={{ color: 'var(--font-color)', fontSize: '16px', display: 'block', marginBottom: '5px' }}>
-                Instrument Referenz:
-              </label>
-              <input
-                type="text"
-                value={referenceInstrument}
-                onChange={(e) => setReferenceInstrument(e.target.value)}
-                placeholder="z.B. Klavier, Gitarre, Violine..."
-                style={{
-                  width: '50%',
-                  padding: '5px 8px',
-                  backgroundColor: 'var(--button-color)',
-                  color: 'var(--font-color)',
-                  border: 'none',
-                  borderRadius: '5px',
-                  fontFamily: "'Nunito', sans-serif",
-                  fontSize: '14px'
-                }}
-              />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                 <span style={{ color: 'var(--font-color)', fontSize: '16px' }}>Instrument Referenz</span>
                 <select 
@@ -202,25 +177,6 @@ export default function InstrumentsPage({ onBack, onNext }) {
 
             {/* Benutzer-Instrument */}
             <div>
-              <label style={{ color: 'var(--font-color)', fontSize: '16px', display: 'block', marginBottom: '5px' }}>
-                Dein Instrument:
-              </label>
-              <input
-                type="text"
-                value={userInstrument}
-                onChange={(e) => setUserInstrument(e.target.value)}
-                placeholder="z.B. Klavier, Gitarre, Violine..."
-                style={{
-                  width: '50%',
-                  padding: '5px 8px',
-                  backgroundColor: 'var(--button-color)',
-                  color: 'var(--font-color)',
-                  border: 'none',
-                  borderRadius: '5px',
-                  fontFamily: "'Nunito', sans-serif",
-                  fontSize: '14px'
-                }}
-              />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                 <span style={{ color: 'var(--font-color)', fontSize: '16px' }}>Dein Instrument</span>
                 <select 
