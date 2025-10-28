@@ -1,8 +1,25 @@
 import React, { useState, useEffect } from 'react';
 
 export default function InstrumentsPage({ onBack, onNext }) {
-  const [referenceInstrument, setReferenceInstrument] = useState('');
-  const [userInstrument, setUserInstrument] = useState('');
+  const [referenceInstrument, setReferenceInstrument] = useState('Klavier');
+  const [userInstrument, setUserInstrument] = useState('Klavier');
+  const [customReferenceInstrument, setCustomReferenceInstrument] = useState('');
+  const [customUserInstrument, setCustomUserInstrument] = useState('');
+  const [availableInstruments, setAvailableInstruments] = useState([
+    { value: 'Klavier', label: 'Klavier' },
+    { value: 'Gitarre', label: 'Gitarre' },
+    { value: 'Violine', label: 'Violine' },
+    { value: 'Cello', label: 'Cello' },
+    { value: 'Kontrabass', label: 'Kontrabass' },
+    { value: 'Flöte', label: 'Flöte' },
+    { value: 'Klarinette', label: 'Klarinette' },
+    { value: 'Saxophon', label: 'Saxophon' },
+    { value: 'Trompete', label: 'Trompete' },
+    { value: 'Posaune', label: 'Posaune' },
+    { value: 'Schlagzeug', label: 'Schlagzeug' },
+    { value: 'Gesang', label: 'Gesang' },
+    { value: 'custom', label: 'Sonstiges' }
+  ]);
 
   // Load saved data on component mount
   useEffect(() => {
@@ -12,6 +29,8 @@ export default function InstrumentsPage({ onBack, onNext }) {
         const data = JSON.parse(savedData);
         if (data.referenceInstrument) setReferenceInstrument(data.referenceInstrument);
         if (data.userInstrument) setUserInstrument(data.userInstrument);
+        if (data.customReferenceInstrument) setCustomReferenceInstrument(data.customReferenceInstrument);
+        if (data.customUserInstrument) setCustomUserInstrument(data.customUserInstrument);
       }
     } catch (error) {
       console.error('Error loading saved instrument data:', error);
@@ -24,14 +43,34 @@ export default function InstrumentsPage({ onBack, onNext }) {
       const existingData = JSON.parse(localStorage.getItem('formData') || '{}');
       const updatedData = {
         ...existingData,
-        referenceInstrument: referenceInstrument.trim() || 'keine Angabe',
-        userInstrument: userInstrument.trim() || 'keine Angabe'
+        referenceInstrument: referenceInstrument === 'custom' ? customReferenceInstrument : referenceInstrument,
+        userInstrument: userInstrument === 'custom' ? customUserInstrument : userInstrument,
+        customReferenceInstrument: referenceInstrument === 'custom' ? customReferenceInstrument : '',
+        customUserInstrument: userInstrument === 'custom' ? customUserInstrument : ''
       };
       localStorage.setItem('formData', JSON.stringify(updatedData));
       onNext();
     } catch (error) {
       console.error('Error saving instrument data:', error);
       onNext(); // Continue anyway
+    }
+  };
+
+  const handleConfirmCustomReferenceInstrument = () => {
+    if (customReferenceInstrument.trim()) {
+      const newInstrument = { value: customReferenceInstrument.trim(), label: customReferenceInstrument.trim() };
+      setAvailableInstruments(prev => [...prev.filter(inst => inst.value !== 'custom'), newInstrument, { value: 'custom', label: 'Sonstiges' }]);
+      setReferenceInstrument(customReferenceInstrument.trim());
+      setCustomReferenceInstrument('');
+    }
+  };
+
+  const handleConfirmCustomUserInstrument = () => {
+    if (customUserInstrument.trim()) {
+      const newInstrument = { value: customUserInstrument.trim(), label: customUserInstrument.trim() };
+      setAvailableInstruments(prev => [...prev.filter(inst => inst.value !== 'custom'), newInstrument, { value: 'custom', label: 'Sonstiges' }]);
+      setUserInstrument(customUserInstrument.trim());
+      setCustomUserInstrument('');
     }
   };
   return (
@@ -60,49 +99,153 @@ export default function InstrumentsPage({ onBack, onNext }) {
             Es hilft der Künstlichen Intelligenz zu wissen, mit welchem Instrument deine Lehrkraft und du eure Audio-Aufnahme eingespielt habt. Gib daher bitte die verwendeten Instrumente an:
           </p>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+            {/* Referenz-Instrument */}
             <div>
-              <label style={{ color: 'var(--font-color)', fontSize: '16px', display: 'block', marginBottom: '5px' }}>
-                Instrument Referenz:
-              </label>
-              <input
-                type="text"
-                value={referenceInstrument}
-                onChange={(e) => setReferenceInstrument(e.target.value)}
-                placeholder="z.B. Klavier, Gitarre, Violine..."
-                style={{
-                  width: '50%',
-                  padding: '5px 8px',
-                  backgroundColor: 'var(--button-color)',
-                  color: 'var(--font-color)',
-                  border: 'none',
-                  borderRadius: '5px',
-                  fontFamily: "'Nunito', sans-serif",
-                  fontSize: '14px'
-                }}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span style={{ color: 'var(--font-color)', fontSize: '16px' }}>Instrument Referenz</span>
+                <select 
+                  value={referenceInstrument} 
+                  onChange={(e) => setReferenceInstrument(e.target.value)}
+                  style={{ 
+                    backgroundColor: 'var(--button-color)', 
+                    color: 'var(--font-color)', 
+                    border: 'none', 
+                    borderRadius: '5px', 
+                    padding: '5px 10px',
+                    fontFamily: "'Nunito', sans-serif"
+                  }}
+                >
+                  {availableInstruments.map(inst => (
+                    <option key={inst.value} value={inst.value}>{inst.label}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {referenceInstrument === 'custom' && (
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    placeholder="Instrument eingeben"
+                    value={customReferenceInstrument}
+                    onChange={(e) => setCustomReferenceInstrument(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      backgroundColor: 'var(--button-color)',
+                      color: 'var(--font-color)',
+                      border: 'none',
+                      borderRadius: '5px',
+                      fontFamily: "'Nunito', sans-serif",
+                      fontSize: '16px'
+                    }}
+                  />
+                  <button
+                    onClick={handleConfirmCustomReferenceInstrument}
+                    disabled={!customReferenceInstrument.trim()}
+                    style={{
+                      padding: '12px 20px',
+                      backgroundColor: 'var(--button-color)',
+                      color: 'var(--font-color)',
+                      border: '2px solid #666666',
+                      borderRadius: '10px',
+                      fontFamily: "'Nunito', sans-serif",
+                      fontSize: 'var(--button-font-size)',
+                      fontWeight: 'var(--button-font-weight)',
+                      cursor: customReferenceInstrument.trim() ? 'pointer' : 'not-allowed',
+                      opacity: customReferenceInstrument.trim() ? 1 : 0.5,
+                      boxShadow: customReferenceInstrument.trim() ? 'var(--shadow)' : 'none',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (customReferenceInstrument.trim()) {
+                        e.target.style.transform = 'scale(1.02)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (customReferenceInstrument.trim()) {
+                        e.target.style.transform = 'scale(1)';
+                      }
+                    }}
+                  >
+                    bestätigen
+                  </button>
+                </div>
+              )}
             </div>
-            
+
+            {/* Benutzer-Instrument */}
             <div>
-              <label style={{ color: 'var(--font-color)', fontSize: '16px', display: 'block', marginBottom: '5px' }}>
-                Dein Instrument:
-              </label>
-              <input
-                type="text"
-                value={userInstrument}
-                onChange={(e) => setUserInstrument(e.target.value)}
-                placeholder="z.B. Klavier, Gitarre, Violine..."
-                style={{
-                  width: '50%',
-                  padding: '5px 8px',
-                  backgroundColor: 'var(--button-color)',
-                  color: 'var(--font-color)',
-                  border: 'none',
-                  borderRadius: '5px',
-                  fontFamily: "'Nunito', sans-serif",
-                  fontSize: '14px'
-                }}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span style={{ color: 'var(--font-color)', fontSize: '16px' }}>Dein Instrument</span>
+                <select 
+                  value={userInstrument} 
+                  onChange={(e) => setUserInstrument(e.target.value)}
+                  style={{ 
+                    backgroundColor: 'var(--button-color)', 
+                    color: 'var(--font-color)', 
+                    border: 'none', 
+                    borderRadius: '5px', 
+                    padding: '5px 10px',
+                    fontFamily: "'Nunito', sans-serif"
+                  }}
+                >
+                  {availableInstruments.map(inst => (
+                    <option key={inst.value} value={inst.value}>{inst.label}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {userInstrument === 'custom' && (
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    placeholder="Instrument eingeben"
+                    value={customUserInstrument}
+                    onChange={(e) => setCustomUserInstrument(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      backgroundColor: 'var(--button-color)',
+                      color: 'var(--font-color)',
+                      border: 'none',
+                      borderRadius: '5px',
+                      fontFamily: "'Nunito', sans-serif",
+                      fontSize: '16px'
+                    }}
+                  />
+                  <button
+                    onClick={handleConfirmCustomUserInstrument}
+                    disabled={!customUserInstrument.trim()}
+                    style={{
+                      padding: '12px 20px',
+                      backgroundColor: 'var(--button-color)',
+                      color: 'var(--font-color)',
+                      border: '2px solid #666666',
+                      borderRadius: '10px',
+                      fontFamily: "'Nunito', sans-serif",
+                      fontSize: 'var(--button-font-size)',
+                      fontWeight: 'var(--button-font-weight)',
+                      cursor: customUserInstrument.trim() ? 'pointer' : 'not-allowed',
+                      opacity: customUserInstrument.trim() ? 1 : 0.5,
+                      boxShadow: customUserInstrument.trim() ? 'var(--shadow)' : 'none',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (customUserInstrument.trim()) {
+                        e.target.style.transform = 'scale(1.02)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (customUserInstrument.trim()) {
+                        e.target.style.transform = 'scale(1)';
+                      }
+                    }}
+                  >
+                    bestätigen
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
