@@ -57,7 +57,7 @@ export default function InstrumentsPage({ onBack, onNext }) {
         </div>
         <div style={{ backgroundColor: 'var(--card-color)', borderRadius: '20px', padding: '20px', width: '90%', marginTop: '10px' }}>
           <p style={{ color: 'var(--font-color)', margin: '0 0 20px 0' }}>
-            Es hilft der Künstlichen Intelligenz zu wissen, mit welchem Instrument deine Lehrkraft und du eure Audio-Aufnahme eingespeilt habt. Gib daher bitte die verwendeten Instrumente an:
+            Es hilft der Künstlichen Intelligenz zu wissen, mit welchem Instrument deine Lehrkraft und du eure Audio-Aufnahme eingespielt habt. Gib daher bitte die verwendeten Instrumente an:
           </p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>

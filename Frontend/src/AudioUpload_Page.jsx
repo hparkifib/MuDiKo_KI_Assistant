@@ -11,7 +11,7 @@ export default function AudioUpload_Page({ onNext }) {
 
   const handleUpload = async () => {
     if (!refFile || !songFile) {
-      setUploadStatus({ type: 'error', message: 'Bitte wählen Sie beide Audiodateien aus' });
+      setUploadStatus({ type: 'error', message: 'Bitte wähle beide Audiodateien aus' });
       return;
     }
 
@@ -77,7 +77,7 @@ export default function AudioUpload_Page({ onNext }) {
               <input type="file" id="ref-upload" accept="audio/mp3,audio/wav,video/mp4" style={{ display: 'none' }} onChange={(e) => {
                 const file = e.target.files[0];
                 if (file && !['audio/mpeg', 'audio/wav', 'video/mp4', 'audio/mp4'].includes(file.type)) {
-                  alert('Nicht unterstützter Dateityp. Bitte wählen Sie MP3, WAV oder MP4.');
+                  alert('Nicht unterstützter Dateityp. Bitte wähle MP3, WAV oder MP4.');
                   e.target.value = '';
                   setRefFile(null);
                   setRefFileName('');
@@ -101,7 +101,7 @@ export default function AudioUpload_Page({ onNext }) {
               <input type="file" id="song-upload" accept="audio/mp3,audio/wav,video/mp4" style={{ display: 'none' }} onChange={(e) => {
                 const file = e.target.files[0];
                 if (file && !['audio/mpeg', 'audio/wav', 'video/mp4', 'audio/mp4'].includes(file.type)) {
-                  alert('Nicht unterstützter Dateityp. Bitte wählen Sie MP3, WAV oder MP4.');
+                  alert('Nicht unterstützter Dateityp. Bitte wähle MP3, WAV oder MP4.');
                   e.target.value = '';
                   setSongFile(null);
                   setSongFileName('');
