@@ -18,6 +18,7 @@ git clone https://github.com/hparkifib/MuDiKo_KI_Assistant.git
 cd MuDiKo_KI_Assistant
 
 # Alles starten (dauert beim ersten Mal etwas länger)
+docker-compose build
 docker-compose up -d
 ```
 **➜ Dann öffnen:** http://localhost
