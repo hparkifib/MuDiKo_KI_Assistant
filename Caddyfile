@@ -1,0 +1,51 @@
+# MuDiKo KI Assistant - Caddy Reverse Proxy Konfiguration
+# Automatisches HTTPS mit Let's Encrypt für music.ifib.eu
+
+music.ifib.eu {
+    # Automatisches HTTPS von Let's Encrypt
+    # Caddy holt und erneuert Zertifikate automatisch
+    
+    # Security Headers
+    header {
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer-when-downgrade"
+        -Server
+    }
+    
+    # Backend API Routen
+    handle /api/* {
+        reverse_proxy backend:5000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+    
+    # Frontend (React App) - alle anderen Routen
+    handle {
+        reverse_proxy frontend:80 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+    
+    # File Upload Limit (100MB für Audio-Dateien)
+    request_body {
+        max_size 100MB
+    }
+    
+    # Logging
+    log {
+        output file /data/access.log
+        format json
+        level INFO
+    }
+}
+
+# Optional: Redirect www zu non-www
+www.music.ifib.eu {
+    redir https://music.ifib.eu{uri} permanent
+}
