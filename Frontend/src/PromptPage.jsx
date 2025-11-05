@@ -412,7 +412,7 @@ export default function PromptPage({ onBack }) {
                   💡 So erhältst du dein Feedback:
                 </h4>
                 <ol style={{ color: 'var(--font-color)', margin: '0', paddingLeft: '20px', fontSize: '14px' }}>
-                  <li style={{ marginBottom: '8px' }}>Drücke auf "Prompt Kopieren", um den Anweisungstext für die KI zu kopieren</li>
+                  <li style={{ marginBottom: '8px' }}>Drücke auf "Prompt Kopieren", um den Anweisungstext in der Zwischenablage zu speichern</li>
                   <li style={{ marginBottom: '8px' }}>Drücke auf "Analyse-Daten herunterladen", um die Audio-Analysedaten als Textdatei zu speichern</li>
                   <li style={{ marginBottom: '8px' }}>Öffne eine KI deiner Wahl (z.B. Telli, ChatGPT, Claude, Gemini)</li>
                   <li style={{ marginBottom: '8px' }}>Füge den kopierten Prompt in einen neuen Chat ein. Alternativ kannst du auch selbst einen Prompt verfassen</li>
