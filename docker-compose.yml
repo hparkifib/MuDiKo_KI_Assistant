@@ -1,8 +1,9 @@
 # MuDiKo KI Assistant - Docker Compose Configuration
 # 
 # Dieses Setup startet:
-# - Backend: Flask API (Python) auf Port 5000 
-# - Frontend: React App (nginx) auf Port 80
+# - Backend: Flask API (Python) intern auf Port 5000 
+# - Frontend: React App (nginx) intern auf Port 80
+# - Caddy: Reverse Proxy mit automatischem HTTPS auf Port 443
 # - Automatisches Health Monitoring
 #
 # Start: docker-compose up -d
@@ -14,8 +15,8 @@ services:
   backend:
     build: ./Backend
     container_name: mudiko-backend
-    ports:
-      - "5000:5000"              # API verfügbar auf localhost:5000
+    expose:
+      - "5000"                   # Nur intern im Docker-Netzwerk erreichbar
     volumes:
       - ./Backend/uploads:/app/uploads  # Persistente Audio-Speicherung
     environment:
@@ -34,11 +35,31 @@ services:
   frontend:
     build: ./Frontend
     container_name: mudiko-frontend
-    ports:
-      - "80:80"                  # Web-Interface auf localhost:80
+    expose:
+      - "80"                     # Nur intern im Docker-Netzwerk erreichbar
     depends_on:
       - backend                  # Startet erst nach Backend
     restart: unless-stopped      # Auto-Restart bei Fehlern
+    networks:
+      - mudiko-network
+
+  # Caddy Reverse Proxy - HTTPS mit automatischen Zertifikaten
+  caddy:
+    image: caddy:2.7-alpine
+    container_name: mudiko-caddy
+    ports:
+      - "80:80"                  # HTTP (automatischer Redirect zu HTTPS)
+      - "443:443"                # HTTPS
+      - "443:443/udp"            # HTTP/3 (QUIC)
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data         # SSL-Zertifikate
+      - caddy-config:/config     # Caddy-Konfiguration
+      - caddy-logs:/data         # Access Logs
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
     networks:
       - mudiko-network
 
@@ -53,3 +74,12 @@ volumes:
   uploads:
     driver: local
     name: mudiko-uploads
+  caddy-data:
+    driver: local
+    name: mudiko-caddy-data
+  caddy-config:
+    driver: local
+    name: mudiko-caddy-config
+  caddy-logs:
+    driver: local
+    name: mudiko-caddy-logs

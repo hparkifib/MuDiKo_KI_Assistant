@@ -716,7 +716,11 @@ class AudioFeedbackPipeline:
         prompt_type="contextual",
         use_simple_language=False,  # <-- NEU: Parameter ergänzt
     ):
-        """Generiert den kompletten Feedback-Prompt basierend auf dem gewählten Typ."""
+        """Generiert den kompletten Feedback-Prompt basierend auf dem gewählten Typ.
+        
+        Returns:
+            dict: Dictionary mit 'system_prompt' (Text zum Kopieren) und 'analysis_data' (Daten für separate Datei)
+        """
         # System-Prompt ist immer der gleiche
         system_prompt = self._build_system_prompt(
             language,
@@ -726,15 +730,19 @@ class AudioFeedbackPipeline:
             use_simple_language,  # <-- NEU
         )
 
-        prompts = []
+        # Erstelle Analyse-Daten im gleichen Format wie vorher (als Text)
+        analysis_data_text = ""
+        
         for seg in segment_results:
-            prompt = f"\nSegment {seg['segment']} ({seg['referenz_start']:.2f}s–{seg['referenz_end']:.2f}s):\n"
-            prompt += self.build_prompt_generic(
+            analysis_data_text += f"\nSegment {seg['segment']} ({seg['referenz_start']:.2f}s–{seg['referenz_end']:.2f}s):\n"
+            analysis_data_text += self.build_prompt_generic(
                 seg["analysis"], prompt_type == "contextual"
             )
-            prompts.append(prompt)
 
-        return system_prompt + "\n".join(prompts)
+        return {
+            "system_prompt": system_prompt,
+            "analysis_data": analysis_data_text
+        }
 
     def analyze_and_generate_feedback(
         self,
@@ -752,7 +760,7 @@ class AudioFeedbackPipeline:
         segment_results = self.analyze_segments(ref_segments, sch_segments)
 
         # Generiere strukturierten Feedback-Prompt basierend auf den Analyse-Ergebnissen
-        feedback_prompt = self.generate_feedback_prompt(
+        feedback_result = self.generate_feedback_prompt(
             segment_results,
             language,
             referenz_instrument,
@@ -765,7 +773,8 @@ class AudioFeedbackPipeline:
         # Rückgabe aller relevanten Informationen
         return {
             "segment_results": segment_results,  # Detaillierte Analyse-Ergebnisse
-            "feedback_prompt": feedback_prompt,  # Generierter Feedback-Text
+            "system_prompt": feedback_result["system_prompt"],  # Text-Prompt zum Kopieren
+            "analysis_data": feedback_result["analysis_data"],  # Daten für separate Datei
             "language": language,  # Verwendete Sprache
             "segments_analyzed": len(segment_results),  # Anzahl analysierter Segmente
             "prompt_type": prompt_type,  # Verwendeter Prompt-Typ

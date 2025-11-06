@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 export default function PromptPage({ onBack, onNavigate }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState('');
+  const [analysisData, setAnalysisData] = useState(null);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState(null);
   const [uploadData, setUploadData] = useState(null);
@@ -60,7 +61,8 @@ export default function PromptPage({ onBack, onNavigate }) {
       const result = await response.json();
 
       if (response.ok && result.success) {
-        setGeneratedPrompt(result.feedback_prompt);
+        setGeneratedPrompt(result.system_prompt);
+        setAnalysisData(result.analysis_data);
       } else {
         setError(result.error || 'Fehler bei der Feedback-Generierung');
       }
@@ -217,6 +219,40 @@ export default function PromptPage({ onBack, onNavigate }) {
     localStorage.removeItem('uploadData');
     onBack();
   };
+
+  const downloadAnalysisData = () => {
+    if (!analysisData) return;
+
+    // Erstelle Blob aus Text-String
+    const blob = new Blob([analysisData], { type: 'text/plain; charset=utf-8' });
+    
+    // Erstelle Download-Link
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    // Hole den Schüler-Dateinamen aus uploadData
+    let schuelerName = 'schueler-analyse';
+    if (uploadData && uploadData.original_filenames && uploadData.original_filenames.schueler) {
+      // Entferne die Dateiendung (.mp3, .wav, etc.)
+      schuelerName = uploadData.original_filenames.schueler.replace(/\.[^/.]+$/, '');
+      // Ersetze Leerzeichen und Sonderzeichen mit Unterstrich
+      schuelerName = schuelerName.replace(/[^a-zA-Z0-9-_äöüÄÖÜß]/g, '_');
+    }
+    
+    // Dateiname mit Schüler-Namen und Zeitstempel
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    link.download = `${schuelerName}_Audio-Daten_${timestamp}.txt`;
+    
+    // Trigger Download
+    document.body.appendChild(link);
+    link.click();
+    
+    // Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div style={{ 
       height: '100vh', /* Fallback für ältere Browser */
@@ -250,7 +286,7 @@ export default function PromptPage({ onBack, onNavigate }) {
                 marginBottom: '20px'
               }} />
               <h3 style={{ color: 'var(--font-color)', margin: '0 0 10px 0' }}>
-                🎵 Feedback wird generiert...
+                🎵 Deine Audio-Dateien werden analysiert...
               </h3>
               <p style={{ color: 'var(--font-color)', margin: '0', opacity: 0.8 }}>
                 Deine Musik wird analysiert, um einen persönlichen Feedback-Prompt für eine KI zu erstellen.
@@ -290,7 +326,7 @@ export default function PromptPage({ onBack, onNavigate }) {
             <>
               <div style={{ marginBottom: '25px' }}>
                 <h3 style={{ color: 'var(--font-color)', margin: '0 0 15px 0', fontSize: '20px' }}>
-                  🎉 Dein personalisiertes Feedback ist bereit!
+                  🎉 Dein personalisiertes Feedback ist vorbereitet!
                 </h3>
               </div>
 
@@ -314,7 +350,7 @@ export default function PromptPage({ onBack, onNavigate }) {
                   onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
                   onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                 >
-                  Prompt anzeigen
+                  📝 Prompt anzeigen
                 </button>
                 
                 <button 
@@ -338,7 +374,30 @@ export default function PromptPage({ onBack, onNavigate }) {
                   onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
                   onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                 >
-                  Prompt kopieren
+                  📋 Prompt kopieren
+                </button>
+
+                <button
+                  onClick={downloadAnalysisData}
+                  style={{
+                    backgroundColor: 'var(--button-color)',
+                    border: '3px solid',
+                    borderImage: 'var(--mudiko-gradient) 1',
+                    color: 'var(--font-color)',
+                    padding: '15px 30px',
+                    borderRadius: '0px',
+                    cursor: 'pointer',
+                    fontFamily: "'Nunito', sans-serif",
+                    fontSize: 'var(--button-font-size)',
+                    fontWeight: 'var(--button-font-weight)',
+                    boxShadow: 'var(--shadow)',
+                    transition: 'all 0.3s ease',
+                    letterSpacing: '1px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                >
+                  💾 Analyse-Daten herunterladen
                 </button>
               </div>
 
@@ -350,11 +409,14 @@ export default function PromptPage({ onBack, onNavigate }) {
                 border: '2px solid var(--mudiko-cyan)'
               }}>
                 <h4 style={{ color: 'var(--mudiko-cyan)', margin: '0 0 10px 0', fontSize: '16px' }}>
-                  💡 So verwendest du den Prompt:
+                  💡 So erhältst du dein Feedback:
                 </h4>
                 <ol style={{ color: 'var(--font-color)', margin: '0', paddingLeft: '20px', fontSize: '14px' }}>
-                  <li style={{ marginBottom: '8px' }}>Drücke auf "Prompt Kopieren", um ihn in der Zwischenablage zu speichern</li>
-                  <li style={{ marginBottom: '8px' }}>Öffne eine KI deiner Wahl (z.B. Telli, ChatGPT, Claude, Gemini) und füge den Prompt in einen neuen Chat ein</li>
+                  <li style={{ marginBottom: '8px' }}>Drücke auf "Prompt Kopieren", um den Anweisungstext in der Zwischenablage zu speichern</li>
+                  <li style={{ marginBottom: '8px' }}>Drücke auf "Analyse-Daten herunterladen", um die Audio-Analysedaten als Textdatei zu speichern</li>
+                  <li style={{ marginBottom: '8px' }}>Öffne eine KI deiner Wahl (z.B. Telli, ChatGPT, Claude, Gemini)</li>
+                  <li style={{ marginBottom: '8px' }}>Füge den kopierten Prompt in einen neuen Chat ein. Alternativ kannst du auch selbst einen Prompt verfassen</li>
+                  <li style={{ marginBottom: '8px' }}>Lade die Audio-Analyse-Daten als Anhang in den Chat hoch</li>
                   <li style={{ marginBottom: '8px' }}>Erhalte dein personalisiertes Musik-Feedback! 🎵</li>
                 </ol>
               </div>

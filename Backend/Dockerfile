@@ -1,10 +1,11 @@
 # Backend Dockerfile for MuDiKo AI Assistant
 FROM python:3.11-slim
 
-# Install system dependencies for audio processing
+# Install system dependencies for audio processing and health checks
 RUN apt-get update && apt-get install -y \
     libsndfile1 \
     ffmpeg \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

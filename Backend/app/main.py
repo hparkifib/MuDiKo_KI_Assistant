@@ -222,11 +222,13 @@ def generate_feedback():
             ref_segments, sch_segments, selected_language, referenz_instrument, schueler_instrument, personal_message, prompt_type, use_simple_language
         )
         
-        feedback_prompt = result['feedback_prompt']
+        system_prompt = result['system_prompt']
+        analysis_data = result['analysis_data']
 
         return jsonify({
             "success": True,
-            "feedback_prompt": feedback_prompt,
+            "system_prompt": system_prompt,
+            "analysis_data": analysis_data,
             "file_map": file_map,
             "original_filenames": original_filenames
         })
