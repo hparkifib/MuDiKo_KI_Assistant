@@ -18,7 +18,7 @@ services:
     expose:
       - "5000"                   # Nur intern im Docker-Netzwerk erreichbar
     volumes:
-      - ./Backend/uploads:/app/uploads  # Persistente Audio-Speicherung
+      - ./Backend/app/Uploads:/app/Uploads  # Persistente Audio-Speicherung
     environment:
       - FLASK_ENV=production     # Produktions-Modus
       - PYTHONUNBUFFERED=1       # Live-Logging

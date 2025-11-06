@@ -1,0 +1,59 @@
+# MuDiKo KI Assistant - Docker Compose für lokale Entwicklung
+# 
+# Dieses Setup startet ohne Caddy/HTTPS:
+# - Backend: Flask API direkt auf http://localhost:5000
+# - Frontend: React App direkt auf http://localhost:3000
+#
+# Start: docker compose -f docker-compose.dev.yml up -d
+# Stop:  docker compose -f docker-compose.dev.yml down
+# Logs:  docker compose -f docker-compose.dev.yml logs
+
+services:
+  # Backend Service - Flask API + Audio Processing
+  backend:
+    build: ./Backend
+    container_name: mudiko-backend-dev
+    ports:
+      - "5000:5000"              # Direkt erreichbar auf localhost:5000
+    volumes:
+      - ./Backend/app/Uploads:/app/Uploads  # Persistente Audio-Speicherung
+      - ./Backend/app:/app                  # Live-Reload für Entwicklung
+    environment:
+      - FLASK_ENV=development    # Development-Modus
+      - FLASK_DEBUG=1            # Debug-Modus aktiviert
+      - PYTHONUNBUFFERED=1       # Live-Logging
+    restart: unless-stopped
+    networks:
+      - mudiko-dev-network
+
+  # Frontend Service - React App mit Vite Dev Server
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile.dev  # Separates Dockerfile für Dev
+    container_name: mudiko-frontend-dev
+    ports:
+      - "3000:3000"              # Direkt erreichbar auf localhost:3000
+    volumes:
+      - ./Frontend/src:/app/src          # Live-Reload für Entwicklung
+      - ./Frontend/public:/app/public    # Public Assets
+      - /app/node_modules                # Node modules im Container
+    environment:
+      - VITE_API_URL=http://localhost:5000  # Backend URL
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - mudiko-dev-network
+
+# Netzwerk für Container-Kommunikation
+networks:
+  mudiko-dev-network:
+    driver: bridge
+    name: mudiko-dev-network
+
+# Persistente Volumes
+volumes:
+  uploads:
+    driver: local
+    name: mudiko-dev-uploads
