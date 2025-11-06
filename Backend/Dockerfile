@@ -15,10 +15,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY app/ ./app/
+COPY app/ ./
 
 # Create uploads directory with proper permissions
-RUN mkdir -p uploads && chmod 755 uploads
+RUN mkdir -p Uploads && chmod 755 Uploads
 
 # Expose port
 EXPOSE 5000
@@ -29,4 +29,4 @@ ENV FLASK_ENV=production
 ENV PYTHONPATH=/app
 
 # Run the application
-CMD ["python", "app/main.py"]
+CMD ["python", "main.py"]

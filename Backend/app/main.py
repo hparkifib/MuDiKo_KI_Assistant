@@ -12,7 +12,8 @@ app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'fallback-secret-key-for-development')
 
 # CORS konfigurieren - erlaube Anfragen vom React Frontend
-CORS(app, origins=['http://localhost:5173'])
+# Port 5173 für lokale Vite Dev Server, Port 3000 für Docker Dev
+CORS(app, origins=['http://localhost:5173', 'http://localhost:3000'])
 
 # OpenAI-Client für zukünftige Erweiterungen (aktuell nicht verwendet)
 #client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
