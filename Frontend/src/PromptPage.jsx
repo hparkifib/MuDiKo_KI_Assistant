@@ -50,12 +50,14 @@ export default function PromptPage({ onBack }) {
 
       console.log('Sending request to backend:', requestData);
 
+      const sessionId = (uploadData && uploadData.sessionId) || localStorage.getItem('sessionId');
       const response = await fetch('/api/generate-feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(sessionId ? { 'X-Session-ID': sessionId } : {})
         },
-        body: JSON.stringify(requestData),
+        body: JSON.stringify({ ...requestData, ...(sessionId ? { sessionId } : {}) }),
       });
 
       const result = await response.json();
@@ -63,6 +65,9 @@ export default function PromptPage({ onBack }) {
       if (response.ok && result.success) {
         setGeneratedPrompt(result.system_prompt);
         setAnalysisData(result.analysis_data);
+        if (result.sessionId) {
+          localStorage.setItem('sessionId', result.sessionId);
+        }
       } else {
         setError(result.error || 'Fehler bei der Feedback-Generierung');
       }
@@ -214,11 +219,47 @@ export default function PromptPage({ onBack }) {
   };
 
   const handleNewFeedback = () => {
+    // End session explicitly, then clear state
+    const sid = localStorage.getItem('sessionId');
+    if (sid) {
+      // Fire and forget; don't block UI
+      fetch('/api/session/end', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: sid }),
+        keepalive: true
+      }).catch(() => {});
+    }
+
     // Clear all stored data
     localStorage.removeItem('formData');
     localStorage.removeItem('uploadData');
+    localStorage.removeItem('sessionId');
     onBack();
   };
+
+  // Try to end the session if the user leaves this page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const sid = localStorage.getItem('sessionId');
+      if (!sid) return;
+      try {
+        navigator.sendBeacon('/api/session/end', new Blob([JSON.stringify({ sessionId: sid })], { type: 'application/json' }));
+      } catch (e) {
+        // Fallback best-effort
+        fetch('/api/session/end', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: sid }),
+          keepalive: true
+        }).catch(() => {});
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
 
   const downloadAnalysisData = () => {
     if (!analysisData) return;

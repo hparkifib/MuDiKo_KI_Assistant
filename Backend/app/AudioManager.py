@@ -2,6 +2,7 @@
 # Behandelt Upload, Speicherung, Segmentierung und Serving von Audio-Dateien
 
 import os
+from typing import Optional
 from flask import Blueprint, send_from_directory
 import librosa  # Audio-Verarbeitung und -Analyse
 import soundfile as sf  # Audio-Datei Ein-/Ausgabe
@@ -40,7 +41,7 @@ class AudioManager:
         # Dictionary zur Speicherung der ursprünglichen Dateinamen
         self.original_filenames = {}
 
-    def save_with_role(self, file, role):
+    def save_with_role(self, file, role, base_folder: Optional[str] = None):
         """Speichert eine hochgeladene Datei mit einer standardisierten Rolle.
         
         Args:
@@ -50,11 +51,15 @@ class AudioManager:
         Returns:
             str: Standardisierter Dateiname (z.B. 'referenz.mp3')
         """
+        folder = base_folder if base_folder else self.upload_folder
         # Erstelle standardisierten Dateinamen basierend auf der Rolle
         filename = f"{role}.mp3"
-        file.save(os.path.join(self.upload_folder, filename))
+        os.makedirs(folder, exist_ok=True)
+        file.save(os.path.join(folder, filename))
         
         # Speichere den ursprünglichen Dateinamen für spätere Anzeige
+        # Hinweis: original_filenames ist global im Manager; für Multi-Session sollte
+        # diese Information außerhalb des Managers pro Session verwaltet werden.
         self.original_filenames[role] = file.filename
         print(f"Datei gespeichert: {filename} (Originalname: {file.filename})")
         return filename
@@ -63,13 +68,16 @@ class AudioManager:
         """Gibt den ursprünglichen Dateinamen für eine Rolle zurück."""
         return self.original_filenames.get(role, "Keine Datei hochgeladen")
 
-    def list_files(self):
+    def list_files(self, base_folder: Optional[str] = None):
         """Listet nur die hochgeladenen Hauptdateien auf (keine Segmente).
         
         Returns:
             list: Liste der Dateinamen ohne Segment-Dateien
         """
-        return [f for f in os.listdir(self.upload_folder) if not f.startswith("segment_")]
+        folder = base_folder if base_folder else self.upload_folder
+        if not os.path.exists(folder):
+            return []
+        return [f for f in os.listdir(folder) if not f.startswith("segment_")]
 
     def map_files_to_roles(self, files):
         """Erstellt ein Mapping von Rollen zu Dateinamen.
@@ -85,15 +93,16 @@ class AudioManager:
             "schueler": "schueler.mp3" if "schueler.mp3" in files else None
         }
 
-    def delete_all_files(self):
+    def delete_all_files(self, base_folder: Optional[str] = None):
         """Löscht alle Hauptdateien im Upload-Ordner.
         
         Segmente werden separat verwaltet und hier nicht gelöscht.
         Fehler beim Löschen werden stillschweigend ignoriert.
         """
-        for f in self.list_files():
+        folder = base_folder if base_folder else self.upload_folder
+        for f in self.list_files(folder):
             try:
-                os.remove(os.path.join(self.upload_folder, f))
+                os.remove(os.path.join(folder, f))
             except Exception:
                 # Ignoriere Fehler beim Löschen (z.B. Datei bereits gelöscht)
                 pass
@@ -133,7 +142,7 @@ class AudioManager:
                         pass
 
 
-    def segment_and_save(self, filename, segment_length_sec=8):
+    def segment_and_save(self, filename, segment_length_sec=8, base_folder: Optional[str] = None):
         """Segmentiert eine Audio-Datei in gleichmäßige Zeitabschnitte.
         
         Diese Funktion teilt eine Audio-Datei in Segmente fester Länge auf,
@@ -151,7 +160,9 @@ class AudioManager:
                   - end_sec: Endzeit des Segments in Sekunden
         """
         # Lade die Audio-Datei
-        path = os.path.join(self.upload_folder, filename)
+        folder = base_folder if base_folder else self.upload_folder
+        os.makedirs(folder, exist_ok=True)
+        path = os.path.join(folder, filename)
         y, sr = librosa.load(path)  # y = Audio-Daten, sr = Sample Rate
         total_len = len(y)
         segment_samples = int(segment_length_sec * sr)  # Segment-Länge in Samples
@@ -177,7 +188,7 @@ class AudioManager:
             
             # Erstelle eindeutigen Segment-Dateinamen
             seg_filename = f"{os.path.splitext(filename)[0]}_segment{i+1}_{uuid.uuid4().hex[:8]}.wav"
-            seg_path = os.path.join(self.upload_folder, seg_filename)
+            seg_path = os.path.join(folder, seg_filename)
             
             # Speichere Segment als WAV-Datei
             sf.write(seg_path, y_seg, sr)

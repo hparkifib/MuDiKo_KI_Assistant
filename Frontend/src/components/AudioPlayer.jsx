@@ -89,7 +89,10 @@ const AudioPlayer = forwardRef(({ uploadData, segments = [], activeSegment, curr
 
   const getAudioUrl = () => {
     if (!uploadData?.file_map?.schueler) return null;
-    return `/api/audio/${uploadData.file_map.schueler}`;
+    const sessionId = (uploadData && uploadData.sessionId) || localStorage.getItem('sessionId');
+    if (!sessionId) return null;
+    const filename = encodeURIComponent(uploadData.file_map.schueler);
+    return `/api/audio/${filename}?sessionId=${encodeURIComponent(sessionId)}`;
   };
 
   const audioUrl = getAudioUrl();

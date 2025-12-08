@@ -19,6 +19,32 @@ export default function AudioUpload_Page({ onNext }) {
     setUploadStatus(null);
 
     try {
+      // Beende ggf. eine vorherige Session
+      let sessionId = localStorage.getItem('sessionId');
+      if (sessionId) {
+        try {
+          await fetch('/api/session/end', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId })
+          });
+        } catch {}
+        localStorage.removeItem('sessionId');
+        sessionId = null;
+      }
+
+      // Starte eine neue Session
+      try {
+        const startResp = await fetch('/api/session/start', { method: 'POST' });
+        if (startResp.ok) {
+          const startJson = await startResp.json();
+          sessionId = startJson.sessionId;
+          localStorage.setItem('sessionId', sessionId);
+        }
+      } catch (e) {
+        // Fallback: Backend erstellt ggf. automatisch eine Session
+      }
+
       const formData = new FormData();
       formData.append('referenz', refFile);
       formData.append('schueler', songFile);
@@ -26,6 +52,7 @@ export default function AudioUpload_Page({ onNext }) {
       const response = await fetch('/api/upload-audio', {
         method: 'POST',
         body: formData,
+        headers: sessionId ? { 'X-Session-ID': sessionId } : undefined,
       });
 
       const result = await response.json();
@@ -34,6 +61,9 @@ export default function AudioUpload_Page({ onNext }) {
         setUploadStatus({ type: 'success', message: 'Dateien erfolgreich hochgeladen!' });
         // Store upload data for next pages
         localStorage.setItem('uploadData', JSON.stringify(result));
+        if (result.sessionId) {
+          localStorage.setItem('sessionId', result.sessionId);
+        }
         // Wait a moment to show success message, then proceed
         setTimeout(() => {
           onNext();

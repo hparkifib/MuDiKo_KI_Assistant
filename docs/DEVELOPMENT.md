@@ -76,6 +76,23 @@ curl -X POST http://localhost:5000/api/upload-audio \
   -F "schueler=@test2.mp3"
 ```
 
+### 5. Sessions & Datenschutz (DSGVO)
+- Die Anwendung nutzt temporäre, session-basierte Speicherung.
+- Jede Sitzung erhält eine eindeutige `sessionId`. Alle Uploads und Analyseartefakte werden in `Backend/app/Uploads/<sessionId>/` gespeichert.
+- Nach Sitzungsende werden alle Dateien dieser Session gelöscht.
+
+#### Relevante Endpoints
+- `POST /api/session/start` → `{ sessionId, ttl }`
+- `POST /api/upload-audio` (Header `X-Session-ID` oder Query `?sessionId=...`)
+- `POST /api/generate-feedback` (Header/Body mit `sessionId`)
+- `GET /api/audio/<filename>?sessionId=...` (serviert Dateien nur aus der eigenen Session)
+- `POST /api/session/end` → löscht `Uploads/<sessionId>` rekursiv
+
+#### Konfiguration
+- `SESSION_TTL_SECONDS` (Default: `3600` Sekunden): Inaktivitäts-Timeout für automatische Bereinigung abgelaufener Sessions (GC).
+
+Hinweis: "GC" = Garbage Collection, d.h. ein Aufräumprozess, der verwaiste/abgelaufene Session-Verzeichnisse automatisch entfernt.
+
 ---
 
 ## ⚛️ Frontend Development
@@ -144,7 +161,7 @@ MuDiKo_KI_Assistant/
 │   │   └── AudioFeedbackPipeline.py # AI Processing
 │   ├── requirements.txt         # Python Dependencies
 │   ├── Dockerfile              # Container Config
-│   └── uploads/                # Audio Files Storage
+│   └── Uploads/                # Session-basierter, temporärer Audio-Speicher (Uploads/<sessionId>)
 ├── Frontend/
 │   ├── src/
 │   │   ├── App.jsx             # Main React Component

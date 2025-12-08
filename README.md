@@ -46,13 +46,54 @@ npm run dev
 | **Programmierer** | [⚙️ Entwickler-Setup](docs/DEVELOPMENT.md) | Code bearbeiten und erweitern |
 | **Server-Betreiber** | [🔧 Server-Installation](docs/SERVER_DEPLOYMENT.md) | Auf eigenem Server installieren |
 
+## 🚀 Deployment (Produktivbetrieb)
+
+So bringst du die Anwendung sicher live (z. B. auf https://music.ifib.eu):
+
+1) Umgebungsvariablen vorbereiten
+	- Lege eine Datei `.env` neben `docker-compose.yml` an (siehe Vorlage `.env.example`).
+	- Setze mindestens:
+	  - `SECRET_KEY` (starker, geheimer Schlüssel)
+	  - `CORS_ORIGINS` (deine HTTPS-Domain, z. B. https://music.ifib.eu)
+	  - `SESSION_TTL_SECONDS` (z. B. 3600)
+	  - `GC_INTERVAL_SECONDS` (z. B. 900)
+	  - `MAX_CONTENT_LENGTH` (z. B. 104857600)
+
+2) Container starten
+	- Docker Compose im Projektordner ausführen:
+
+```powershell
+# Images bauen und Services starten
+docker-compose build
+docker-compose up -d
+
+# Status prüfen
+docker-compose ps
+
+# Backend Healthcheck
+curl http://localhost:5000/api/health
+```
+
+3) Reverse Proxy & HTTPS
+	- Die Compose enthält einen Caddy‑Service für HTTPS mit automatischen Zertifikaten.
+	- Passe bei Bedarf die `Caddyfile` an deine Domain an.
+
+4) Funktionstest
+	- Frontend öffnen (über deine Domain), Dateien hochladen, Wiedergabe testen.
+	- Session beenden (z. B. Button „Neues Feedback“); temporäre Dateien werden gelöscht.
+
+Hinweis
+- Temporäre Daten werden streng pro Session unter `Backend/app/Uploads/<sessionId>` gespeichert und nach Session‑Ende bzw. Inaktivität automatisch entfernt.
+- Der SECRET_KEY ist der Flask‑App‑Schlüssel und hat nichts mit OpenAI zu tun.
+
 ---
 
 ## 🎯 Was kann die Anwendung?
 
 ### Grundfunktionen
 - **🎼 Audio-Dateien hochladen**: MP3, WAV und MP4 Dateien unterstützt
-- **📁 Datei-Verwaltung**: Hochgeladene Dateien sicher speichern
+- **� Datenschutzfreundlich (DSGVO)**: Uploads werden nur temporär pro Session gespeichert und nach Sitzungsende gelöscht
+- **📁 Datei-Verwaltung**: Session-basierte Trennung, parallele Nutzer werden isoliert
 - **🌐 Web-basiert**: Läuft plattformunabhängig über Browser - keine Installation nötig
 - **📱 Responsive**: Funktioniert auf verschiedenen Bildschirmgrößen
 - **🐳 Container-Ready**: Docker für einfache Bereitstellung
@@ -77,6 +118,9 @@ MuDiKo_KI_Assistant/
 │   │   ├── AudioManager.py     # Audio-Datei-Verwaltung
 │   │   └── AudioFeedbackPipeline.py # Audio-Verarbeitung
 │   └── Dockerfile              # Docker-Container für Server
+│   
+│   # Session-Speicher (zur Laufzeit)
+│   # Backend/app/Uploads/<sessionId>/ → temporäre Dateien je Sitzung
 │
 ├── docs/                       # Alle Anleitungen
 └── docker-compose.yml          # Automatische Installation
