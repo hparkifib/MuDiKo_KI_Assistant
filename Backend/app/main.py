@@ -36,7 +36,7 @@ CORS(app, origins=origins)
 UPLOAD_FOLDER_BASE = os.path.join(app.root_path, "Uploads")
 os.makedirs(UPLOAD_FOLDER_BASE, exist_ok=True)
 audio_mgr = AudioManager(UPLOAD_FOLDER_BASE)
-app.register_blueprint(audio_mgr.bp)  # Blueprint für Datei-Serving registrieren
+# Blueprint nicht registriert - Audio-Serving wird über /api/audio/<filename> mit Session-Management gehandhabt
 
 # Einfache In-Memory Session-Registry
 SESSIONS = {}

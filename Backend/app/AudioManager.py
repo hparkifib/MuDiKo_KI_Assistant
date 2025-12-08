@@ -26,9 +26,8 @@ class AudioManager:
             upload_folder: Pfad zum Ordner für hochgeladene Dateien
         """
         self.upload_folder = upload_folder
-        self.segments_folder = os.path.join(upload_folder, "segments")
-        # Erstelle Ordner falls sie nicht existieren
-        os.makedirs(self.segments_folder, exist_ok=True)
+        # Segments-Ordner wird jetzt pro Session erstellt, nicht global
+        # os.makedirs wird bei Bedarf in segment_and_save() aufgerufen
 
         # Flask-Blueprint für Datei-Serving konfigurieren
         self.bp = Blueprint('audio', __name__)
@@ -162,6 +161,11 @@ class AudioManager:
         # Lade die Audio-Datei
         folder = base_folder if base_folder else self.upload_folder
         os.makedirs(folder, exist_ok=True)
+        
+        # Erstelle segments-Unterordner innerhalb des Session-Ordners
+        segments_folder = os.path.join(folder, "segments")
+        os.makedirs(segments_folder, exist_ok=True)
+        
         path = os.path.join(folder, filename)
         y, sr = librosa.load(path)  # y = Audio-Daten, sr = Sample Rate
         total_len = len(y)
@@ -188,14 +192,14 @@ class AudioManager:
             
             # Erstelle eindeutigen Segment-Dateinamen
             seg_filename = f"{os.path.splitext(filename)[0]}_segment{i+1}_{uuid.uuid4().hex[:8]}.wav"
-            seg_path = os.path.join(folder, seg_filename)
+            seg_path = os.path.join(segments_folder, seg_filename)
             
             # Speichere Segment als WAV-Datei
             sf.write(seg_path, y_seg, sr)
             
-            # Füge Segment-Info zur Liste hinzu
+            # Füge Segment-Info zur Liste hinzu mit relativem Pfad
             segments.append({
-                "filename": seg_filename,
+                "filename": os.path.join("segments", seg_filename),  # segments/filename.wav
                 "start_sec": seg_start_sec,
                 "end_sec": seg_end_sec
             })
