@@ -24,7 +24,9 @@ export default function RecordingsPage({ onBack, onNext }) {
   }, []);
 
   const getAudioUrl = (filename) => {
-    return `/api/audio/${filename}`;
+    const sessionId = uploadData?.sessionId || localStorage.getItem('sessionId');
+    if (!sessionId) return null;
+    return `/api/audio/${filename}?sessionId=${encodeURIComponent(sessionId)}`;
   };
   return (
     <div style={{ 

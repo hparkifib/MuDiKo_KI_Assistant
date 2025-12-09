@@ -1,0 +1,57 @@
+enabled: true
+class: AudioFeedbackPlugin
+display_name: Audio Feedback Analyzer
+description: Vergleicht Musikaufnahmen und gibt intelligentes Feedback
+version: 1.0.0
+icon: /icons/audio-feedback.svg
+
+# Frontend Routes
+frontend_routes:
+  - /tools/audio-feedback/upload
+  - /tools/audio-feedback/recordings
+  - /tools/audio-feedback/language
+  - /tools/audio-feedback/instruments
+  - /tools/audio-feedback/personalization
+  - /tools/audio-feedback/prompt
+
+# Tool-spezifische Einstellungen
+settings:
+  max_file_size_mb: 100
+  allowed_formats:
+    - mp3
+    - wav
+    - mp4
+  
+  # Audio Processing
+  segment_length_sec: 8
+  default_sample_rate: 22050
+  target_length_sec: 60
+  
+  # Report Generator Configuration
+  # Optionen: 'detailed', 'technical', 'selective'
+  report_variant: detailed
+  
+  # Report Config (optional, für 'selective' Variante)
+  # Wenn nicht gesetzt, werden Standard-Einstellungen verwendet
+  report_config:
+    # Feature-Toggles (null = alle Features aktiviert)
+    # enabled_features:
+    #   - tempo
+    #   - mean_pitch
+    #   - mean_rms
+    
+    # Formatierung
+    format_style: box  # 'box', 'plain', 'markdown'
+    
+    # Kontext & Interpretationen
+    include_context: true
+    include_interpretations: true
+    include_comparisons: true
+    
+    # Detail-Level
+    verbosity_level: normal  # 'minimal', 'normal', 'detailed'
+    
+    # Werte-Anzeige
+    show_reference_values: true
+    show_student_values: true
+

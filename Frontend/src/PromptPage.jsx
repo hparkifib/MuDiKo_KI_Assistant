@@ -51,7 +51,7 @@ export default function PromptPage({ onBack }) {
       console.log('Sending request to backend:', requestData);
 
       const sessionId = (uploadData && uploadData.sessionId) || localStorage.getItem('sessionId');
-      const response = await fetch('/api/generate-feedback', {
+      const response = await fetch('/api/tools/audio-feedback/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

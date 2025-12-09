@@ -1,5 +1,8 @@
 # AudioFeedbackPipeline - Hauptklasse für die Audio-Analyse und Feedback-Generierung
 # Analysiert Audio-Features und erstellt strukturierte Feedback-Prompts für Musikschüler
+#
+# Diese Klasse ist Teil des Audio Feedback Plugins und enthält die Kern-Logik
+# für die Feature-Extraktion, Vergleichsanalyse und Feedback-Generierung.
 
 import os
 import librosa  # Haupt-Bibliothek für Audio-Analyse

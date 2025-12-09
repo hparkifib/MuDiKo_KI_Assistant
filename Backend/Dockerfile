@@ -8,17 +8,18 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# Set working directory to parent of app
+WORKDIR /workspace
 
 # Copy requirements first for better layer caching
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY app/ ./
+# Copy application code - kopiert Backend/app nach /workspace/app
+COPY app/ ./app/
 
 # Create uploads directory with proper permissions
-RUN mkdir -p Uploads && chmod 755 Uploads
+RUN mkdir -p app/Uploads && chmod 755 app/Uploads
 
 # Expose port
 EXPOSE 5000
@@ -26,7 +27,7 @@ EXPOSE 5000
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV FLASK_ENV=production
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/workspace
 
 # Run the application
-CMD ["python", "main.py"]
+CMD ["python", "-m", "app.main"]

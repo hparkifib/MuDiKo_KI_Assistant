@@ -16,8 +16,8 @@ services:
     ports:
       - "5000:5000"              # Direkt erreichbar auf localhost:5000
     volumes:
-      - ./Backend/app/Uploads:/app/Uploads  # Persistente Audio-Speicherung
-      - ./Backend/app:/app                  # Live-Reload für Entwicklung
+      - ./Backend/app/Uploads:/workspace/app/Uploads  # Persistente Audio-Speicherung
+      - ./Backend/app:/workspace/app                  # Live-Reload für Entwicklung
     environment:
       - FLASK_ENV=development    # Development-Modus
       - FLASK_DEBUG=1            # Debug-Modus aktiviert

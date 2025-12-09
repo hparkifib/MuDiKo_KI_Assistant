@@ -49,7 +49,7 @@ export default function AudioUpload_Page({ onNext }) {
       formData.append('referenz', refFile);
       formData.append('schueler', songFile);
 
-      const response = await fetch('/api/upload-audio', {
+      const response = await fetch('/api/tools/audio-feedback/upload', {
         method: 'POST',
         body: formData,
         headers: sessionId ? { 'X-Session-ID': sessionId } : undefined,
