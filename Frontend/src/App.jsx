@@ -1,5 +1,5 @@
 // Minimal blank canvas App
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AudioUpload from './AudioUpload_Page.jsx'
 import RecordingsPage from './RecordingsPage.jsx'
 import LanguagePage from './LanguagePage.jsx'
@@ -9,6 +9,29 @@ import PromptPage from './PromptPage.jsx'
 
 export default function App() {
   const [page, setPage] = useState('home')
+
+  // Cleanup beim Tab/Browser-Schließen
+  useEffect(() => {
+    const cleanupSession = () => {
+      const sessionId = sessionStorage.getItem('sessionId')
+      if (sessionId) {
+        // Verwende sendBeacon für zuverlässiges Cleanup beim Schließen
+        const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/tools/audio-feedback/session/cleanup`
+        const blob = new Blob([JSON.stringify({ sessionId })], { type: 'application/json' })
+        navigator.sendBeacon(url, blob)
+      }
+    }
+
+    // Registriere Event-Listener
+    window.addEventListener('beforeunload', cleanupSession)
+    window.addEventListener('pagehide', cleanupSession)
+
+    // Cleanup beim Component unmount
+    return () => {
+      window.removeEventListener('beforeunload', cleanupSession)
+      window.removeEventListener('pagehide', cleanupSession)
+    }
+  }, [])
 
   if (page === 'AudioUpload_Page') {
     return <AudioUpload onNext={() => setPage('recordings')} />

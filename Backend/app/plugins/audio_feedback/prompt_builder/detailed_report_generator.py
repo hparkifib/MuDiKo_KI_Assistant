@@ -237,12 +237,6 @@ class DetailedReportGenerator(BaseReportGenerator):
             
             lines.append(f"│  {display_name}:")
             lines.append(f"│      Wert:\t\t{formatted_val}")
-            
-            if self.config.get('include_interpretations', True):
-                interpretation = self._interpret_metric(key, value)
-                if interpretation:
-                    lines.append(f"│      Bewertung:\t{interpretation}")
-            
             lines.append("│")
         
         return lines

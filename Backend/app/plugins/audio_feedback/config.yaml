@@ -29,29 +29,32 @@ settings:
   
   # Report Generator Configuration
   # Optionen: 'detailed', 'technical', 'selective'
-  report_variant: detailed
+  report_variant: selective
   
-  # Report Config (optional, für 'selective' Variante)
-  # Wenn nicht gesetzt, werden Standard-Einstellungen verwendet
+  # Report Config - Optimiert für pädagogisch wertvollstes Feedback
   report_config:
-    # Feature-Toggles (null = alle Features aktiviert)
-    # enabled_features:
-    #   - tempo
-    #   - mean_pitch
-    #   - mean_rms
+    # Nur die 7 wichtigsten Features für Schüler-Feedback
+    enabled_features:
+      - tempo                      # Tempo/Rhythmus - Grundlegendes Timing
+      - onset_count                # Tempo/Rhythmus - Notendichte
+      - rhythm_std_interval        # Tempo/Rhythmus - Timing-Konsistenz
+      - dtw_distance               # Vergleich - Gesamte zeitliche Ausrichtung
+      - pitch_contour_correlation  # Vergleich - Melodische Ähnlichkeit
+      - dynamic_range_db           # Dynamik - Lautstärkekontrolle
+      - mean_attack_time           # Klangfarbe - Anschlagstechnik
     
-    # Formatierung
-    format_style: box  # 'box', 'plain', 'markdown'
+    # Formatierung - Box-Format für beste Lesbarkeit
+    format_style: box
     
-    # Kontext & Interpretationen
+    # Kontext & Interpretationen - LLM soll selbst bewerten
     include_context: true
-    include_interpretations: true
+    include_interpretations: false
     include_comparisons: true
     
-    # Detail-Level
-    verbosity_level: normal  # 'minimal', 'normal', 'detailed'
+    # Detail-Level - Normal für ausgewogene Information
+    verbosity_level: normal
     
-    # Werte-Anzeige
+    # Werte-Anzeige - Beide für direkten Vergleich
     show_reference_values: true
     show_student_values: true
 

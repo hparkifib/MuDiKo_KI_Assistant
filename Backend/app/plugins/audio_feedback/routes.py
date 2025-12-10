@@ -320,4 +320,43 @@ def create_routes(feedback_service, session_service, storage_service, audio_serv
                 "success": False
             }), 500
     
+    @bp.route('/session/cleanup', methods=['POST'])
+    def cleanup_session():
+        """Beendet eine Session und löscht alle zugehörigen Daten.
+        
+        Headers:
+            X-Session-ID: Session-ID
+            
+        Returns:
+            JSON Response mit Cleanup-Status
+        """
+        session_id = request.headers.get("X-Session-ID") or request.json.get("sessionId")
+        if not session_id:
+            return jsonify({
+                "error": "sessionId fehlt",
+                "success": False
+            }), 400
+        
+        try:
+            # Beende Session (löscht automatisch alle Dateien)
+            success = session_service.end_session(session_id)
+            
+            if success:
+                return jsonify({
+                    "success": True,
+                    "message": "Session erfolgreich beendet"
+                })
+            else:
+                return jsonify({
+                    "success": False,
+                    "message": "Session nicht gefunden"
+                }), 404
+        
+        except Exception as e:
+            print(f"Fehler beim Session-Cleanup: {str(e)}")
+            return jsonify({
+                "error": f"Fehler beim Cleanup: {str(e)}",
+                "success": False
+            }), 500
+    
     return bp
