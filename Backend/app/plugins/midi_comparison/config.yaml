@@ -1,0 +1,26 @@
+enabled: true
+class: MidiComparisonPlugin
+display_name: MIDI Comparison Analyzer
+description: Vergleicht MIDI-Dateien und erstellt tabellarische Notenanalyse
+version: 1.0.0
+icon: /icons/midi-comparison.svg
+
+# Frontend Routes
+frontend_routes:
+  - /tools/midi-comparison/upload
+  - /tools/midi-comparison/player
+  - /tools/midi-comparison/language
+  - /tools/midi-comparison/personalization
+  - /tools/midi-comparison/prompt
+
+# Tool-spezifische Einstellungen
+settings:
+  max_file_size_mb: 10
+  allowed_formats:
+    - mid
+    - midi
+  
+  # Output-Format
+  output_format: text  # 'text' für LLM, 'json' für API
+  include_measure_by_measure: true  # Takt-für-Takt Vergleich
+  mark_differences: true  # Unterschiede markieren

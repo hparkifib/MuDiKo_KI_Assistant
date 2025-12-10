@@ -6,9 +6,11 @@ export default function RecordingsPage({ onBack, onNext }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Load upload data from localStorage
+    // Lade Upload-Daten bevorzugt aus sessionStorage (Quelle: AudioUpload_Page)
     try {
-      const storedData = localStorage.getItem('uploadData');
+      const sessionStored = sessionStorage.getItem('uploadData');
+      const localStored = localStorage.getItem('uploadData');
+      const storedData = sessionStored || localStored;
       if (storedData) {
         const data = JSON.parse(storedData);
         setUploadData(data);
@@ -24,9 +26,11 @@ export default function RecordingsPage({ onBack, onNext }) {
   }, []);
 
   const getAudioUrl = (filename) => {
-    const sessionId = uploadData?.sessionId || localStorage.getItem('sessionId');
-    if (!sessionId) return null;
-    return `/api/audio/${filename}?sessionId=${encodeURIComponent(sessionId)}`;
+    const sessionId = uploadData?.sessionId || sessionStorage.getItem('sessionId') || localStorage.getItem('sessionId');
+    if (!sessionId || !filename) return null;
+    const apiBase = import.meta.env.VITE_API_URL || '';
+    const path = `/api/audio/${filename}?sessionId=${encodeURIComponent(sessionId)}`;
+    return `${apiBase}${path}`;
   };
   return (
     <div style={{ 
@@ -82,7 +86,7 @@ export default function RecordingsPage({ onBack, onNext }) {
                   padding: '15px',
                   border: '2px solid var(--mudiko-cyan)'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <div style={{
                         width: '8px',
@@ -131,7 +135,7 @@ export default function RecordingsPage({ onBack, onNext }) {
                   padding: '15px',
                   border: '2px solid var(--mudiko-pink)'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <div style={{
                         width: '8px',

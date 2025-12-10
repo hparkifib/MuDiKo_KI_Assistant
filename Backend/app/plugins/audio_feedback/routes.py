@@ -30,22 +30,27 @@ def create_routes(feedback_service, session_service, storage_service, audio_serv
             schueler: Schüler-Audio-Datei
             
         Headers:
-            X-Session-ID: Session-ID
+            X-Session-ID: Session-ID (optional, wird automatisch erstellt falls nicht vorhanden)
             
         Returns:
             JSON Response mit Upload-Status
         """
-        # Session-ID validieren
+        # Session-ID holen oder erstellen
         session_id = request.headers.get("X-Session-ID") or request.args.get("sessionId")
         if not session_id:
-            return jsonify({
-                "error": "sessionId fehlt",
-                "success": False
-            }), 400
+            # Erstelle neue Session automatisch
+            session = session_service.create_session()
+            session_id = session.session_id
+        else:
+            try:
+                # Validiere existierende Session
+                session = session_service.get_session(session_id)
+            except (SessionNotFoundException, SessionExpiredException):
+                # Session ungültig, erstelle neue
+                session = session_service.create_session()
+                session_id = session.session_id
         
         try:
-            # Validiere Session
-            session = session_service.get_session(session_id)
             
             # Lösche vorherige Dateien
             storage_service.delete_all_files(session_id)

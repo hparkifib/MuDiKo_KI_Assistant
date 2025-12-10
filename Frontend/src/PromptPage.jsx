@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function PromptPage({ onBack }) {
+export default function PromptPage({ onBack, toolType = 'audio' }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState('');
   const [analysisData, setAnalysisData] = useState(null);
@@ -12,8 +12,11 @@ export default function PromptPage({ onBack }) {
   useEffect(() => {
     // Load all data and start generation automatically
     try {
-      const savedFormData = JSON.parse(localStorage.getItem('formData') || '{}');
-      const savedUploadData = JSON.parse(localStorage.getItem('uploadData') || '{}');
+      const storageKey = toolType === 'midi' ? 'midiFormData' : 'formData';
+      const uploadKey = toolType === 'midi' ? 'midiUploadData' : 'uploadData';
+      
+      const savedFormData = JSON.parse(sessionStorage.getItem(storageKey) || '{}');
+      const savedUploadData = JSON.parse(sessionStorage.getItem(uploadKey) || '{}');
       
       setFormData(savedFormData);
       setUploadData(savedUploadData);
@@ -24,7 +27,7 @@ export default function PromptPage({ onBack }) {
       setError('Fehler beim Laden der gespeicherten Daten');
       console.error('Error loading data:', error);
     }
-  }, []);
+  }, [toolType]);
 
   const generateFeedback = async (formData, uploadData) => {
     if (!formData || !uploadData) {
@@ -36,46 +39,90 @@ export default function PromptPage({ onBack }) {
     setError(null);
 
     try {
-      // Prepare request data for backend
-      const requestData = {
-        language: formData.language || 'deutsch',
-        customLanguage: formData.customLanguage || '',
-        referenzInstrument: formData.referenceInstrument || 'keine Angabe',
-        schuelerInstrument: formData.userInstrument || 'keine Angabe',
-        topics: formData.topics || [],
-        prompt_type: 'contextual',
-        use_simple_language: formData.simpleLanguage || false,
-        personalMessage: formData.personalMessage || ''
-      };
-
-      console.log('Sending request to backend:', requestData);
-
-      const sessionId = (uploadData && uploadData.sessionId) || localStorage.getItem('sessionId');
-      const response = await fetch('/api/tools/audio-feedback/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(sessionId ? { 'X-Session-ID': sessionId } : {})
-        },
-        body: JSON.stringify({ ...requestData, ...(sessionId ? { sessionId } : {}) }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        setGeneratedPrompt(result.system_prompt);
-        setAnalysisData(result.analysis_data);
-        if (result.sessionId) {
-          localStorage.setItem('sessionId', result.sessionId);
-        }
+      if (toolType === 'midi') {
+        await generateMidiFeedback(formData, uploadData);
       } else {
-        setError(result.error || 'Fehler bei der Feedback-Generierung');
+        await generateAudioFeedback(formData, uploadData);
       }
     } catch (error) {
       setError('Verbindungsfehler zum Server. Ist der Backend-Server gestartet?');
       console.error('Feedback generation error:', error);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const generateAudioFeedback = async (formData, uploadData) => {
+    // Prepare request data for backend
+    const requestData = {
+      language: formData.language || 'deutsch',
+      customLanguage: formData.customLanguage || '',
+      referenzInstrument: formData.referenceInstrument || 'keine Angabe',
+      schuelerInstrument: formData.userInstrument || 'keine Angabe',
+      topics: formData.topics || [],
+      prompt_type: 'contextual',
+      use_simple_language: formData.simpleLanguage || false,
+      personalMessage: formData.personalMessage || ''
+    };
+
+    console.log('Sending request to backend:', requestData);
+
+    const sessionId = (uploadData && uploadData.sessionId) || sessionStorage.getItem('sessionId');
+    const response = await fetch('/api/tools/audio-feedback/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(sessionId ? { 'X-Session-ID': sessionId } : {})
+      },
+      body: JSON.stringify({ ...requestData, ...(sessionId ? { sessionId } : {}) }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      setGeneratedPrompt(result.system_prompt);
+      setAnalysisData(result.analysis_data);
+      if (result.sessionId) {
+        sessionStorage.setItem('sessionId', result.sessionId);
+      }
+    } else {
+      setError(result.error || 'Fehler bei der Feedback-Generierung');
+    }
+  };
+
+  const generateMidiFeedback = async (formData, uploadData) => {
+    const requestData = {
+      referenzFile: uploadData.file_map?.referenz,
+      schuelerFile: uploadData.file_map?.schueler,
+      language: formData.language || 'Deutsch',
+      personalization: formData.personalMessage || ''
+    };
+
+    console.log('Sending MIDI request to backend:', requestData);
+
+    const sessionId = (uploadData && uploadData.sessionId) || sessionStorage.getItem('midiSessionId');
+    const response = await fetch('/api/tools/midi-comparison/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(sessionId ? { 'X-Session-ID': sessionId } : {})
+      },
+      body: JSON.stringify({ ...requestData, ...(sessionId ? { sessionId } : {}) }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      setGeneratedPrompt(result.system_prompt);
+      setAnalysisData({
+        comparison_text: result.comparison_text,
+        summary: result.summary
+      });
+      if (result.sessionId) {
+        sessionStorage.setItem('midiSessionId', result.sessionId);
+      }
+    } else {
+      setError(result.error || 'Fehler bei der MIDI-Analyse');
     }
   };
 
@@ -264,8 +311,20 @@ export default function PromptPage({ onBack }) {
   const downloadAnalysisData = () => {
     if (!analysisData) return;
 
+    // Bereite Text-Daten vor basierend auf Tool-Typ
+    let textData = '';
+    
+    if (toolType === 'midi') {
+      // MIDI: comparison_text aus dem Objekt extrahieren
+      textData = analysisData.comparison_text || '';
+      // Entferne JSON-Zusammenfassung aus der Textdatei
+    } else {
+      // Audio: analysisData ist bereits ein String
+      textData = typeof analysisData === 'string' ? analysisData : JSON.stringify(analysisData, null, 2);
+    }
+
     // Erstelle Blob aus Text-String
-    const blob = new Blob([analysisData], { type: 'text/plain; charset=utf-8' });
+    const blob = new Blob([textData], { type: 'text/plain; charset=utf-8' });
     
     // Erstelle Download-Link
     const url = URL.createObjectURL(blob);
@@ -274,16 +333,20 @@ export default function PromptPage({ onBack }) {
     
     // Hole den Schüler-Dateinamen aus uploadData
     let schuelerName = 'schueler-analyse';
-    if (uploadData && uploadData.original_filenames && uploadData.original_filenames.schueler) {
-      // Entferne die Dateiendung (.mp3, .wav, etc.)
-      schuelerName = uploadData.original_filenames.schueler.replace(/\.[^/.]+$/, '');
+    const uploadKey = toolType === 'midi' ? 'midiUploadData' : 'uploadData';
+    const savedUploadData = uploadData || JSON.parse(sessionStorage.getItem(uploadKey) || '{}');
+    
+    if (savedUploadData && savedUploadData.original_filenames && savedUploadData.original_filenames.schueler) {
+      // Entferne die Dateiendung (.mp3, .wav, .mid, etc.)
+      schuelerName = savedUploadData.original_filenames.schueler.replace(/\.[^/.]+$/, '');
       // Ersetze Leerzeichen und Sonderzeichen mit Unterstrich
       schuelerName = schuelerName.replace(/[^a-zA-Z0-9-_äöüÄÖÜß]/g, '_');
     }
     
-    // Dateiname mit Schüler-Namen und Zeitstempel
+    // Dateiname mit Tool-Typ, Schüler-Namen und Zeitstempel
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-    link.download = `${schuelerName}_Audio-Daten_${timestamp}.txt`;
+    const toolName = toolType === 'midi' ? 'MIDI' : 'Audio';
+    link.download = `${schuelerName}_${toolName}-Daten_${timestamp}.txt`;
     
     // Trigger Download
     document.body.appendChild(link);

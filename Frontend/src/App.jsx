@@ -1,10 +1,14 @@
 // Minimal blank canvas App
 import { useState, useEffect } from 'react'
+import ToolSelectionPage from './ToolSelectionPage.jsx'
 import AudioUpload from './AudioUpload_Page.jsx'
+import MidiUpload from './MidiUpload_Page.jsx'
 import RecordingsPage from './RecordingsPage.jsx'
 import LanguagePage from './LanguagePage.jsx'
+import MidiLanguagePage from './MidiLanguagePage.jsx'
 import InstrumentsPage from './InstrumentsPage.jsx'
 import PersonalizationPage from './PersonalizationPage.jsx'
+import MidiPersonalizationPage from './MidiPersonalizationPage.jsx'
 import PromptPage from './PromptPage.jsx'
 
 export default function App() {
@@ -13,11 +17,19 @@ export default function App() {
   // Cleanup beim Tab/Browser-Schließen
   useEffect(() => {
     const cleanupSession = () => {
+      // Audio Session
       const sessionId = sessionStorage.getItem('sessionId')
       if (sessionId) {
-        // Verwende sendBeacon für zuverlässiges Cleanup beim Schließen
         const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/tools/audio-feedback/session/cleanup`
         const blob = new Blob([JSON.stringify({ sessionId })], { type: 'application/json' })
+        navigator.sendBeacon(url, blob)
+      }
+      
+      // MIDI Session
+      const midiSessionId = sessionStorage.getItem('midiSessionId')
+      if (midiSessionId) {
+        const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/tools/midi-comparison/session/cleanup`
+        const blob = new Blob([JSON.stringify({ sessionId: midiSessionId })], { type: 'application/json' })
         navigator.sendBeacon(url, blob)
       }
     }
@@ -33,10 +45,37 @@ export default function App() {
     }
   }, [])
 
+  // Tool Selection Page
+  if (page === 'tool-selection') {
+    return <ToolSelectionPage 
+      onSelectAudio={() => setPage('AudioUpload_Page')} 
+      onSelectMidi={() => setPage('midi-upload')}
+      onBack={() => setPage('home')} 
+    />
+  }
+
   if (page === 'AudioUpload_Page') {
     return <AudioUpload onNext={() => setPage('recordings')} />
   }
 
+  // MIDI Flow
+  if (page === 'midi-upload') {
+    return <MidiUpload onNext={() => setPage('midi-language')} />
+  }
+
+  if (page === 'midi-language') {
+    return <MidiLanguagePage onBack={() => setPage('midi-upload')} onNext={() => setPage('midi-personalization')} />
+  }
+
+  if (page === 'midi-personalization') {
+    return <MidiPersonalizationPage onBack={() => setPage('midi-language')} onNext={() => setPage('midi-prompt')} />
+  }
+
+  if (page === 'midi-prompt') {
+    return <PromptPage onBack={() => setPage('home')} toolType="midi" />
+  }
+
+  // Audio Flow
   if (page === 'recordings') {
     return <RecordingsPage onBack={() => setPage('AudioUpload_Page')} onNext={() => setPage('language')} />
   }
@@ -289,7 +328,7 @@ export default function App() {
           animation: 'pulse 2s infinite 0.8s',
           transition: 'all 0.3s ease',
         }}
-        onClick={() => setPage('AudioUpload_Page')}
+        onClick={() => setPage('tool-selection')}
         onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
         onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
       >
