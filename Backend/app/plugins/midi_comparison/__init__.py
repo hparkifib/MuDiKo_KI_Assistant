@@ -1,5 +1,5 @@
 # MIDI Comparison Plugin - Vergleicht MIDI-Dateien
 
-from .plugin import MidiComparisonPlugin
+from .midi_comparison_plugin import MidiComparisonPlugin
 
 __all__ = ['MidiComparisonPlugin']

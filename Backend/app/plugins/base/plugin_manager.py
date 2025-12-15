@@ -1,4 +1,4 @@
-# Plugin Manager - Verwaltet alle Tool-Plugins
+"""Plugin Manager - Verwaltet und lädt alle Tool-Plugins."""
 
 import importlib
 from typing import Dict, List, Optional
@@ -33,7 +33,8 @@ class PluginManager:
         
         for item in self.plugins_dir.iterdir():
             if item.is_dir() and not item.name.startswith('_'):
-                if item.name != 'base':  # Skip base module
+                # Skip base module und Library-Ordner (enden mit _lib)
+                if item.name != 'base' and not item.name.endswith('_lib'):
                     self._load_plugin(item)
         
         if self._plugins:
@@ -66,12 +67,13 @@ class PluginManager:
             
             # Importiere Plugin-Modul
             plugin_module = plugin_dir.name
-            module_path = f'app.plugins.{plugin_module}.plugin'
+            # Nutze {plugin_name}_plugin.py statt plugin.py
+            module_path = f'app.plugins.{plugin_module}.{plugin_module}_plugin'
             
             try:
                 module = importlib.import_module(module_path)
             except ImportError as e:
-                print(f"⚠️ Plugin {plugin_module}: Modul 'plugin.py' nicht gefunden oder Import-Fehler: {e}")
+                print(f"⚠️ Plugin {plugin_module}: Modul '{plugin_module}_plugin.py' nicht gefunden oder Import-Fehler: {e}")
                 return
             
             # Hol Plugin-Klasse

@@ -1,15 +1,18 @@
-// Minimal blank canvas App
+/**
+ * MuDiKo KI Assistant - Haupt-App-Komponente
+ * Verwaltet Navigation zwischen Audio-Feedback und MIDI-Comparison Tools
+ */
 import { useState, useEffect } from 'react'
-import ToolSelectionPage from './ToolSelectionPage.jsx'
-import AudioUpload from './AudioUpload_Page.jsx'
-import MidiUpload from './MidiUpload_Page.jsx'
-import RecordingsPage from './RecordingsPage.jsx'
-import LanguagePage from './LanguagePage.jsx'
-import MidiLanguagePage from './MidiLanguagePage.jsx'
-import InstrumentsPage from './InstrumentsPage.jsx'
-import PersonalizationPage from './PersonalizationPage.jsx'
-import MidiPersonalizationPage from './MidiPersonalizationPage.jsx'
-import PromptPage from './PromptPage.jsx'
+import ToolSelectionPage from './pages/common/ToolSelectionPage.jsx'
+import AudioFeedbackUploadPage from './pages/audio-feedback/AudioFeedbackUploadPage.jsx'
+import MidiComparisonUploadPage from './pages/midi-comparison/MidiComparisonUploadPage.jsx'
+import AudioFeedbackRecordingsPage from './pages/audio-feedback/AudioFeedbackRecordingsPage.jsx'
+import CommonLanguagePage from './pages/common/CommonLanguagePage.jsx'
+import MidiComparisonLanguagePage from './pages/midi-comparison/MidiComparisonLanguagePage.jsx'
+import AudioFeedbackInstrumentsPage from './pages/audio-feedback/AudioFeedbackInstrumentsPage.jsx'
+import CommonPersonalizationPage from './pages/common/CommonPersonalizationPage.jsx'
+import MidiComparisonPersonalizationPage from './pages/midi-comparison/MidiComparisonPersonalizationPage.jsx'
+import CommonPromptPage from './pages/common/CommonPromptPage.jsx'
 
 export default function App() {
   const [page, setPage] = useState('home')
@@ -55,45 +58,45 @@ export default function App() {
   }
 
   if (page === 'AudioUpload_Page') {
-    return <AudioUpload onNext={() => setPage('recordings')} />
+    return <AudioFeedbackUploadPage onNext={() => setPage('recordings')} />
   }
 
   // MIDI Flow
   if (page === 'midi-upload') {
-    return <MidiUpload onNext={() => setPage('midi-language')} />
+    return <MidiComparisonUploadPage onNext={() => setPage('midi-language')} />
   }
 
   if (page === 'midi-language') {
-    return <MidiLanguagePage onBack={() => setPage('midi-upload')} onNext={() => setPage('midi-personalization')} />
+    return <MidiComparisonLanguagePage onBack={() => setPage('midi-upload')} onNext={() => setPage('midi-personalization')} />
   }
 
   if (page === 'midi-personalization') {
-    return <MidiPersonalizationPage onBack={() => setPage('midi-language')} onNext={() => setPage('midi-prompt')} />
+    return <MidiComparisonPersonalizationPage onBack={() => setPage('midi-language')} onNext={() => setPage('midi-prompt')} />
   }
 
   if (page === 'midi-prompt') {
-    return <PromptPage onBack={() => setPage('home')} toolType="midi" />
+    return <CommonPromptPage onBack={() => setPage('home')} toolType="midi" />
   }
 
   // Audio Flow
   if (page === 'recordings') {
-    return <RecordingsPage onBack={() => setPage('AudioUpload_Page')} onNext={() => setPage('language')} />
+    return <AudioFeedbackRecordingsPage onBack={() => setPage('AudioUpload_Page')} onNext={() => setPage('language')} />
   }
 
   if (page === 'language') {
-    return <LanguagePage onBack={() => setPage('recordings')} onNext={() => setPage('instruments')} />
+    return <CommonLanguagePage onBack={() => setPage('recordings')} onNext={() => setPage('instruments')} />
   }
 
   if (page === 'instruments') {
-    return <InstrumentsPage onBack={() => setPage('language')} onNext={() => setPage('personalization')} />
+    return <AudioFeedbackInstrumentsPage onBack={() => setPage('language')} onNext={() => setPage('personalization')} />
   }
 
   if (page === 'personalization') {
-    return <PersonalizationPage onBack={() => setPage('instruments')} onNext={() => setPage('prompt')} />
+    return <CommonPersonalizationPage onBack={() => setPage('instruments')} onNext={() => setPage('prompt')} />
   }
 
   if (page === 'prompt') {
-    return <PromptPage onBack={() => setPage('home')} />
+    return <CommonPromptPage onBack={() => setPage('home')} />
   }
 
   return (

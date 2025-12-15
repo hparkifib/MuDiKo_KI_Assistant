@@ -1,4 +1,4 @@
-# Session Service - Verwaltet User-Sessions
+"""Session Service - Verwaltet User-Sessions mit automatischem Cleanup."""
 
 from typing import Optional, Dict
 from pathlib import Path

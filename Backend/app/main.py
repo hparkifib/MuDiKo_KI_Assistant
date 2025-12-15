@@ -1,9 +1,10 @@
-# MuDiKo KI Assistant - Main Entry Point
-# Neue plugin-basierte Architektur
+"""MuDiKo KI Assistant - Main Entry Point
+
+Plugin-basierte Musikanalyse-Anwendung für Audio- und MIDI-Feedback.
+"""
 
 from app.core.app_factory import create_app
 
-# Erstelle App mit Factory Pattern
 app = create_app()
 
 if __name__ == "__main__":

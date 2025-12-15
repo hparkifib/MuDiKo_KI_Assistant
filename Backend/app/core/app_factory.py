@@ -1,4 +1,4 @@
-# App Factory - Erstellt und konfiguriert die Flask App
+"""App Factory - Erstellt und konfiguriert die Flask-Anwendung."""
 
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS

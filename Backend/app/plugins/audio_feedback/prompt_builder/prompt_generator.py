@@ -7,12 +7,14 @@
 # Siehe: detailed_report_generator.py, technical_report_generator.py, etc.
 
 from typing import Dict, Any, List
+from pathlib import Path
 from .report_config import ReportConfig
 from .detailed_report_generator import DetailedReportGenerator
 from .technical_report_generator import TechnicalReportGenerator
 from .selective_report_generator import SelectiveReportGenerator
+from app.shared.services.prompt_builder import BasePromptBuilder
 
-class PromptGenerator:
+class PromptGenerator(BasePromptBuilder):
     """Generator für pädagogische System-Prompts (LLM-Aufgabenstellung).
     
     Diese Klasse erstellt nur noch den System-Prompt, der dem LLM
@@ -27,9 +29,19 @@ class PromptGenerator:
             report_variant: Report-Variante ('detailed', 'technical', 'selective')
             report_config: Optionale Config für Report-Generator
         """
+        # Template-Pfad
+        template_dir = Path(__file__).parent.parent / "templates"
+        super().__init__(template_dir)
+        
         self.report_variant = report_variant
         self.report_config = report_config or ReportConfig.detailed_report()
         self.report_generator = self._create_report_generator()
+        
+        self._load_plugin_templates()
+    
+    def _load_plugin_templates(self):
+        """Lädt Plugin-spezifische Templates."""
+        self.system_prompt_template = self.loader.load_template("system_prompt.txt")
     
     def _create_report_generator(self):
         """Erstellt den passenden Report-Generator basierend auf Variante.
@@ -96,7 +108,7 @@ class PromptGenerator:
         personal_message: str,
         use_simple_language: bool
     ) -> str:
-        """Erstellt pädagogisch optimierten System-Prompt.
+        """Erstellt pädagogisch optimierten System-Prompt aus Template.
         
         Args:
             language: Sprache für Feedback
@@ -108,41 +120,22 @@ class PromptGenerator:
         Returns:
             System-Prompt String
         """
+        # Einfache Sprache Hinweis (shared)
+        simple_language_note = self.build_simple_language_section(use_simple_language)
         
-        personal_section = f"\n{personal_message}\n" if personal_message else ""
+        # Personalisierung
+        personalization_section = self.build_personalization_section(
+            personal_message
+        )
         
-        simple_language_note = ""
-        if use_simple_language:
-            simple_language_note = (
-                "\nWichtiger Hinweis: Verwende besonders einfache, klare und kurze Sätze, "
-                "damit das Feedback für Schüler mit Sprachbarrieren oder Lernschwierigkeiten "
-                "leicht verständlich ist.\n"
-            )
+        # Template mit Variablen füllen
+        prompt = self.loader.format_template(
+            self.system_prompt_template,
+            referenz_instrument=referenz_instrument,
+            schueler_instrument=schueler_instrument,
+            language=language,
+            simple_language_note=simple_language_note,
+            personalization_section=personalization_section
+        )
         
-        prompt = f"""Hintergrund: Im Folgenden erhältst du eine Musik-Analyse-Report zu zwei Aufnahmen.
-Die Referenzaufnahme wurde von einer Lehrkraft mit {referenz_instrument} eingespielt und dient als Vorbild.
-Die Schüleraufnahme wurde mit {schueler_instrument} aufgenommen und soll die Referenz nachahmen.
-
-Aufgabe: Gib dem Schüler konstruktives, motivierendes Feedback zu seiner musikalischen Leistung.
-
-Sprache: {language}
-Zielgruppe: Schüler der Sekundarstufe 1 (Alter: 12-16 Jahre)
-{simple_language_note}{personal_section}
-Anweisungen:
-- Fokussiere auf musikalische Aspekte, nicht auf technische Messwerte
-- Verwende eine freundliche, ermutigende Sprache
-- Strukturiere das Feedback nach: Lob → Fehleranalyse → Verbesserungsvorschläge
-- Bei mehreren Segmenten: Gib sowohl Segment-spezifisches als auch Gesamt-Feedback
-- Halte es kurz: Maximal 1-3 Sätze pro Segment
-- Beachte: Segmente könnten zeitlich versetzt sein (z.B. nach Fehlern oder Neustart)
-- Die Aufnahmen können unterschiedlich lang sein (Stille am Ende ignorieren)
-
-Struktur des Feedbacks:
-1. **Begrüßung**: Stelle dich als Musik-KI-Assistent vor
-2. **Lob**: Hebe konkrete Stärken hervor (ehrlich, nicht übertrieben)
-3. **Fehleranalyse**: Erkläre Unterschiede zur Referenz verständlich
-4. **Verbesserungsvorschläge**: Gib konkrete, umsetzbare Übungstipps
-
-Nun folgt der Musik-Analyse-Report:
-"""
         return prompt.strip()

@@ -1,4 +1,4 @@
-# Storage Service - Verwaltet Dateispeicherung
+"""Storage Service - Verwaltet Dateispeicherung und Session-Ordner."""
 
 from pathlib import Path
 from typing import List, Optional

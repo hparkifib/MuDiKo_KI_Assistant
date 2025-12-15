@@ -1,3 +1,14 @@
+/**
+ * AudioPlayer-Komponente mit Segment-Navigation und Wellenform-Visualisierung.
+ * @param {Object} props
+ * @param {Object} props.uploadData - Upload-Daten mit Audio-Datei
+ * @param {Array} props.segments - Array von Segmenten für Visualisierung
+ * @param {number} props.activeSegment - Index des aktiven Segments
+ * @param {number} props.currentSegment - Index des aktuellen Segments
+ * @param {Function} props.onSegmentClick - Handler für Segment-Clicks
+ * @param {Function} props.onTimeUpdate - Handler für Zeit-Updates
+ * @param {React.Ref} ref - Ref für imperative Funktionen (seekToSegment)
+ */
 import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import playIcon from '../assets/playbutton.svg';
 import pauseIcon from '../assets/pausebutton.svg';
