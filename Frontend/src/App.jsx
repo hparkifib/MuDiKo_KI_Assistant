@@ -17,37 +17,6 @@ import CommonPromptPage from './pages/common/CommonPromptPage.jsx'
 export default function App() {
   const [page, setPage] = useState('home')
 
-  // Cleanup beim Tab/Browser-Schließen
-  useEffect(() => {
-    const cleanupSession = () => {
-      // Audio Session
-      const sessionId = sessionStorage.getItem('sessionId')
-      if (sessionId) {
-        const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/tools/audio-feedback/session/cleanup`
-        const blob = new Blob([JSON.stringify({ sessionId })], { type: 'application/json' })
-        navigator.sendBeacon(url, blob)
-      }
-      
-      // MIDI Session
-      const midiSessionId = sessionStorage.getItem('midiSessionId')
-      if (midiSessionId) {
-        const url = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/tools/midi-comparison/session/cleanup`
-        const blob = new Blob([JSON.stringify({ sessionId: midiSessionId })], { type: 'application/json' })
-        navigator.sendBeacon(url, blob)
-      }
-    }
-
-    // Registriere Event-Listener
-    window.addEventListener('beforeunload', cleanupSession)
-    window.addEventListener('pagehide', cleanupSession)
-
-    // Cleanup beim Component unmount
-    return () => {
-      window.removeEventListener('beforeunload', cleanupSession)
-      window.removeEventListener('pagehide', cleanupSession)
-    }
-  }, [])
-
   // Tool Selection Page
   if (page === 'tool-selection') {
     return <ToolSelectionPage 

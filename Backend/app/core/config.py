@@ -20,8 +20,8 @@ class Config:
     PLUGINS_DIR = BASE_DIR / "plugins"
     
     # Session
-    SESSION_TTL_SECONDS = int(os.getenv('SESSION_TTL_SECONDS', '3600'))
-    SESSION_GC_INTERVAL = int(os.getenv('GC_INTERVAL_SECONDS', '900'))
+    SESSION_TTL_SECONDS = int(os.getenv('SESSION_TTL_SECONDS', '7200'))  # 2 Stunden
+    SESSION_GC_INTERVAL = int(os.getenv('GC_INTERVAL_SECONDS', '900'))  # 15 Minuten
     
     # Audio Processing
     AUDIO_TARGET_SR = 22050
