@@ -17,6 +17,7 @@ Frontend/dist/
 Frontend/build/
 Backend/uploads/*
 !Backend/uploads/.gitkeep
+Backend/app/Uploads/
 
 # IDE Files
 .vscode/
