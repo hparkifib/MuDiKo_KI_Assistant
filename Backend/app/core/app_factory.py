@@ -165,6 +165,10 @@ def register_core_routes(app, session_service, storage_service, plugin_manager):
                 file_path = storage_service.get_file_path(session_id, f"segments/{filename}")
             
             if not file_path:
+                # Prüfe auch im midi Unterordner
+                file_path = storage_service.get_file_path(session_id, f"midi/{filename}")
+            
+            if not file_path:
                 return jsonify({
                     "success": False, 
                     "error": "Datei nicht gefunden"

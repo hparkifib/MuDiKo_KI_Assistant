@@ -6,6 +6,8 @@ import { useState, useEffect } from 'react'
 import ToolSelectionPage from './pages/common/ToolSelectionPage.jsx'
 import AudioFeedbackUploadPage from './pages/audio-feedback/AudioFeedbackUploadPage.jsx'
 import MidiComparisonUploadPage from './pages/midi-comparison/MidiComparisonUploadPage.jsx'
+import Mp3ToMidiUploadPage from './pages/mp3-to-midi-feedback/Mp3ToMidiUploadPage.jsx'
+import Mp3ToMidiResultPage from './pages/mp3-to-midi-feedback/Mp3ToMidiResultPage.jsx'
 import AudioFeedbackRecordingsPage from './pages/audio-feedback/AudioFeedbackRecordingsPage.jsx'
 import CommonLanguagePage from './pages/common/CommonLanguagePage.jsx'
 import MidiComparisonLanguagePage from './pages/midi-comparison/MidiComparisonLanguagePage.jsx'
@@ -22,12 +24,22 @@ export default function App() {
     return <ToolSelectionPage 
       onSelectAudio={() => setPage('AudioUpload_Page')} 
       onSelectMidi={() => setPage('midi-upload')}
+      onSelectMp3ToMidi={() => setPage('mp3-to-midi-upload')}
       onBack={() => setPage('home')} 
     />
   }
 
   if (page === 'AudioUpload_Page') {
     return <AudioFeedbackUploadPage onNext={() => setPage('recordings')} />
+  }
+
+  // MP3-to-MIDI Flow (Phase 1)
+  if (page === 'mp3-to-midi-upload') {
+    return <Mp3ToMidiUploadPage onNext={() => setPage('home')} onShowResult={() => setPage('mp3-to-midi-result')} />
+  }
+
+  if (page === 'mp3-to-midi-result') {
+    return <Mp3ToMidiResultPage onBack={() => setPage('mp3-to-midi-upload')} onHome={() => setPage('home')} />
   }
 
   // MIDI Flow

@@ -1,10 +1,11 @@
 // Tool Selection Page - Wähle zwischen Audio und MIDI Tool
 import { PageLayout, Card } from '../../components/common';
 
-export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onBack }) {
+export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelectMp3ToMidi, onBack }) {
   const toolCardStyle = {
-    width: '100%',
-    maxWidth: '320px',
+    width: '280px',
+    minWidth: '280px',
+    flexShrink: 0,
     cursor: 'pointer',
     transition: 'transform 0.3s ease, box-shadow 0.3s ease',
     border: '2px solid transparent',
@@ -41,11 +42,13 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onBack 
           gap: '20px',
           justifyContent: 'center',
           alignItems: 'stretch',
-          flexWrap: 'wrap',
+          flexWrap: 'nowrap',
           width: '90%',
-          maxWidth: '900px',
+          overflowX: 'auto',
+          overflowY: 'hidden',
           zIndex: 1,
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          paddingBottom: '10px'
         }}>
           {/* Audio Feedback Tool */}
           <Card
@@ -134,6 +137,51 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onBack 
             textAlign: 'center'
           }}>
             MID, MIDI
+          </div>
+        </Card>
+
+        {/* MP3-to-MIDI Feedback Tool */}
+        <Card
+          style={toolCardStyle}
+          onClick={onSelectMp3ToMidi}
+          onMouseEnter={(e) => handleCardHover(e, true)}
+          onMouseLeave={(e) => handleCardHover(e, false)}
+        >
+          <div style={{
+            fontSize: '40px',
+            textAlign: 'center',
+            marginBottom: '12px'
+          }}>
+            🎼
+          </div>
+          <h2 style={{
+            color: 'var(--font-color)',
+            textAlign: 'center',
+            marginBottom: '10px',
+            fontSize: '20px'
+          }}>
+            MP3-zu-MIDI-Analyse
+          </h2>
+          <p style={{
+            color: 'var(--font-color)',
+            textAlign: 'center',
+            opacity: 0.8,
+            lineHeight: '1.4',
+            fontSize: '14px'
+          }}>
+            Konvertiert MP3-Aufnahmen zu MIDI und vergleicht sie taktbasiert für präzises Feedback.
+          </p>
+          <div style={{
+            marginTop: '12px',
+            padding: '6px',
+            backgroundColor: 'rgba(128, 128, 128, 0.1)',
+            borderRadius: '8px',
+            fontSize: '13px',
+            color: 'var(--font-color)',
+            opacity: 0.7,
+            textAlign: 'center'
+          }}>
+            MP3, WAV, MP4 → MIDI
           </div>
         </Card>
         </div>

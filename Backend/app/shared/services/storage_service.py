@@ -132,6 +132,17 @@ class StorageService:
                 except Exception as e:
                     print(f"⚠️ Fehler beim Löschen von {file_path.name}: {e}")
     
+    def get_session_directory(self, session_id: str) -> Path:
+        """Gibt den Pfad zum Session-Verzeichnis zurück.
+        
+        Args:
+            session_id: Session-ID
+            
+        Returns:
+            Path: Pfad zum Session-Verzeichnis
+        """
+        return self.base_path / session_id
+    
     def _is_allowed_file(self, filename: str) -> bool:
         """Prüft ob Dateiformat erlaubt ist.
         
