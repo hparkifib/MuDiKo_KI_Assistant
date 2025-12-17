@@ -1,0 +1,23 @@
+{
+  "id": "blechblaeser",
+  "name": "Blechbläser",
+  "icon": "🎷",
+  "description": "Optimiert für Trompete, Posaune, Horn und Tuba. Erkennt kräftige Anschläge und laute Dynamik zuverlässig.",
+  "use_case": "Orchester, Big Band, Bläserensemble",
+  "target_group": "Bläser, Jazz-Musiker",
+  "parameters": {
+    "onset_threshold": 0.6,
+    "frame_threshold": 0.3,
+    "minimum_note_length": 254,
+    "minimum_frequency": 55,
+    "maximum_frequency": 1400,
+    "melodia_trick": true
+  },
+  "preprocessing": {
+    "normalize_audio": true,
+    "reduce_noise": false,
+    "high_pass_filter": false,
+    "low_pass_filter": false
+  },
+  "notes": "Hohe Onset-Schwelle für markante Anschläge. Frequenzbereich von A1 (Tuba) bis F6 (Trompete). Monophone Erkennung."
+}

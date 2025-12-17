@@ -1,0 +1,23 @@
+{
+  "id": "ensemble",
+  "name": "Ensemble",
+  "icon": "👥",
+  "description": "Für gemischte Instrumente und komplexe Arrangements. Ausgewogene Einstellungen für Orchester, Band oder Kammermusik.",
+  "use_case": "Orchester, Band, Kammermusik, Duo/Trio",
+  "target_group": "Ensembles, gemischte Besetzungen",
+  "parameters": {
+    "onset_threshold": 0.5,
+    "frame_threshold": 0.3,
+    "minimum_note_length": 127,
+    "minimum_frequency": 27.5,
+    "maximum_frequency": 4186,
+    "melodia_trick": false
+  },
+  "preprocessing": {
+    "normalize_audio": true,
+    "reduce_noise": true,
+    "high_pass_filter": false,
+    "low_pass_filter": false
+  },
+  "notes": "Ausgewogene Parameter als Kompromiss für verschiedene Instrumente. Polyphon für mehrstimmige Arrangements. Voller Frequenzbereich (A0 bis C8). Noise Reduction für komplexe Aufnahmen mit Hintergrundgeräuschen."
+}

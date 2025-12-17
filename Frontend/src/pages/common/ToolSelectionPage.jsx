@@ -70,7 +70,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
               marginBottom: '10px',
               fontSize: '20px'
             }}>
-              MP3-Analyse
+              Audio-Feedback
             </h2>
             <p style={{
               color: 'var(--font-color)',
@@ -115,7 +115,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
               marginBottom: '10px',
               fontSize: '20px'
             }}>
-            MIDI-Analyse
+            MIDI-Feedback
           </h2>
           <p style={{
             color: 'var(--font-color)',
@@ -160,7 +160,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
             marginBottom: '10px',
             fontSize: '20px'
           }}>
-            MP3-zu-MIDI-Analyse
+            MP3-zu-MIDI-Konvertierung
           </h2>
           <p style={{
             color: 'var(--font-color)',
@@ -169,7 +169,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
             lineHeight: '1.4',
             fontSize: '14px'
           }}>
-            Konvertiert MP3-Aufnahmen zu MIDI und vergleicht sie taktbasiert für präzises Feedback.
+            Konvertiere MP3-Aufnahmen zu MIDI-Dateien mit optimierten Presets für verschiedene Instrumente.
           </p>
           <div style={{
             marginTop: '12px',

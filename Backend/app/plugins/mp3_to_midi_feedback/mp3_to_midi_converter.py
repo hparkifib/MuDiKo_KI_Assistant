@@ -43,12 +43,14 @@ class Mp3ToMidiConverter:
         
         logging.info(f"🎹 Mp3ToMidiConverter initialisiert (min_confidence={self.min_confidence})")
     
-    def convert(self, audio_path: Path, output_path: Path) -> Dict:
+    def convert(self, audio_path: Path, output_path: Path, preset_params: Optional[Dict] = None) -> Dict:
         """Konvertiert Audio-Datei zu MIDI.
         
         Args:
             audio_path: Pfad zur Audio-Datei (MP3/WAV)
             output_path: Pfad für Output-MIDI-Datei
+            preset_params: Optional - Basic Pitch Parameter aus Preset
+                          (onset_threshold, frame_threshold, minimum_note_length, etc.)
             
         Returns:
             Dict mit:
@@ -71,12 +73,39 @@ class Mp3ToMidiConverter:
         
         warnings = []
         
+        # Extrahiere Basic Pitch Parameter aus Preset
+        onset_threshold = 0.5  # Default
+        frame_threshold = 0.3  # Default
+        minimum_note_length = None  # Use Basic Pitch default
+        minimum_frequency = None
+        maximum_frequency = None
+        melodia_trick = False  # Default
+        
+        if preset_params:
+            onset_threshold = preset_params.get('onset_threshold', 0.5)
+            frame_threshold = preset_params.get('frame_threshold', 0.3)
+            minimum_note_length = preset_params.get('minimum_note_length')
+            minimum_frequency = preset_params.get('minimum_frequency')
+            maximum_frequency = preset_params.get('maximum_frequency')
+            melodia_trick = preset_params.get('melodia_trick', False)
+            
+            logging.info(
+                f"📊 Verwende Preset-Parameter: onset={onset_threshold}, "
+                f"frame={frame_threshold}, melodia_trick={melodia_trick}"
+            )
+        
         try:
-            # Basic Pitch Prediction
+            # Basic Pitch Prediction mit Parametern
             # predict() gibt zurück: (model_output, midi_data, note_events)
             model_output, midi_data, note_events = predict(
                 str(audio_path),
-                model_or_model_path=ICASSP_2022_MODEL_PATH
+                model_or_model_path=ICASSP_2022_MODEL_PATH,
+                onset_threshold=onset_threshold,
+                frame_threshold=frame_threshold,
+                minimum_note_length=minimum_note_length,
+                minimum_frequency=minimum_frequency,
+                maximum_frequency=maximum_frequency,
+                melodia_trick=melodia_trick
             )
             
             # Extrahiere Confidence-Scores aus note_events
@@ -144,13 +173,14 @@ class Mp3ToMidiConverter:
             logging.error(f"❌ Konversion fehlgeschlagen: {e}")
             raise
     
-    def batch_convert(self, audio_files: Dict[str, Path], output_dir: Path) -> Dict[str, Dict]:
+    def batch_convert(self, audio_files: Dict[str, Path], output_dir: Path, preset_params: Optional[Dict] = None) -> Dict[str, Dict]:
         """Konvertiert mehrere Audio-Dateien zu MIDI.
         
         Args:
             audio_files: Dict mit role -> audio_path mapping
                          z.B. {"referenz": Path(...), "schueler": Path(...)}
             output_dir: Verzeichnis für Output-MIDI-Dateien
+            preset_params: Optional - Basic Pitch Parameter aus Preset
             
         Returns:
             Dict mit role -> conversion_result mapping
@@ -161,7 +191,7 @@ class Mp3ToMidiConverter:
             output_path = output_dir / f"{role}_MP3_to_MIDI.mid"
             
             try:
-                result = self.convert(audio_path, output_path)
+                result = self.convert(audio_path, output_path, preset_params)
                 results[role] = result
             except Exception as e:
                 results[role] = {

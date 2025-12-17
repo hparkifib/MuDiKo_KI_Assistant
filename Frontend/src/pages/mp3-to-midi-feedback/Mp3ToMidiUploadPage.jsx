@@ -57,9 +57,11 @@ export default function Mp3ToMidiUploadPage({ onNext, onShowResult }) {
         if (result.sessionId) {
           localStorage.setItem('mp3ToMidiSessionId', result.sessionId);
           
-          // Starte automatisch die Konversion
+          // Navigate to preset selection
           setTimeout(() => {
-            handleConversion(result.sessionId);
+            if (onNext) {
+              onNext();
+            }
           }, 1000);
         }
       } else {

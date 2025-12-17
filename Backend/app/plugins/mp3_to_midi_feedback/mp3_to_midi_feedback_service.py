@@ -36,25 +36,44 @@ class Mp3ToMidiFeedbackService:
         
         logging.info("🎹 Mp3ToMidiFeedbackService initialisiert")
     
-    def convert_mp3_to_midi(self, session_id: str) -> Dict:
+    def convert_mp3_to_midi(self, session_id: str, preset_id: Optional[str] = None) -> Dict:
         """Konvertiert beide MP3-Dateien (Referenz + Schüler) zu MIDI.
         
         Phase 1 Implementation: Nur Konversion, keine Analyse.
         
         Args:
             session_id: Session-ID
+            preset_id: Optional - ID des zu verwendenden Presets (z.B. 'klavier', 'gesang')
             
         Returns:
             Dict mit:
                 - referenz: Konversions-Result für Referenz
                 - schueler: Konversions-Result für Schüler
                 - summary: Zusammenfassung
+                - preset_used: Verwendetes Preset (falls angegeben)
                 
         Raises:
             SessionNotFoundException: Session nicht gefunden
             FileNotFoundError: Audio-Dateien nicht gefunden
         """
         logging.info(f"🎵 Starte MP3-to-MIDI Konversion für Session {session_id}")
+        
+        # Lade Preset-Parameter falls angegeben
+        preset_params = None
+        preset_info = None
+        if preset_id:
+            try:
+                from app.plugins.mp3_to_midi_feedback.presets import preset_manager
+                preset = preset_manager.load_preset(preset_id)
+                preset_params = preset.get('parameters', {})
+                preset_info = {
+                    'id': preset.get('id'),
+                    'name': preset.get('name'),
+                    'icon': preset.get('icon')
+                }
+                logging.info(f"🎼 Verwende Preset: {preset.get('name')} {preset.get('icon')}")
+            except Exception as e:
+                logging.warning(f"⚠️ Konnte Preset '{preset_id}' nicht laden: {e}. Verwende Defaults.")
         
         # Hole Session
         session = self.session_service.get_session(session_id)
@@ -81,9 +100,9 @@ class Mp3ToMidiFeedbackService:
         midi_dir = session_dir / "midi"
         midi_dir.mkdir(exist_ok=True)
         
-        # Konvertiere beide Dateien
+        # Konvertiere beide Dateien mit Preset-Parametern
         logging.info(f"📁 Konvertiere Dateien: {list(audio_files.keys())}")
-        results = self.converter.batch_convert(audio_files, midi_dir)
+        results = self.converter.batch_convert(audio_files, midi_dir, preset_params)
         
         # Speichere MIDI-Pfade in Session
         session.set_data('midi_files', {
@@ -113,11 +132,17 @@ class Mp3ToMidiFeedbackService:
             f"{summary['successful']}/{summary['total_files']} erfolgreich"
         )
         
-        return {
+        result = {
             "referenz": results.get("referenz", {}),
             "schueler": results.get("schueler", {}),
             "summary": summary
         }
+        
+        # Füge Preset-Info hinzu falls verwendet
+        if preset_info:
+            result["preset_used"] = preset_info
+        
+        return result
     
     def analyze_and_compare(self, session_id: str) -> Dict:
         """Analysiert und vergleicht MIDIs taktbasiert.

@@ -1,0 +1,24 @@
+{
+  "id": "gitarre",
+  "name": "Gitarre",
+  "icon": "🎸",
+  "description": "Für Akustik- und E-Gitarre. Erkennt sowohl Melodien als auch Akkorde. Filtert Plektrum-Geräusche.",
+  "use_case": "Rock, Pop, Folk, Fingerpicking",
+  "target_group": "Gitarristen, Singer-Songwriter",
+  "parameters": {
+    "onset_threshold": 0.5,
+    "frame_threshold": 0.3,
+    "minimum_note_length": 127,
+    "minimum_frequency": 82,
+    "maximum_frequency": 1319,
+    "melodia_trick": false
+  },
+  "preprocessing": {
+    "normalize_audio": true,
+    "reduce_noise": true,
+    "high_pass_filter": false,
+    "low_pass_filter": true
+  },
+  "preprocessing_notes": "Low-Pass-Filter entfernt hochfrequente Plektrum-Geräusche",
+  "notes": "Polyphon für Akkorde. Kurze Minimum-Notenlänge (1/16) für schnelle Riffs. Frequenzbereich von E2 (tiefste Saite) bis E6 (höchster Bund)."
+}

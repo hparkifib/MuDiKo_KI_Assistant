@@ -7,6 +7,7 @@ import ToolSelectionPage from './pages/common/ToolSelectionPage.jsx'
 import AudioFeedbackUploadPage from './pages/audio-feedback/AudioFeedbackUploadPage.jsx'
 import MidiComparisonUploadPage from './pages/midi-comparison/MidiComparisonUploadPage.jsx'
 import Mp3ToMidiUploadPage from './pages/mp3-to-midi-feedback/Mp3ToMidiUploadPage.jsx'
+import Mp3ToMidiPresetSelectionPage from './pages/mp3-to-midi-feedback/Mp3ToMidiPresetSelectionPage.jsx'
 import Mp3ToMidiResultPage from './pages/mp3-to-midi-feedback/Mp3ToMidiResultPage.jsx'
 import AudioFeedbackRecordingsPage from './pages/audio-feedback/AudioFeedbackRecordingsPage.jsx'
 import CommonLanguagePage from './pages/common/CommonLanguagePage.jsx'
@@ -35,11 +36,15 @@ export default function App() {
 
   // MP3-to-MIDI Flow (Phase 1)
   if (page === 'mp3-to-midi-upload') {
-    return <Mp3ToMidiUploadPage onNext={() => setPage('home')} onShowResult={() => setPage('mp3-to-midi-result')} />
+    return <Mp3ToMidiUploadPage onNext={() => setPage('mp3-to-midi-preset-selection')} onShowResult={() => setPage('mp3-to-midi-result')} />
+  }
+
+  if (page === 'mp3-to-midi-preset-selection') {
+    return <Mp3ToMidiPresetSelectionPage onBack={() => setPage('mp3-to-midi-upload')} onNext={() => setPage('mp3-to-midi-result')} />
   }
 
   if (page === 'mp3-to-midi-result') {
-    return <Mp3ToMidiResultPage onBack={() => setPage('mp3-to-midi-upload')} onHome={() => setPage('home')} />
+    return <Mp3ToMidiResultPage onBack={() => setPage('mp3-to-midi-preset-selection')} onHome={() => setPage('home')} />
   }
 
   // MIDI Flow

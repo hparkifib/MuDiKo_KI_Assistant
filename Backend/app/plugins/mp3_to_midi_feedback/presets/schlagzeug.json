@@ -1,0 +1,23 @@
+{
+  "id": "schlagzeug",
+  "name": "Schlagzeug",
+  "icon": "🥁",
+  "description": "Für Drums und Percussion. Sehr hohe Onset-Sensitivität für perkussive Anschläge und schnelle Fills.",
+  "use_case": "Rhythmus-Gruppe, Percussion-Ensemble, Drum-Grooves",
+  "target_group": "Schlagzeuger, Percussionisten",
+  "parameters": {
+    "onset_threshold": 0.7,
+    "frame_threshold": 0.2,
+    "minimum_note_length": 63,
+    "minimum_frequency": 30,
+    "maximum_frequency": 10000,
+    "melodia_trick": false
+  },
+  "preprocessing": {
+    "normalize_audio": true,
+    "reduce_noise": false,
+    "high_pass_filter": false,
+    "low_pass_filter": false
+  },
+  "notes": "Sehr hohe Onset-Schwelle (0.7) für klare perkussive Anschläge. Niedrige Frame-Schwelle für kurze Noten. Sehr kurze Minimum-Notenlänge (1/32) für schnelle Fills. Voller Frequenzbereich von Bass Drum bis Cymbals."
+}

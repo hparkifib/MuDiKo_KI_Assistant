@@ -1,0 +1,23 @@
+{
+  "id": "gesang",
+  "name": "Gesang",
+  "icon": "🎤",
+  "description": "Speziell für Singstimmen optimiert. Erkennt Melodielinien präzise und filtert Vibrato und Atemgeräusche.",
+  "use_case": "Vokalmusik, Chor, A-cappella, Solo-Gesang",
+  "target_group": "Sänger, Chöre",
+  "parameters": {
+    "onset_threshold": 0.3,
+    "frame_threshold": 0.4,
+    "minimum_note_length": 381,
+    "minimum_frequency": 80,
+    "maximum_frequency": 1200,
+    "melodia_trick": true
+  },
+  "preprocessing": {
+    "normalize_audio": true,
+    "reduce_noise": true,
+    "high_pass_filter": true,
+    "low_pass_filter": false
+  },
+  "notes": "Monophone Erkennung (melodia_trick) für einzelne Stimmen. Niedrige Onset-Schwelle für weiche Einsätze. Längere Minimum-Notenlänge (1/4-Note) für typische Gesangsnoten."
+}
