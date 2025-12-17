@@ -22,11 +22,11 @@ class AudioFeedbackPlugin(MusicToolPlugin):
     
     @property
     def display_name(self) -> str:
-        return "Audio Feedback Analyzer"
+        return "Audio-Vergleich"
     
     @property
     def description(self) -> str:
-        return "Vergleicht Schüler- und Referenzaufnahmen und gibt intelligentes Feedback"
+        return "Vergleiche deine Aufnahme mit einer Vorspiel-Aufnahme"
     
     def initialize(self, app_context):
         """Initialisiert das Tool mit shared services.

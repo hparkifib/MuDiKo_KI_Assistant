@@ -1,0 +1,15 @@
+{
+  "id": "brass",
+  "name": "Blechbläser",
+  "icon": "🎷",
+  "description": "Für Trompete, Posaune, Horn und Tuba. Erkennt kräftige Ton-Einsätze und laute Passagen zuverlässig. Perfekt für Big Band, Orchester und Bläser-Ensembles.",
+  "instruments": ["Trompete", "Posaune", "Horn", "Tuba", "Kornett"],
+  "parameters": {
+    "onset_threshold": 0.6,
+    "frame_threshold": 0.3,
+    "minimum_note_length": 15,
+    "minimum_frequency": 55,
+    "maximum_frequency": 1400,
+    "melodia_trick": true
+  }
+}

@@ -22,11 +22,11 @@ class MidiComparisonPlugin(MusicToolPlugin):
     
     @property
     def display_name(self) -> str:
-        return "MIDI Comparison Analyzer"
+        return "MIDI-Vergleich"
     
     @property
     def description(self) -> str:
-        return "Vergleicht MIDI-Dateien und erstellt tabellarische Notenanalyse"
+        return "Vergleiche deine MIDI-Datei mit einer Vorlage"
     
     def initialize(self, app_context):
         """Initialisiert das Tool mit shared services.

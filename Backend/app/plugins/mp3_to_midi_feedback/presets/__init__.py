@@ -5,15 +5,14 @@ Dieses Package enthält vordefinierte Presets für verschiedene Instrumente.
 Jedes Preset ist als JSON-Datei gespeichert und enthält optimierte Parameter
 für die Basic Pitch MIDI-Konvertierung.
 
-Verfügbare Presets:
-- klavier.json: Klavier/Keyboard (polyphon)
-- gesang.json: Singstimmen (monophon)
-- holzblaeser.json: Flöte, Klarinette, Oboe
-- blechblaeser.json: Trompete, Posaune, Horn
-- streicher.json: Violine, Cello, Kontrabass
-- gitarre.json: Akustik-/E-Gitarre
-- schlagzeug.json: Drums, Percussion
-- ensemble.json: Gemischte Instrumente
+Verfügbare Presets (englische Dateinamen):
+- piano.json: Piano/Keyboard (polyphon)
+- vocals.json: Singstimmen (monophon)
+- woodwinds.json: Flute, Clarinet, Oboe, Bassoon (monophon)
+- brass.json: Trumpet, Trombone, Horn, Tuba (monophon)
+- strings.json: Violin, Viola, Cello, Double Bass (meist polyphon)
+- guitar.json: Acoustic/Electric Guitar (polyphon)
+- ensemble.json: Mixed instruments (polyphon)
 """
 
 import json
@@ -27,6 +26,19 @@ class PresetManager:
     def __init__(self):
         self.presets_dir = Path(__file__).parent
         self._presets_cache: Optional[Dict[str, dict]] = None
+        self._allowed_ids = {
+            "piano", "guitar", "vocals", "woodwinds", "brass", "strings", "ensemble"
+        }
+        # Legacy-ID-Mapping (Deutsch -> Englisch). 'schlagzeug' wurde entfernt.
+        self._legacy_alias = {
+            "klavier": "piano",
+            "gitarre": "guitar",
+            "gesang": "vocals",
+            "holzblaeser": "woodwinds",
+            "blechblaeser": "brass",
+            "streicher": "strings",
+            "schlagzeug": None,
+        }
     
     def load_preset(self, preset_id: str) -> dict:
         """
@@ -42,6 +54,13 @@ class PresetManager:
             FileNotFoundError: Wenn Preset nicht existiert
             json.JSONDecodeError: Wenn JSON ungültig ist
         """
+        # Legacy Alias unterstützen
+        if preset_id in self._legacy_alias:
+            mapped = self._legacy_alias[preset_id]
+            if mapped is None:
+                raise FileNotFoundError("Das 'drums'/'schlagzeug' Preset wurde entfernt, da Tonhöhen-Transkription dafür ungeeignet ist.")
+            preset_id = mapped
+
         preset_path = self.presets_dir / f"{preset_id}.json"
         
         if not preset_path.exists():
@@ -63,6 +82,9 @@ class PresetManager:
         presets = {}
         for preset_file in self.presets_dir.glob("*.json"):
             preset_id = preset_file.stem
+            # Nur neue englische Presets laden
+            if preset_id not in self._allowed_ids:
+                continue
             try:
                 presets[preset_id] = self.load_preset(preset_id)
             except (FileNotFoundError, json.JSONDecodeError) as e:
@@ -77,17 +99,16 @@ class PresetManager:
         Nützlich für Frontend-Dropdowns.
         
         Returns:
-            Liste von Dicts mit id, name, icon, description
+            Liste von Dicts mit id, name, icon, description, instruments
         """
         all_presets = self.load_all_presets()
         return [
             {
-                'id': preset['id'],
+                'id': preset.get('id') or preset.get('file_id', ''),
                 'name': preset['name'],
-                'icon': preset['icon'],
-                'description': preset['description'],
-                'use_case': preset.get('use_case', ''),
-                'target_group': preset.get('target_group', '')
+                'icon': preset.get('icon', ''),
+                'description': preset.get('description', ''),
+                'instruments': preset.get('instruments', [])
             }
             for preset in all_presets.values()
         ]

@@ -1,0 +1,15 @@
+{
+  "id": "vocals",
+  "name": "Gesang",
+  "icon": "🎤",
+  "description": "Speziell für Gesangsstimmen optimiert. Erkennt die Melodie deiner Stimme präzise und kommt gut mit Vibrato (Stimmschwankungen) zurecht. Filtert Atemgeräusche heraus. Perfekt für Solo-Gesang und Choraufnahmen.",
+  "instruments": ["Gesang", "Stimme", "Chor"],
+  "parameters": {
+    "onset_threshold": 0.3,
+    "frame_threshold": 0.4,
+    "minimum_note_length": 15,
+    "minimum_frequency": 80,
+    "maximum_frequency": 1200,
+    "melodia_trick": true
+  }
+}

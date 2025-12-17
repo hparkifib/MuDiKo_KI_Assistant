@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export default function Mp3ToMidiPresetSelectionPage({ onBack, onNext }) {
-  const [selectedPreset, setSelectedPreset] = useState('klavier');
+  const [selectedPreset, setSelectedPreset] = useState('piano');
   const [presets, setPresets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -192,22 +192,6 @@ export default function Mp3ToMidiPresetSelectionPage({ onBack, onNext }) {
                       </p>
                     </div>
 
-                    <div style={{ marginBottom: '12px' }}>
-                      <p style={{ 
-                        color: 'var(--mudiko-cyan)', 
-                        fontSize: '12px', 
-                        fontWeight: '600', 
-                        textTransform: 'uppercase', 
-                        letterSpacing: '0.5px',
-                        margin: '0 0 5px 0'
-                      }}>
-                        Anwendungsbereich
-                      </p>
-                      <p style={{ color: 'var(--font-color)', fontSize: '14px', margin: '0' }}>
-                        {currentPreset.use_case}
-                      </p>
-                    </div>
-
                     <div>
                       <p style={{ 
                         color: 'var(--mudiko-cyan)', 
@@ -217,10 +201,10 @@ export default function Mp3ToMidiPresetSelectionPage({ onBack, onNext }) {
                         letterSpacing: '0.5px',
                         margin: '0 0 5px 0'
                       }}>
-                        Zielgruppe
+                        Instrumente
                       </p>
                       <p style={{ color: 'var(--font-color)', fontSize: '14px', margin: '0' }}>
-                        {currentPreset.target_group}
+                        {(currentPreset.instruments || []).join(', ')}
                       </p>
                     </div>
                   </div>

@@ -1,6 +1,6 @@
 # 🎼 MP3-to-MIDI Feedback Plugin - Vision & Lastenheft
 
-**Version:** 1.1  
+**Version:** 1.2  
 **Datum:** 17. Dezember 2025  
 **Status:** Phase 1 abgeschlossen, Phase 2 in Planung  
 **Branch:** `Experimental_MP3_to_Midi_Conversion`
@@ -14,168 +14,58 @@ Die Qualität der MP3-zu-MIDI-Konvertierung ist entscheidend für die Genauigkei
 
 ---
 
-### 🎨 Strategie 1: Instrument-spezifische Presets
+### 🎨 Strategie 1: Instrument-spezifische Presets (v1.2)
 
-#### Konzept
-Anstatt eines universellen Konvertierungs-Profils bieten wir **8 vordefinierte Presets** für typische Schulinstrumente:
+Wir stellen **7 vordefinierte Presets** bereit. Drums wurden entfernt (Pitch-Transkription ungeeignet). Presets liegen als separate JSON-Dateien vor und enthalten nur die genutzten Felder.
 
-| Preset | Icon | Instrument | Zielgruppe | Optimiert für |
-|--------|------|------------|------------|---------------|
-| **Klavier** | 🎹 | Klavier/Keyboard | Anfänger-Fortgeschritten | Polyphonie, akkurate Notenlängen |
-| **Gesang** | 🎤 | Singstimme | Chor, Solo-Gesang | Monophonie, Vibrato-Toleranz |
-| **Holzbläser** | 🎺 | Flöte, Klarinette, Oboe | Orchester, Ensemble | Legato-Erkennung, Atemgeräusche filtern |
-| **Blechbläser** | 🎷 | Trompete, Posaune, Horn | Bläser-Ensemble | Starke Anschläge, laute Dynamik |
-| **Streicher** | 🎻 | Violine, Cello, Kontrabass | Orchester | Glissandi, Vibrato, Pizzicato |
-| **Gitarre** | 🎸 | Akustik-/E-Gitarre | Rock/Pop-Ensemble | Akkorde, Plektrum-Noise filtern |
-| **Schlagzeug** | 🥁 | Drums, Percussion | Rhythmus-Gruppe | Onset-Detection, kurze Noten |
-| **Ensemble** | 👥 | Gemischte Instrumente | Orchester, Band | Multi-Instrument, Balance |
+Unterstützte Presets (IDs / Dateien):
+- `piano.json` — Piano/Keyboard (polyphonic)
+- `vocals.json` — Singing voice (monophonic)
+- `woodwinds.json` — Flute, Clarinet, Oboe, Bassoon (monophonic)
+- `brass.json` — Trumpet, Trombone, French Horn, Tuba (monophonic)
+- `strings.json` — Violin, Viola, Cello, Double Bass (mostly polyphonic)
+- `guitar.json` — Acoustic/Electric Guitar (polyphonic)
+- `ensemble.json` — Mixed instruments (polyphonic)
 
-#### Parameter pro Preset
-
-**Klavier 🎹**
-```yaml
-preset_name: "Klavier"
-icon: "🎹"
-description: "Optimiert für Klavier und Keyboard (polyphon)"
-use_case: "Klassik, Pop, Jazz"
-parameters:
-  onset_threshold: 0.5        # Mittlere Sensitivität (Anschlagstärke variiert)
-  frame_threshold: 0.3        # Standard (polyphon)
-  minimum_note_length: 127    # 1/16-Note (schnelle Läufe)
-  minimum_frequency: 27.5     # A0 (tiefste Klaviertaste)
-  maximum_frequency: 4186     # C8 (höchste Taste)
-  melodia_trick: false        # Polyphon
-  preprocessing:
-    - "normalize_audio"       # Dynamik angleichen
+JSON Schema (pro Preset):
+```json
+{
+  "id": "<preset-id>",
+  "name": "<display name>",
+  "description": "<short description>",
+  "instruments": ["<Instrument A>", "<Instrument B>"]
+  ,"parameters": {
+    "onset_threshold": 0.0-1.0,
+    "frame_threshold": 0.0-1.0,
+    "minimum_note_length": <frames>,
+    "minimum_frequency": <Hz>,
+    "maximum_frequency": <Hz>,
+    "melodia_trick": true|false
+  }
+}
 ```
 
-**Gesang 🎤**
-```yaml
-preset_name: "Gesang"
-icon: "🎤"
-description: "Optimiert für Singstimmen (Chor, Solo)"
-use_case: "Vokalmusik, A-cappella"
-parameters:
-  onset_threshold: 0.3        # Niedrig (weiche Einsätze)
-  frame_threshold: 0.4        # Höher (Vibrato filtern)
-  minimum_note_length: 381    # 1/4-Note (längere Töne)
-  minimum_frequency: 80       # E2 (Bass-Stimme)
-  maximum_frequency: 1200     # D6 (Sopran-Stimme)
-  melodia_trick: true         # Monophon
-  preprocessing:
-    - "normalize_audio"
-    - "reduce_noise"          # Atemgeräusche filtern
-```
+Wichtige Hinweise:
+- `minimum_note_length` ist in Frames (nicht in Notenwerten). Realistische Startwerte: 8–20.
+- Preprocessing-Flags wurden entfernt; Pipeline bleibt als Phase 2 geplant.
+- Legacy Aliases werden unterstützt (z. B. `klavier` → `piano`); `schlagzeug` ist entfernt und führt zu einem klaren Fehler.
 
-**Holzbläser 🎺**
-```yaml
-preset_name: "Holzbläser"
-icon: "🎺"
-description: "Für Flöte, Klarinette, Oboe"
-use_case: "Orchester, Kammermusik"
-parameters:
-  onset_threshold: 0.4        # Mittel (Legato-Bögen)
-  frame_threshold: 0.35       # Standard
-  minimum_note_length: 254    # 1/8-Note
-  minimum_frequency: 130      # C3 (tiefste Klarinetten-Töne)
-  maximum_frequency: 2093     # C7 (Piccolo-Flöte)
-  melodia_trick: true         # Monophon
-  preprocessing:
-    - "normalize_audio"
-    - "reduce_breath_noise"   # Atemgeräusche
-```
+Empfohlene Default-Parameter (implementiert):
+- `piano`: min_note_len 8, 27.5–4186 Hz, polyphon
+- `guitar`: min_note_len 8, 82–1319 Hz, polyphon
+- `ensemble`: min_note_len 8, 27.5–4186 Hz, polyphon
+- `vocals`: min_note_len 15, 80–1200 Hz, monophon (`melodia_trick: true`)
+- `woodwinds`: min_note_len 15, 41–3136 Hz, monophon (`melodia_trick: true`)
+- `brass`: min_note_len 15, 55–1400 Hz, monophon (`melodia_trick: true`)
+- `strings`: min_note_len 12, 41–3520 Hz, polyphon
 
-**Blechbläser 🎷**
-```yaml
-preset_name: "Blechbläser"
-icon: "🎷"
-description: "Für Trompete, Posaune, Horn"
-use_case: "Orchester, Big Band"
-parameters:
-  onset_threshold: 0.6        # Hoch (harte Anschläge)
-  frame_threshold: 0.3        # Standard
-  minimum_note_length: 254    # 1/8-Note
-  minimum_frequency: 55       # A1 (Tuba)
-  maximum_frequency: 1400     # F6 (Trompete)
-  melodia_trick: true         # Monophon
-  preprocessing:
-    - "normalize_audio"
-```
-
-**Streicher 🎻**
-```yaml
-preset_name: "Streicher"
-icon: "🎻"
-description: "Für Violine, Cello, Kontrabass"
-use_case: "Orchester, Streichquartett"
-parameters:
-  onset_threshold: 0.4        # Mittel (Legato, Vibrato)
-  frame_threshold: 0.35       # Vibrato-tolerant
-  minimum_note_length: 381    # 1/4-Note (längere Bögen)
-  minimum_frequency: 41       # E1 (Kontrabass)
-  maximum_frequency: 3520     # A7 (Violine Flageolett)
-  melodia_trick: false        # Polyphon (Doppelgriffe)
-  preprocessing:
-    - "normalize_audio"
-    - "reduce_string_noise"   # Bogengeräusche
-```
-
-**Gitarre 🎸**
-```yaml
-preset_name: "Gitarre"
-icon: "🎸"
-description: "Für Akustik- und E-Gitarre"
-use_case: "Rock, Pop, Folk"
-parameters:
-  onset_threshold: 0.5        # Mittel (Plektrum-Anschlag)
-  frame_threshold: 0.3        # Standard
-  minimum_note_length: 127    # 1/16-Note (schnelle Riffs)
-  minimum_frequency: 82       # E2 (tiefste Saite)
-  maximum_frequency: 1319     # E6 (höchster Bund)
-  melodia_trick: false        # Polyphon (Akkorde)
-  preprocessing:
-    - "normalize_audio"
-    - "reduce_plectrum_noise" # Anschlagsgeräusche
-```
-
-**Schlagzeug 🥁**
-```yaml
-preset_name: "Schlagzeug"
-icon: "🥁"
-description: "Für Drums und Percussion"
-use_case: "Rhythmus-Gruppe, Ensemble"
-parameters:
-  onset_threshold: 0.7        # Sehr hoch (perkussiv)
-  frame_threshold: 0.2        # Niedrig (kurze Noten)
-  minimum_note_length: 63     # 1/32-Note (schnelle Fills)
-  minimum_frequency: 30       # Bass Drum
-  maximum_frequency: 10000    # Cymbals
-  melodia_trick: false        # Polyphon (Multi-Tom)
-  preprocessing:
-    - "normalize_audio"
-```
-
-**Ensemble 👥**
-```yaml
-preset_name: "Ensemble"
-icon: "👥"
-description: "Für gemischte Instrumente (Orchester, Band)"
-use_case: "Komplexe Arrangements"
-parameters:
-  onset_threshold: 0.5        # Mittel (Balance)
-  frame_threshold: 0.3        # Standard
-  minimum_note_length: 127    # 1/16-Note
-  minimum_frequency: 27.5     # A0 (voller Bereich)
-  maximum_frequency: 4186     # C8
-  melodia_trick: false        # Polyphon
-  preprocessing:
-    - "normalize_audio"
-    - "reduce_noise"
-```
+Frontend-Contract (Preset-Liste):
+- Backend liefert je Preset: `id`, `name`, `description`, `instruments`.
+- UI zeigt nur Instrument-Name, Beschreibung, Instrumentliste.
 
 ---
 
-### 🎮 Strategie 2: Preprocessing-Pipeline
+### 🎮 Strategie 2: Preprocessing-Pipeline (Phase 2)
 
 #### Audio-Normalisierung
 ```python
@@ -217,12 +107,9 @@ Nach Preset-Auswahl optional einblendbar:
 - *Mittel (0.3)*: Standard
 - *Hoch (0.5)*: Nur lange, stabile Töne → Filtert Vibrato/Glissandi
 
-**Minimum Note Length** (Millisekunden)
-- *32 ms*: 1/64-Note (extrem schnell)
-- *63 ms*: 1/32-Note (Schlagzeug-Fills)
-- *127 ms*: 1/16-Note (Läufe)
-- *254 ms*: 1/8-Note (Standard)
-- *381 ms*: 1/4-Note (langsame Melodien)
+**Minimum Note Length** (Frames)
+- 8–12: Polyphone Instrumente (Piano/Gitarre/Ensemble)
+- 12–20: Sustained/monophone Linien (Vocals/Winds/Strings)
 
 **Frequency Range** (Hz)
 - Instrument-spezifisch begrenzen → Filtert Störgeräusche außerhalb des Tonumfangs
@@ -274,12 +161,11 @@ def analyze_confidence(confidence_scores: np.ndarray) -> dict:
 
 ### 🚀 Implementierungs-Roadmap
 
-#### ✅ Phase 1: Preset-System (PRIORITÄT)
-- [x] 8 Presets definieren (YAML-Format)
-- [ ] Frontend: `Mp3ToMidiPresetSelectionPage.jsx` erstellen
-- [ ] Backend: `presets.yaml` Konfigurationsdatei
-- [ ] Backend: Preset-Parameter in `Mp3ToMidiConverter.convert()` integrieren
-- [ ] Workflow erweitern: Upload → **PresetSelection** → Conversion → Result
+### ✅ Phase 1: Preset-System (PRIORITÄT)
+- [x] 7 Presets als JSON (englische IDs)
+- [x] Frontend: `Mp3ToMidiPresetSelectionPage.jsx` nutzt nur benötigte Felder
+- [x] Backend: Preset-Parameter in Konverter integriert; Legacy Aliases
+- [x] Workflow: Upload → PresetSelection → Conversion → Result
 
 #### ⏳ Phase 2: Preprocessing
 - [ ] Audio-Normalisierung (librosa)
@@ -920,3 +806,5 @@ Für die Analyse durch ein KI-System
 | Version | Datum | Änderung | Autor |
 |---------|-------|----------|-------|
 | 1.0 | 2025-12-16 | Initial-Version erstellt | GitHub Copilot |
+| 1.1 | 2025-12-17 | Ausformulierte Presets (8 inkl. Drums), YAML-Beispiele | GitHub Copilot |
+| 1.2 | 2025-12-17 | Presets auf 7 reduziert (ohne Drums), englische IDs, JSON-Schema verschlankt, Frontend-Contract und Default-Parameter aktualisiert | GitHub Copilot |

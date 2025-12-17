@@ -1,0 +1,15 @@
+{
+  "id": "piano",
+  "name": "Klavier",
+  "icon": "🎹",
+  "description": "Perfekt für Klavier und Keyboard. Erkennt sowohl einzelne Melodien als auch Akkorde und schnelle Läufe. Ideal für klassische Stücke, Pop-Songs und Jazz.",
+  "instruments": ["Klavier", "Keyboard", "E-Piano"],
+  "parameters": {
+    "onset_threshold": 0.5,
+    "frame_threshold": 0.3,
+    "minimum_note_length": 8,
+    "minimum_frequency": 27.5,
+    "maximum_frequency": 4186,
+    "melodia_trick": false
+  }
+}

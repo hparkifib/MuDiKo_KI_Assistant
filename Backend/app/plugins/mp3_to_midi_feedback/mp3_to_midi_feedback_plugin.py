@@ -23,11 +23,11 @@ class Mp3ToMidiFeedbackPlugin(MusicToolPlugin):
     
     @property
     def display_name(self) -> str:
-        return "MP3-to-MIDI Feedback Analyzer"
+        return "Audio-zu-MIDI-Umwandlung"
     
     @property
     def description(self) -> str:
-        return "Konvertiert MP3-Aufnahmen zu MIDI und vergleicht sie taktbasiert"
+        return "Wandle deine Aufnahme in MIDI-Noten um - optimiert für dein Instrument"
     
     def initialize(self, app_context):
         """Initialisiert das Tool mit shared services.

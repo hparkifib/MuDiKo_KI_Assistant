@@ -70,7 +70,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
               marginBottom: '10px',
               fontSize: '20px'
             }}>
-              Audio-Feedback
+              Audio-Vergleich
             </h2>
             <p style={{
               color: 'var(--font-color)',
@@ -79,7 +79,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
               lineHeight: '1.4',
               fontSize: '14px'
             }}>
-              Vergleiche eine Referenzaufnahme mit der Schüleraufnahme und erhalte detailliertes Feedback.
+              Vergleiche deine Aufnahme mit einer Vorspiel-Aufnahme und lass dir Feedback erstellen.
             </p>
             <div style={{
               marginTop: '12px',
@@ -115,7 +115,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
               marginBottom: '10px',
               fontSize: '20px'
             }}>
-            MIDI-Feedback
+            MIDI-Vergleich
           </h2>
           <p style={{
             color: 'var(--font-color)',
@@ -124,7 +124,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
             lineHeight: '1.4',
             fontSize: '14px'
           }}>
-            Vergleiche eine Referenz-MIDI mit der Schüler-MIDI und erhalte detailliertes Feedback.
+            Vergleiche deine MIDI-Datei mit einer Vorlage und lass dir Feedback erstellen.
           </p>
           <div style={{
             marginTop: '12px',
@@ -154,13 +154,13 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
           }}>
             🎼
           </div>
-          <h2 style={{
-            color: 'var(--font-color)',
-            textAlign: 'center',
-            marginBottom: '10px',
-            fontSize: '20px'
-          }}>
-            MP3-zu-MIDI-Konvertierung
+            <h2 style={{
+              color: 'var(--font-color)',
+              textAlign: 'center',
+              marginBottom: '10px',
+              fontSize: '20px'
+            }}>
+            Audio-zu-MIDI-Umwandlung
           </h2>
           <p style={{
             color: 'var(--font-color)',
@@ -169,7 +169,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
             lineHeight: '1.4',
             fontSize: '14px'
           }}>
-            Konvertiere MP3-Aufnahmen zu MIDI-Dateien mit optimierten Presets für verschiedene Instrumente.
+            Wandle deine Aufnahme in MIDI-Noten um - optimiert für dein Instrument.
           </p>
           <div style={{
             marginTop: '12px',
