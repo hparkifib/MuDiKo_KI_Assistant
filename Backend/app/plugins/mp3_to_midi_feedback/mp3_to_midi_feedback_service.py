@@ -1,4 +1,4 @@
-"""MP3-to-MIDI Feedback Service - Orchestriert den gesamten Workflow."""
+"""MP3-to-MIDI Converter Service - Orchestriert die MIDI-Konversion."""
 
 from pathlib import Path
 from typing import Dict, Optional
@@ -8,13 +8,10 @@ from .mp3_to_midi_converter import Mp3ToMidiConverter
 
 
 class Mp3ToMidiFeedbackService:
-    """Service für MP3-to-MIDI Feedback Pipeline.
+    """Service für MP3-to-MIDI Konversion.
     
-    Orchestriert:
-    - Phase 1: MP3 zu MIDI Konversion via Basic Pitch
-    - Phase 2: Taktbasierte Segmentierung (TODO)
-    - Phase 3: MIDI-Comparison pro Segment (TODO)
-    - Report-Generierung (TODO)
+    Konvertiert MP3/WAV-Aufnahmen mit Spotify's Basic Pitch zu MIDI-Dateien.
+    Unterstützt instrument-spezifische Presets für optimale Ergebnisse.
     """
     
     def __init__(self, session_service, storage_service, audio_service, plugin_config: Optional[Dict] = None):
@@ -143,33 +140,3 @@ class Mp3ToMidiFeedbackService:
             result["preset_used"] = preset_info
         
         return result
-    
-    def analyze_and_compare(self, session_id: str) -> Dict:
-        """Analysiert und vergleicht MIDIs taktbasiert.
-        
-        TODO: Phase 2 & 3 Implementation
-        - Takt-Struktur extrahieren
-        - Audio segmentieren
-        - MIDI-Comparison pro Segment
-        - Report generieren
-        
-        Args:
-            session_id: Session-ID
-            
-        Returns:
-            Dict mit Analyse-Ergebnissen
-        """
-        raise NotImplementedError("Phase 2 & 3: Noch nicht implementiert")
-    
-    def generate_report(self, session_id: str) -> str:
-        """Generiert strukturierten Report.
-        
-        TODO: Phase 3 Implementation
-        
-        Args:
-            session_id: Session-ID
-            
-        Returns:
-            Markdown-formatierter Report
-        """
-        raise NotImplementedError("Phase 3: Noch nicht implementiert")

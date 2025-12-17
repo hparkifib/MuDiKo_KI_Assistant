@@ -140,7 +140,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
           </div>
         </Card>
 
-        {/* MP3-to-MIDI Feedback Tool */}
+        {/* MP3-to-MIDI Converter Tool */}
         <Card
           style={toolCardStyle}
           onClick={onSelectMp3ToMidi}

@@ -294,9 +294,8 @@ Ein **spezialisiertes Konvertierungs-Plugin**:
 - **Engine**: Spotify Basic Pitch (Python Library)
 - **Parameter**: onset_threshold, frame_threshold, minimum_note_length, frequency_range, melodia_trick (aus Preset)
 - **Output**: 
-  - MIDI-Datei (downloadbar)
-  - Confidence-Scores pro Note (für Qualitätsbewertung)
-  - Metadaten: Anzahl Noten, Durchschnittliche Confidence, Dauer
+  - MIDI-Datei (Standard MIDI Format 1, downloadbar)
+  - Metadaten: Anzahl Noten, Dauer, verwendetes Preset
 - **Fehlerbehandlung**: Falls keine Noten erkannt → Warnung + leere MIDI
 
 #### FR-4: MIDI-Export mit Metadaten
@@ -309,7 +308,6 @@ Ein **spezialisiertes Konvertierungs-Plugin**:
 - Audio-Preprocessing: Normalisierung, Noise Reduction
 - MIDI-Post-Processing: Quantisierung, Note Cleanup
 - Erweiterte Einstellungen: Manuelle Parameter-Anpassung basierend auf Preset
-- Confidence-basierte Warnungen: "Niedrige Qualität, bitte neu aufnehmen"
 
 ### Won't-Have (Out of Scope)
 - ❌ Echtzeit-Konversion (Basic Pitch braucht ~10-30s pro Minute Audio)
@@ -476,22 +474,8 @@ numpy>=1.24.0
   'midi_filename': 'converted.mid',
   'audio_duration_seconds': 120.5,
   'note_count': 342,
-  'confidence_scores': {
-    'per_note': [
-      {'time': 0.0, 'pitch': 60, 'confidence': 0.92},
-      {'time': 0.5, 'pitch': 62, 'confidence': 0.88},
-      ...
-    ],
-    'statistics': {
-      'avg_confidence': 0.87,
-      'min_confidence': 0.52,
-      'low_confidence_ratio': 0.15,  # 15% der Noten < 0.7
-      'quality_rating': '⭐⭐⭐⭐☆'
-    }
-  },
   'metadata': {
     'used_preset': 'piano',
-    'preset_parameters': {...},
     'conversion_timestamp': '2025-12-17T14:30:00Z',
     'basic_pitch_version': '0.3.2'
   }
@@ -502,34 +486,15 @@ numpy>=1.24.0
 
 ## 📄 Output-Struktur
 
-### Frontend-Anzeige (Result Page)
+### MIDI-Datei als Hauptoutput
 
-```markdown
-# ✅ MIDI-Konversion erfolgreich
+**Output**: Standard MIDI File (.mid)
+- Direkt downloadbar
+- Verwendbar in MIDI-Comparison-Plugin
+- Verwendbar in DAWs (Digital Audio Workstations)
+- Standard MIDI Format 1
 
-**Datei:** student_recording.mp3 → student_recording.mid
-**Preset:** 🎹 Klavier
-**Dauer:** 2:00 min
-**Noten:** 342
-
-## 📊 Qualitätsbewertung
-
-**Confidence:** ⭐⭐⭐⭐☆ (87% durchschnittlich)
-- Sehr gute Noten (>90%): 68%
-- Gute Noten (70-90%): 17%
-- Unsichere Noten (<70%): 15%
-
-⚠️ **Hinweis:** 15% der Noten haben niedrige Confidence.
-**Empfehlung:** 
-- Ruhigere Umgebung wählen
-- Mikrofon näher am Instrument platzieren
-- Alternative: Preset mit anderen Parametern versuchen
-
-## 💾 Download & Weiterverwendung
-
-[📥 MIDI-Datei herunterladen]
-[📊 In MIDI-Comparison-Plugin analysieren]
-```
+**Frontend**: Einfacher Download-Link nach erfolgreicher Konversion
 
 ---
 
@@ -562,9 +527,8 @@ numpy>=1.24.0
 - [ ] Instrument-spezifische Filter (High-Pass, Low-Pass)
 - [ ] Toggle in Frontend: "Audio-Vorverarbeitung aktivieren"
 - [ ] A/B-Vergleich: Mit/Ohne Preprocessing
-- [ ] Confidence-Score-Vergleich
 
-**Output**: Höhere Confidence-Scores, weniger False Positives
+**Output**: Sauberere Audio-Basis für bessere MIDI-Konversion
 
 ---
 
@@ -660,18 +624,9 @@ numpy>=1.24.0
 
 ---
 
-### TD-4: Confidence-Scores als Qualitätsindikator
-**Entscheidung**: Nutze Basic Pitch Confidence-Scores für Qualitätsbewertung
 
-**Begründung**:
-- ✅ Direktes Feedback zur Konversionsqualität
-- ✅ Hilft Nutzern schlechte Aufnahmen zu identifizieren
-- ✅ Basis für spätere Pre/Post-Processing-Entscheidungen
-- ✅ Warnung: "Niedrige Confidence → Bitte neu aufnehmen"
 
----
-
-### TD-5: Deutsche Beschreibungen für Jugendliche
+### TD-4: Deutsche Beschreibungen für Jugendliche
 **Entscheidung**: Preset-Beschreibungen auf Deutsch, altersgerecht formuliert
 
 **Begründung**:
@@ -691,13 +646,12 @@ numpy>=1.24.0
 - [x] Preset-Auswahl mit Icons funktioniert
 - [x] Basic Pitch konvertiert mit Preset-Parametern
 - [ ] MIDI-Download funktioniert
-- [ ] Confidence-Scores werden angezeigt
-- [ ] Qualitätswarnungen bei niedriger Confidence (<70%)
+- [ ] MIDI-Datei verwendbar in MIDI-Comparison-Plugin
 
 ### Qualitäts-Kriterien
-- [ ] Basic Pitch Confidence > 80% bei sauberen Aufnahmen
 - [ ] Preset-Parameter liefern bessere Ergebnisse als Generic-Einstellungen
 - [ ] MIDI-Dateien können im MIDI-Comparison-Plugin genutzt werden
+- [ ] MIDI-Dateien können in DAWs importiert werden
 - [ ] Keine Code-Duplication mit bestehenden Plugins
 - [ ] Fehlerbehandlung für alle bekannten Edge-Cases
 

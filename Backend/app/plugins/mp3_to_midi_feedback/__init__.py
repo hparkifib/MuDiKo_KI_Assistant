@@ -1,1 +1,1 @@
-# MP3-to-MIDI Feedback Plugin
+# MP3-to-MIDI Converter Plugin

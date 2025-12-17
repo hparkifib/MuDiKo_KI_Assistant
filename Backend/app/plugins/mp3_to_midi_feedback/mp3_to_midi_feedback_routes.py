@@ -1,4 +1,4 @@
-"""MP3-to-MIDI Feedback Routes - API Endpoints."""
+"""MP3-to-MIDI Converter Routes - API Endpoints."""
 
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
@@ -7,7 +7,7 @@ from app.core.exceptions import SessionNotFoundException, SessionExpiredExceptio
 
 
 def create_routes(plugin_name, session_service, storage_service, feedback_service, plugin_config) -> Blueprint:
-    """Erstellt Blueprint mit allen Routes für MP3-to-MIDI Feedback.
+    """Erstellt Blueprint mit allen Routes für MP3-to-MIDI Converter.
     
     Args:
         plugin_name: Name des Plugins
@@ -124,9 +124,9 @@ def create_routes(plugin_name, session_service, storage_service, feedback_servic
                 "success": False
             }), 500
     
-    @bp.route('/convert-and-analyze', methods=['POST'])
-    def convert_and_analyze():
-        """Konvertiert MP3s zu MIDI via Basic Pitch.
+    @bp.route('/convert', methods=['POST'])
+    def convert():
+        """Konvertiert beide MP3s zu MIDI via Basic Pitch.
         
         JSON Body:
             sessionId: Session-ID

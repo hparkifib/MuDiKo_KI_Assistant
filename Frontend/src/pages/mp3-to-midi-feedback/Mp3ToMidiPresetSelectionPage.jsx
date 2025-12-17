@@ -40,7 +40,7 @@ export default function Mp3ToMidiPresetSelectionPage({ onBack, onNext }) {
         throw new Error('Keine Session gefunden');
       }
 
-      const response = await fetch('/api/tools/mp3-to-midi-feedback/convert-and-analyze', {
+      const response = await fetch('/api/tools/mp3-to-midi-feedback/convert', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

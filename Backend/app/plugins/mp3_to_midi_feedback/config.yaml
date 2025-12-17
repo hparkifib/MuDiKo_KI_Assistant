@@ -1,17 +1,15 @@
 enabled: true
 class: Mp3ToMidiFeedbackPlugin
-display_name: MP3-to-MIDI Feedback Analyzer
-description: Konvertiert MP3-Aufnahmen zu MIDI und vergleicht sie taktbasiert
+display_name: MP3-to-MIDI Converter
+description: Konvertiert MP3-Aufnahmen zu MIDI-Dateien mit instrument-spezifischen Presets
 version: 1.0.0
 icon: /icons/mp3-to-midi-feedback.svg
 
 # Frontend Routes
 frontend_routes:
   - /tools/mp3-to-midi-feedback/upload
-  - /tools/mp3-to-midi-feedback/conversion
-  - /tools/mp3-to-midi-feedback/language
-  - /tools/mp3-to-midi-feedback/personalization
-  - /tools/mp3-to-midi-feedback/prompt
+  - /tools/mp3-to-midi-feedback/preset-selection
+  - /tools/mp3-to-midi-feedback/result
 
 # Tool-spezifische Einstellungen
 settings:
@@ -24,23 +22,3 @@ settings:
   # Basic Pitch Conversion
   conversion:
     timeout_seconds: 120
-    min_confidence: 0.6
-    fallback_on_low_confidence: "warning"  # "warning", "skip", "abort"
-  
-  # Segmentation
-  segmentation:
-    bars_per_segment: 4
-    min_notes_per_bar: 1
-  
-  # MIDI Comparison
-  comparison:
-    similarity_threshold: 0.7
-    include_velocity: true
-    include_duration: true
-  
-  # Report Generation
-  report:
-    format_style: "structured"
-    include_confidence_scores: true
-    highlight_low_confidence_bars: true
-    low_confidence_threshold: 0.7
