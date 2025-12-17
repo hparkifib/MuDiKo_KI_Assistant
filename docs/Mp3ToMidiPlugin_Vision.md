@@ -1,8 +1,8 @@
-# 🎼 MP3-to-MIDI Feedback Plugin - Vision & Lastenheft
+# 🎼 MP3-to-MIDI Converter Plugin - Vision & Lastenheft
 
-**Version:** 1.2  
+**Version:** 1.3  
 **Datum:** 17. Dezember 2025  
-**Status:** Phase 1 abgeschlossen, Phase 2 in Planung  
+**Status:** Phase 1 abgeschlossen, Fokus auf Konversion  
 **Branch:** `Experimental_MP3_to_Midi_Conversion`
 
 ---
@@ -10,7 +10,7 @@
 ## 🎯 MIDI-Konvertierung optimieren
 
 ### Motivation
-Die Qualität der MP3-zu-MIDI-Konvertierung ist entscheidend für die Genauigkeit der späteren Analyse. Basic Pitch liefert zwar State-of-the-Art-Ergebnisse, aber verschiedene Musikinstrumente und Aufnahmequalitäten erfordern unterschiedliche Parameter-Einstellungen. **Ziel ist es, dem Nutzer (Lehrkraft/Schüler) eine einfache Auswahl vorzudefinierter Presets anzubieten**, ohne dass technisches Verständnis der ML-Parameter nötig ist.
+Die Qualität der MP3-zu-MIDI-Konvertierung ist entscheidend für die Weiterverwendung in anderen Tools. Basic Pitch liefert zwar State-of-the-Art-Ergebnisse, aber verschiedene Musikinstrumente und Aufnahmequalitäten erfordern unterschiedliche Parameter-Einstellungen. **Ziel ist es, dem Nutzer (Lehrkraft/Schüler) qualitativ hochwertige MIDI-Dateien zu liefern**, die dann mit dem MIDI-Comparison-Plugin analysiert werden können. Der Fokus liegt auf **optimaler Konversion**, nicht auf integrierter Analyse.
 
 ---
 
@@ -229,49 +229,47 @@ Aktuelle Plugins im MuDiKo-System:
 - **Audio-Feedback**: Analysiert MP3/WAV-Aufnahmen, aber nur auf Audio-Feature-Ebene (Spektralanalyse, RMS, MFCC)
 - **MIDI-Comparison**: Vergleicht MIDI-Dateien taktbasiert, erfordert aber bereits existierende MIDI-Dateien
 
-**Limitation**: Wenn Schüler nur MP3-Aufnahmen liefern können (z.B. Smartphone-Recordings), gibt es keine Note-by-Note-Analyse wie bei MIDI.
+**Limitation**: Wenn Schüler nur MP3-Aufnahmen liefern können (z.B. Smartphone-Recordings), fehlt die Möglichkeit, diese in MIDI zu konvertieren für die präzise Note-by-Note-Analyse.
 
 ### Die Lösung
-Ein neues Plugin, das die **Brücke schlägt**:
-1. Nimmt MP3-Aufnahmen entgegen (wie Audio-Feedback)
-2. Konvertiert sie via **Spotify's Basic Pitch** in MIDI
-3. Analysiert die MIDIs **taktbasiert** (wie MIDI-Comparison)
-4. Liefert **präzises, notenbasiertes Feedback** mit musikalischer Struktur
+Ein **spezialisiertes Konvertierungs-Plugin**:
+1. Nimmt MP3-Aufnahmen entgegen
+2. Konvertiert sie via **Spotify's Basic Pitch** in hochwertige MIDI-Dateien
+3. Optimiert Parameter durch **instrument-spezifische Presets**
+4. Liefert **qualitativ beste MIDI-Files** für weitere Analyse im MIDI-Comparison-Plugin
 
 ### Der Mehrwert
-- ✅ **Genauere Analyse**: Note-by-Note-Vergleich statt nur spektraler Features
-- ✅ **Taktbasiert**: Musikalisch sinnvolle Segmentierung statt arbiträrer Zeitfenster
-- ✅ **Zugänglicher**: Funktioniert mit Smartphone-Aufnahmen, keine MIDI-Hardware nötig
-- ✅ **Strukturiert**: LLM erhält Takt-für-Takt-Analyse für präziseres Feedback
+- ✅ **Spezialisiert**: Fokus auf optimale Konversion, nicht auf Analyse
+- ✅ **Modular**: MIDI-Dateien können in MIDI-Comparison-Plugin weiterverwendet werden
+- ✅ **Zugänglich**: Funktioniert mit Smartphone-Aufnahmen, keine MIDI-Hardware nötig
+- ✅ **Instrument-optimiert**: Presets liefern bessere Ergebnisse als Generic-Einstellungen
+- ✅ **Klare Trennung**: Konversion (dieses Plugin) vs. Analyse (MIDI-Comparison)
 
 ---
 
 ## 🔄 Abgrenzung zu bestehenden Plugins
 
-| Feature | Audio-Feedback | MIDI-Comparison | **MP3-to-MIDI (NEU)** |
-|---------|---------------|-----------------|----------------------|
+| Feature | Audio-Feedback | MIDI-Comparison | **MP3-to-MIDI Converter (NEU)** |
+|---------|---------------|-----------------|--------------------------------|
 | **Input-Format** | MP3/WAV/MP4 | MIDI-Dateien | MP3/WAV/MP4 |
-| **Analyse-Granularität** | Zeitfenster (8s) | Takt-basiert | **Takt-basiert** |
-| **Analyse-Typ** | Spektral, Tempo, Pitch | Noten, Rhythmus, Dynamik | **Noten + Confidence** |
-| **Output-Präzision** | Allgemeine Audio-Features | Exakte Note-Unterschiede | **Note-Unterschiede + Qualität** |
-| **Vergleichs-Methode** | Audio-Korrelation | MIDI-Event-Matching | **MIDI-Matching** |
+| **Output-Format** | Analyse-Report | Analyse-Report | **MIDI-Dateien** |
+| **Hauptfunktion** | Audio-Feature-Analyse | MIDI-Vergleich & Analyse | **MP3 → MIDI Konversion** |
+| **Analyse-Typ** | Spektral, Tempo, Pitch | Noten, Rhythmus, Dynamik | **Keine (nur Konversion)** |
+| **Weiterverwendung** | LLM-Feedback | LLM-Feedback | **→ MIDI-Comparison-Plugin** |
 | **Nutzt Basic Pitch** | ❌ | ❌ | ✅ |
-| **Nutzt MIDI-Analyzer** | ❌ | ✅ | ✅ |
-| **Nutzt Audio-Service** | ✅ | ❌ | ✅ (für Segmentierung) |
+| **Nutzt MIDI-Analyzer** | ❌ | ✅ | ❌ |
+| **Preset-System** | ❌ | ❌ | ✅ |
 
 ### Wiederverwendeter Code
 - ✅ `SessionService`, `StorageService` (shared)
-- ✅ `MidiAnalyzer` Library (MIDI-Comparison-Plugin)
-- ✅ `AudioService` (nur für zeitbasierte Segmentierung an Takt-Grenzen)
-- ✅ `BasePromptBuilder` (shared)
 - ✅ Plugin-Interface (`MusicToolPlugin`)
 
 ### Neuer Code
 - 🆕 `Mp3ToMidiConverter` - Basic Pitch Integration
-- 🆕 `BarBasedAudioSegmenter` - Taktbasierte Audio-Segmentierung
-- 🆕 `Mp3ToMidiFeedbackService` - Orchestrierung
-- 🆕 `Mp3ToMidiReportGenerator` - Strukturierter Report
-- 🆕 Frontend-Pages für neues Tool
+- 🆕 `Mp3ToMidiConverterService` - Orchestrierung der Konversion
+- 🆕 `PresetManager` - Preset-Verwaltung
+- 🆕 Frontend-Pages für Upload & Preset-Auswahl
+- 🆕 7 Instrument-Presets (JSON)
 
 ---
 
@@ -280,68 +278,44 @@ Ein neues Plugin, das die **Brücke schlägt**:
 ### Must-Have (Phase 1-3)
 
 #### FR-1: MP3-Upload
-- **Beschreibung**: Nutzer lädt Referenz- und Schüler-MP3 hoch
-- **Input**: 2 MP3/WAV/MP4-Dateien (max. 100 MB je Datei)
-- **Output**: Session-ID, Bestätigung der gespeicherten Dateien
+- **Beschreibung**: Nutzer lädt MP3/WAV-Aufnahme hoch
+- **Input**: 1 MP3/WAV/MP4-Datei (max. 100 MB)
+- **Output**: Session-ID, Bestätigung der gespeicherten Datei
 - **Validierung**: Unterstützte Formate, Dateigröße
 
-#### FR-2: Basic Pitch MIDI-Konversion
-- **Beschreibung**: Beide MP3s werden in MIDI konvertiert
+#### FR-2: Preset-Auswahl
+- **Beschreibung**: Nutzer wählt Preset basierend auf Instrument
+- **Input**: Preset-ID (piano, guitar, vocals, woodwinds, brass, strings, ensemble)
+- **Output**: Bestätigung der Auswahl
+- **Anzeige**: Icon, Name (Deutsch), Beschreibung, Instrument-Liste
+
+#### FR-3: Basic Pitch MIDI-Konversion
+- **Beschreibung**: MP3 wird mit Preset-Parametern in MIDI konvertiert
 - **Engine**: Spotify Basic Pitch (Python Library)
-- **Output**: 2 MIDI-Dateien + Confidence-Scores pro Note
-- **Fehlerbehandlung**: Falls keine Noten erkannt → Warnung, aber kein Abbruch
-
-#### FR-3: Takt-Struktur-Extraktion
-- **Beschreibung**: MIDI-Parser extrahiert Takt-Struktur aus Referenz-MIDI
+- **Parameter**: onset_threshold, frame_threshold, minimum_note_length, frequency_range, melodia_trick (aus Preset)
 - **Output**: 
-  - Takt-Grenzen (Bar 0, 1, 2, ...)
-  - Tempo (BPM pro Takt)
-  - Taktart (4/4, 3/4, etc.)
-  - Zeitstempel (Takt X = 0.0s - 2.5s)
-- **Besonderheit**: Start bei **Takt 0** (für Auftakte)
+  - MIDI-Datei (downloadbar)
+  - Confidence-Scores pro Note (für Qualitätsbewertung)
+  - Metadaten: Anzahl Noten, Durchschnittliche Confidence, Dauer
+- **Fehlerbehandlung**: Falls keine Noten erkannt → Warnung + leere MIDI
 
-#### FR-4: Taktbasierte Audio-Segmentierung
-- **Beschreibung**: Audio wird an MIDI-Takt-Grenzen geschnitten
-- **Gruppierung**: **4 Takte pro Segment** (musikalische Phrasen)
-- **Output**: Liste von Audio-Segmenten mit Metadaten:
-  ```python
-  {
-    'segment_id': 0,
-    'bars': [0, 1, 2, 3],
-    'time_start': 0.0,
-    'time_end': 10.5,
-    'tempo_bpm': 120.0,
-    'time_signature': '4/4'
-  }
-  ```
-- **Flexibilität**: Variable Takt-Längen bei Tempo-Änderungen
-
-#### FR-5: MIDI-Comparison pro Segment
-- **Beschreibung**: Jedes 4-Takt-Segment wird verglichen (Referenz vs. Schüler)
-- **Engine**: Bestehender `MidiAnalyzer` aus MIDI-Comparison-Plugin
-- **Output**: Pro Segment:
-  - Similarity-Score (0-100%)
-  - Takt-für-Takt-Unterschiede (Note, Velocity, Duration)
-  - Aggregierte Statistiken (Total Differences, Note Count)
-
-#### FR-6: Strukturierter Report
-- **Beschreibung**: LLM-freundlicher Text-Report mit klaren Sektionen
-- **Struktur**:
-  1. **Übersicht**: Gesamt-Ähnlichkeit, Anzahl Segmente, erkannte Takte
-  2. **Segment-Details** (pro 4-Takt-Gruppe):
-     - Takte X-Y
-     - MIDI-Vergleich (Takt-für-Takt-Tabelle wie MIDI-Comparison)
-     - Basic Pitch Confidence (Durchschnitt + Ausreißer)
-  3. **Zusammenfassung**: Häufigste Fehler, Stärken, Verbesserungsvorschläge
+#### FR-4: MIDI-Export mit Metadaten
+- **Beschreibung**: Konvertierte MIDI-Datei kann heruntergeladen werden
+- **Format**: Standard MIDI File (.mid)
+- **Zusatz-Info**: JSON mit Confidence-Scores, verwendetem Preset, Konversions-Timestamp
+- **Weiterverwendung**: MIDI kann im MIDI-Comparison-Plugin genutzt werden
 
 ### Should-Have (Phase 4+)
-- Audio-Feature-Extraktion pro Segment (Tempo, Tonart, Dynamik)
-- Visualisierung: Takt-Timeline im Frontend
-- Export: Annotierte MIDI-Dateien mit Fehlern markiert
+- Audio-Preprocessing: Normalisierung, Noise Reduction
+- MIDI-Post-Processing: Quantisierung, Note Cleanup
+- Erweiterte Einstellungen: Manuelle Parameter-Anpassung basierend auf Preset
+- Confidence-basierte Warnungen: "Niedrige Qualität, bitte neu aufnehmen"
 
 ### Won't-Have (Out of Scope)
 - ❌ Echtzeit-Konversion (Basic Pitch braucht ~10-30s pro Minute Audio)
-- ❌ Audio-Feature-Comparison (bleibt beim Audio-Feedback-Plugin)
+- ❌ Integrierte MIDI-Analyse (→ MIDI-Comparison-Plugin)
+- ❌ Taktbasierte Segmentierung (→ MIDI-Comparison-Plugin)
+- ❌ Feedback-Report-Generierung (→ MIDI-Comparison-Plugin)
 - ❌ Automatische Tempo-Korrektur
 - ❌ Polyphonie-Separation (Basic Pitch macht das bereits)
 
@@ -353,7 +327,7 @@ Ein neues Plugin, das die **Brücke schlägt**:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    MP3-to-MIDI Feedback Plugin              │
+│                 MP3-to-MIDI Converter Plugin                │
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │  ┌─────────────────┐         ┌──────────────────┐          │
@@ -362,31 +336,35 @@ Ein neues Plugin, das die **Brücke schlägt**:
 │           │                                                 │
 │           ▼                                                 │
 │  ┌─────────────────────────────────────────────┐           │
-│  │      Mp3ToMidiFeedbackService               │           │
-│  │  (Orchestriert gesamten Workflow)           │           │
+│  │      Mp3ToMidiConverterService              │           │
+│  │  (Orchestriert Konversion)                  │           │
 │  └─────────────────────────────────────────────┘           │
 │           │                                                 │
-│           ├──────────────────┬──────────────────┐          │
-│           ▼                  ▼                  ▼          │
-│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────┐ │
-│  │ Mp3ToMidi       │ │ BarBasedAudio   │ │ MidiAnalyzer│ │
-│  │ Converter       │ │ Segmenter       │ │ (shared lib)│ │
-│  │ (Basic Pitch)   │ │ (neu)           │ │             │ │
-│  └─────────────────┘ └─────────────────┘ └─────────────┘ │
-│           │                  │                  │          │
-│           └──────────────────┴──────────────────┘          │
-│                              ▼                             │
-│                  ┌───────────────────────┐                 │
-│                  │ Mp3ToMidiReport       │                 │
-│                  │ Generator             │                 │
-│                  └───────────────────────┘                 │
-│                              │                             │
-└──────────────────────────────┼─────────────────────────────┘
-                               ▼
-                    ┌──────────────────┐
-                    │  LLM Prompt      │
-                    │  (für Frontend)  │
-                    └──────────────────┘
+│           ▼                                                 │
+│  ┌─────────────────────────────────────────────┐           │
+│  │      PresetManager                          │           │
+│  │  (Lädt Preset-Parameter)                    │           │
+│  └─────────────────────────────────────────────┘           │
+│           │                                                 │
+│           ▼                                                 │
+│  ┌─────────────────────────────────────────────┐           │
+│  │      Mp3ToMidiConverter                     │           │
+│  │  (Basic Pitch Integration)                  │           │
+│  └─────────────────────────────────────────────┘           │
+│           │                                                 │
+│           ▼                                                 │
+│  ┌─────────────────────────────────────────────┐           │
+│  │  MIDI File + Confidence Scores              │           │
+│  │  (Output für Download/Weiterverwendung)     │           │
+│  └─────────────────────────────────────────────┘           │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+                  ┌───────────────────────┐
+                  │ MIDI-Comparison Plugin│
+                  │ (für Analyse)         │
+                  └───────────────────────┘
 ```
 
 ### Modul-Struktur
@@ -397,12 +375,17 @@ Backend/app/plugins/mp3_to_midi_feedback/
 ├── config.yaml                          # Plugin-Konfiguration
 ├── mp3_to_midi_feedback_plugin.py       # Plugin-Klasse (MusicToolPlugin)
 ├── mp3_to_midi_feedback_routes.py       # Flask Routes
-├── mp3_to_midi_feedback_service.py      # Hauptlogik
+├── mp3_to_midi_feedback_service.py      # Hauptlogik (Orchestrierung)
 ├── mp3_to_midi_converter.py             # Basic Pitch Wrapper
-├── bar_based_audio_segmenter.py         # Taktbasierte Segmentierung
-├── mp3_to_midi_report_generator.py      # Report-Generator
-└── templates/
-    └── system_prompt.txt                # LLM-Prompt-Template
+└── presets/
+    ├── __init__.py                      # PresetManager
+    ├── piano.json
+    ├── guitar.json
+    ├── vocals.json
+    ├── woodwinds.json
+    ├── brass.json
+    ├── strings.json
+    └── ensemble.json
 ```
 
 ### Dependencies
@@ -425,105 +408,93 @@ numpy>=1.24.0
 
 ## 🔄 Datenfluss & Pipeline
 
-### Workflow: Upload bis Analyse
+### Workflow: Upload bis MIDI-Export
 
 ```
-1. USER: Upload MP3s
+1. USER: Upload MP3 + Preset-Auswahl
    │
-   ├─► Frontend: AudioUploadPage.jsx
-   │      └─► POST /api/tools/mp3-to-midi-feedback/upload
-   │            ├─► SessionService.create_session()
-   │            └─► StorageService.save_file(role='referenz')
-   │            └─► StorageService.save_file(role='schueler')
+   ├─► Frontend: AudioUploadPage.jsx → Mp3ToMidiPresetSelectionPage.jsx
+   │      ├─► POST /api/tools/mp3-to-midi-feedback/upload
+   │      │     └─► SessionService.create_session()
+   │      │     └─► StorageService.save_file()
+   │      │
+   │      └─► GET /api/tools/mp3-to-midi-feedback/presets
+   │            └─► PresetManager.get_preset_list()
    │
    ▼
-2. BACKEND: MIDI Conversion
+2. BACKEND: MIDI Conversion mit Preset-Parametern
    │
    ├─► POST /api/tools/mp3-to-midi-feedback/convert-and-analyze
-   │      └─► Mp3ToMidiFeedbackService.process()
+   │      └─► Mp3ToMidiConverterService.process()
    │            │
-   │            ├─► Mp3ToMidiConverter.convert(referenz.mp3)
-   │            │     └─► basic_pitch.predict() → referenz.mid + confidence
+   │            ├─► PresetManager.load_preset(preset_id)
+   │            │     └─► Lädt Parameter aus JSON
    │            │
-   │            ├─► Mp3ToMidiConverter.convert(schueler.mp3)
-   │            │     └─► basic_pitch.predict() → schueler.mid + confidence
-   │            │
-   ▼            ▼
-3. MIDI Analysis: Takt-Struktur extrahieren
-   │
-   ├─► MidiParser.parse_file(referenz.mid)
-   │     └─► Extrahiert:
-   │           - Takt-Grenzen (Bar 0, 1, 2, ...)
-   │           - Tempo-Änderungen (BPM pro Takt)
-   │           - Taktart (4/4, 3/4, ...)
-   │           - Zeitstempel (Takt → Sekunden)
+   │            └─► Mp3ToMidiConverter.convert(audio.mp3, preset_params)
+   │                  └─► basic_pitch.predict() mit Preset-Parametern
+   │                        ├─► onset_threshold (aus Preset)
+   │                        ├─► frame_threshold (aus Preset)
+   │                        ├─► minimum_note_length (aus Preset)
+   │                        ├─► minimum/maximum_frequency (aus Preset)
+   │                        └─► melodia_trick (aus Preset)
    │
    ▼
-4. Audio Segmentation: Taktbasiert schneiden
+3. OUTPUT: MIDI-Datei + Metadaten
    │
-   ├─► BarBasedAudioSegmenter.segment_by_bars()
-   │     └─► Input: referenz.mp3 + MIDI-Takt-Zeitstempel
-   │     └─► Output: 4 Segmente à 4 Takte
-   │           Segment 0: Takte 0-3 (0.0s - 10.5s)
-   │           Segment 1: Takte 4-7 (10.5s - 21.0s)
-   │           ...
+   ├─► MIDI-File (.mid)
+   │     └─► Standard MIDI Format
+   │     └─► Gespeichert in Session-Folder
    │
-   ▼
-5. MIDI Comparison: Pro Segment vergleichen
+   ├─► Confidence-Scores (JSON)
+   │     └─► Pro Note: Timestamp, Pitch, Confidence
+   │     └─► Aggregiert: Durchschnitt, Minimum, Low-Confidence-Ratio
    │
-   ├─► Für jedes Segment:
-   │     └─► MidiAnalyzer.compare_files(ref_segment.mid, stu_segment.mid)
-   │           └─► Output: ComparisonResult
-   │                 - similarity_score: 0.87
-   │                 - total_differences: 12
-   │                 - per_bar_differences: [...]
+   └─► Metadaten (JSON)
+         ├─► used_preset: "piano"
+         ├─► conversion_timestamp: "2025-12-17T14:30:00Z"
+         ├─► audio_duration_seconds: 120.5
+         ├─► note_count: 342
+         └─► avg_confidence: 0.87
    │
    ▼
-6. Report Generation: Strukturierter Output
+4. FRONTEND: Download + Weiterverwendungs-Optionen
    │
-   ├─► Mp3ToMidiReportGenerator.generate()
-   │     └─► Input: Alle Segment-Comparisons + Confidence-Scores
-   │     └─► Output: Markdown-Report mit Sektionen
-   │
-   ▼
-7. FRONTEND: Prompt anzeigen
-   │
-   └─► PromptPage.jsx
-         └─► Zeigt strukturierten Report
-         └─► Copy to Clipboard für LLM
+   └─► Mp3ToMidiResultPage.jsx
+         ├─► Download MIDI-Datei
+         ├─► Zeige Confidence-Statistiken
+         ├─► Button: "In MIDI-Comparison-Plugin analysieren"
+         └─► Warnung: "Niedrige Confidence (< 70%) → Neu aufnehmen?"
 ```
 
 ### Datenstrukturen
 
-#### Segment-Objekt
+#### Conversion-Result
 ```python
 {
-  'segment_id': 0,
-  'bars': [0, 1, 2, 3],
-  'time_start': 0.0,
-  'time_end': 10.5,
-  'tempo_bpm': 120.0,
-  'time_signature': '4/4',
-  'audio_ref': np.ndarray,      # Audio-Daten Referenz
-  'audio_stu': np.ndarray,      # Audio-Daten Schüler
-  'midi_ref_path': Path,        # MIDI-Segment Referenz
-  'midi_stu_path': Path,        # MIDI-Segment Schüler
-  'confidence_ref': [0.92, 0.88, ...],  # Pro Note
-  'confidence_stu': [0.75, 0.81, ...]
-}
-```
-
-#### Comparison-Result (pro Segment)
-```python
-{
-  'segment_id': 0,
-  'bars': [0, 1, 2, 3],
-  'similarity_score': 0.87,
-  'total_differences': 12,
-  'midi_comparison': ComparisonResult,  # Von MidiAnalyzer
-  'avg_confidence_ref': 0.89,
-  'avg_confidence_stu': 0.76,
-  'low_confidence_bars': [2, 3]  # Takte mit Confidence < 0.7
+  'session_id': 'abc123',
+  'midi_file_path': Path,
+  'midi_filename': 'converted.mid',
+  'audio_duration_seconds': 120.5,
+  'note_count': 342,
+  'confidence_scores': {
+    'per_note': [
+      {'time': 0.0, 'pitch': 60, 'confidence': 0.92},
+      {'time': 0.5, 'pitch': 62, 'confidence': 0.88},
+      ...
+    ],
+    'statistics': {
+      'avg_confidence': 0.87,
+      'min_confidence': 0.52,
+      'low_confidence_ratio': 0.15,  # 15% der Noten < 0.7
+      'quality_rating': '⭐⭐⭐⭐☆'
+    }
+  },
+  'metadata': {
+    'used_preset': 'piano',
+    'preset_parameters': {...},
+    'conversion_timestamp': '2025-12-17T14:30:00Z',
+    'basic_pitch_version': '0.3.2'
+  }
 }
 ```
 
@@ -531,163 +502,117 @@ numpy>=1.24.0
 
 ## 📄 Output-Struktur
 
-### Report-Template
+### Frontend-Anzeige (Result Page)
 
 ```markdown
-# VERGLEICH: MP3-ZU-MIDI-ANALYSE
+# ✅ MIDI-Konversion erfolgreich
 
-===============================================================================
-Für die Analyse durch ein KI-System
-===============================================================================
+**Datei:** student_recording.mp3 → student_recording.mid
+**Preset:** 🎹 Klavier
+**Dauer:** 2:00 min
+**Noten:** 342
 
-## 🎵 ÜBERSICHT
+## 📊 Qualitätsbewertung
 
-**Referenz-Datei:** teacher_recording.mp3
-**Schüler-Datei:** student_recording.mp3
+**Confidence:** ⭐⭐⭐⭐☆ (87% durchschnittlich)
+- Sehr gute Noten (>90%): 68%
+- Gute Noten (70-90%): 17%
+- Unsichere Noten (<70%): 15%
 
-**Gesamtstatistik:**
-- Erkannte Takte: 16 (Takt 0 bis Takt 15)
-- Anzahl Segmente: 4 (à 4 Takte)
-- Durchschnittliche Ähnlichkeit: 82.5%
-- Gesamtzahl Unterschiede: 47
+⚠️ **Hinweis:** 15% der Noten haben niedrige Confidence.
+**Empfehlung:** 
+- Ruhigere Umgebung wählen
+- Mikrofon näher am Instrument platzieren
+- Alternative: Preset mit anderen Parametern versuchen
 
-**Tempo & Taktart:**
-- Takte 0-7: 120 BPM, 4/4
-- Takte 8-15: 130 BPM, 4/4 (Tempo-Wechsel bei Takt 8)
+## 💾 Download & Weiterverwendung
 
-**Basic Pitch Confidence:**
-- Referenz: ⭐⭐⭐⭐⭐ (Durchschnitt: 91% - Sehr gut)
-- Schüler: ⭐⭐⭐⚝☆ (Durchschnitt: 73% - Mittelmäßig)
-  ⚠️ Niedrige Confidence in Takten: 2, 3, 11, 14
-
----
-
-## 📊 SEGMENT-ANALYSE
-
-### 🎼 Segment 1: Takte 0-3 (0.0s - 10.5s)
-
-**Ähnlichkeit:** 88% (Gut)  
-**Unterschiede:** 8  
-**Tempo:** 120 BPM | Taktart: 4/4  
-**Confidence:** Referenz 92% | Schüler 68% ⚠️
-
-#### Takt-für-Takt-Vergleich:
-
-| Position            | Referenz                  | Schüler                   | Status |
-|---------------------|---------------------------|---------------------------|--------|
-| Takt 0, Zählzeit 1  | C4 (♩, mf)                | C4 (♩, mp) ⚠️             | Dynamik|
-| Takt 0, Zählzeit 2  | D4 (♩, mf)                | D4 (♩, mf)                | ✓      |
-| Takt 0, Zählzeit 3  | E4 (♩, mf)                | E♭4 (♩, mf) ⚠️            | Note   |
-| Takt 0, Zählzeit 4  | F4 (♩, mf)                | F4 (♪, mf) ⚠️             | Dauer  |
-| Takt 1, Zählzeit 1  | G4 (𝅗𝅥, f)                 | G4 (𝅗𝅥, f)                 | ✓      |
-| ...                 | ...                       | ...                       | ...    |
-
-**Auffälligkeiten:**
-- ⚠️ Takt 0: Schüler spielt E♭ statt E (häufiger Fehler)
-- ⚠️ Niedrige Confidence in Takt 2-3: Möglicherweise undeutliche Aufnahme
-
----
-
-### 🎼 Segment 2: Takte 4-7 (10.5s - 21.0s)
-
-**Ähnlichkeit:** 91% (Sehr gut)  
-**Unterschiede:** 5  
-...
-
----
-
-## 📝 ZUSAMMENFASSUNG
-
-**Stärken:**
-- Rhythmische Genauigkeit in Takten 4-7 und 12-15
-- Korrekte Dynamik in den meisten Takten
-
-**Verbesserungspotenzial:**
-- Intonation: Häufiges E♭ statt E (Takte 0, 8, 12)
-- Notenlängen: Tendenziell zu kurz (Takte 0, 3, 9)
-- Aufnahmequalität: Niedrige Confidence-Werte deuten auf Hintergrundgeräusche hin
-
-**Empfehlungen:**
-1. Fokus auf Intonation bei Halbtonschritten
-2. Bewusstsein für Notenlängen stärken
-3. Ruhigere Aufnahmeumgebung wählen
+[📥 MIDI-Datei herunterladen]
+[📊 In MIDI-Comparison-Plugin analysieren]
 ```
 
 ---
 
 ## 🛠️ Entwicklungs-Phasen
 
-### ✅ Phase 1: Grundgerüst & Basic Pitch Integration
-**Ziel**: Plugin läuft, Basic Pitch konvertiert MP3 → MIDI
+### ✅ Phase 1: Preset-System & Basic Conversion (ABGESCHLOSSEN)
+**Ziel**: Funktionale MIDI-Konversion mit instrument-spezifischen Presets
 
-**Aufgaben**:
-- [ ] Plugin-Struktur erstellen (`config.yaml`, `__init__.py`)
-- [ ] `Mp3ToMidiFeedbackPlugin` Klasse (implementiert `MusicToolPlugin`)
-- [ ] Basic Routes: `/upload`, `/convert-and-analyze`, `/session/cleanup`
-- [ ] `Mp3ToMidiConverter` Klasse:
-  - [ ] Basic Pitch Integration
-  - [ ] Confidence-Score-Extraktion
-  - [ ] MIDI-Speicherung
-- [ ] `Mp3ToMidiFeedbackService` Skelett
-- [ ] Frontend: Tool-Auswahl-Karte in `ToolSelectionPage.jsx`
-- [ ] Frontend: `AudioUploadPage.jsx` (ähnlich Audio-Feedback)
-- [ ] Minimal-Test: Upload → Conversion → "MIDI erstellt"
+**Abgeschlossen**:
+- [x] Plugin-Struktur erstellt (`config.yaml`, `__init__.py`)
+- [x] 7 Presets als JSON (piano, guitar, vocals, woodwinds, brass, strings, ensemble)
+- [x] Deutsche Namen/Beschreibungen für 12-16-Jährige
+- [x] Icons (🎹🎸🎤🎺🎷🎻👥) in Frontend integriert
+- [x] Backend: `PresetManager` mit `get_preset_list()`, Legacy-Alias-Support
+- [x] Frontend: `Mp3ToMidiPresetSelectionPage.jsx` mit Icon-Dropdown
+- [x] Basic Pitch Integration mit Preset-Parametern
+- [x] Routes: `/upload`, `/presets`, `/convert-and-analyze`
+- [x] Workflow: Upload → Preset-Auswahl → Konversion → MIDI-Download
 
-**Output**: MP3s hochladen, Basic Pitch konvertiert, MIDI-Dateien liegen vor
+**Output**: Nutzer können MP3s mit optimierten Presets zu MIDI konvertieren
 
 ---
 
-### ✅ Phase 2: MIDI-Analyse & Taktbasierte Segmentierung
-**Ziel**: MIDI-Parser extrahiert Takt-Struktur, Audio wird taktbasiert geschnitten
+### ⏳ Phase 2: Preprocessing für bessere Konversion
+**Ziel**: Verbesserte Konversionsqualität durch Audio-Aufbereitung
 
-**Aufgaben**:
-- [ ] `MidiParser` auf konvertierte MIDIs anwenden
-- [ ] Takt-Struktur extrahieren (Bar-Nummern, Zeitstempel, Tempo, Taktart)
-- [ ] `BarBasedAudioSegmenter` Klasse:
-  - [ ] MIDI-Takt-Zeitstempel → Audio-Chunk-Grenzen
-  - [ ] 4-Takt-Gruppierung
-  - [ ] Tempo-Änderungen berücksichtigen
-  - [ ] Start bei Takt 0
-- [ ] Service erweitern: Segmentierte Daten strukturiert speichern
-- [ ] Minimal-Report: "16 Takte erkannt, 4 Segmente erstellt"
-- [ ] Frontend: Conversion-Page mit Progress ("Takte werden analysiert...")
+**Geplant**:
+- [ ] Audio-Normalisierung (librosa)
+- [ ] Noise Reduction (noisereduce Library)
+- [ ] Instrument-spezifische Filter (High-Pass, Low-Pass)
+- [ ] Toggle in Frontend: "Audio-Vorverarbeitung aktivieren"
+- [ ] A/B-Vergleich: Mit/Ohne Preprocessing
+- [ ] Confidence-Score-Vergleich
 
-**Output**: Taktbasierte Segmentierung funktioniert, Struktur ist extrahiert
+**Output**: Höhere Confidence-Scores, weniger False Positives
 
 ---
 
-### ✅ Phase 3: MIDI-Comparison Integration
-**Ziel**: Segment-weiser MIDI-Vergleich liefert Takt-für-Takt-Unterschiede
+### ⏳ Phase 3: Post-Processing für sauberere MIDIs
+**Ziel**: MIDI-Bereinigung für bessere Weiterverwendung
 
-**Aufgaben**:
-- [ ] `MidiAnalyzer` pro Segment aufrufen
-- [ ] Comparison-Results aggregieren
-- [ ] Low-Confidence-Takte identifizieren
-- [ ] `Mp3ToMidiReportGenerator` Klasse:
-  - [ ] Übersichts-Sektion
-  - [ ] Segment-Detail-Sektionen (mit MIDI-Tabellen)
-  - [ ] Zusammenfassungs-Sektion
-- [ ] Template in `templates/system_prompt.txt`
-- [ ] Frontend: Language-Page, Personalization-Page
-- [ ] Frontend: Prompt-Page mit strukturiertem Report
+**Geplant**:
+- [ ] MIDI-Quantisierung (zu Raster snappen)
+- [ ] Note-Cleanup: Sehr kurze Noten entfernen
+- [ ] Overlap-Behandlung (überlappende Noten gleicher Tonhöhe)
+- [ ] Optional: Nutzerwahl "Quantisierung: Aus / 8th / 16th / 32nd"
+- [ ] Velocity-Normalisierung
+- [ ] Download-Optionen: "Original MIDI" vs. "Bereinigte MIDI"
 
-**Output**: Vollständiger Report mit Takt-für-Takt-MIDI-Vergleich
+**Output**: Professionell aussehende MIDI-Dateien, besser für MIDI-Comparison-Plugin geeignet
 
 ---
 
-### 🔄 Phase 4: Polish & Edge-Cases (Optional)
-**Ziel**: Production-ready
+### ⏳ Phase 4: Erweiterte Einstellungen (Optional)
+**Ziel**: Power-User können Parameter manuell anpassen
 
-**Aufgaben**:
-- [ ] Leere Takte behandeln (Silence-Detection)
-- [ ] Fehlerbehandlung: Basic Pitch schlägt fehl
-- [ ] Fehlerbehandlung: Keine Noten erkannt
-- [ ] Tempo-Änderungen mid-Song korrekt verarbeiten
-- [ ] Frontend: Error-Messages, Loading-States
-- [ ] End-to-End-Tests mit verschiedenen MP3-Typen
-- [ ] Performance-Optimierung (Basic Pitch ist langsam)
+**Geplant**:
+- [ ] Slider für Onset/Frame Threshold
+- [ ] Frequency Range Picker (Min/Max Hz)
+- [ ] Melodia Trick Toggle
+- [ ] Minimum Note Length Anpassung
+- [ ] "Erweiterte Einstellungen" Collapsible Panel
+- [ ] Preset als Ausgangspunkt für manuelle Anpassung
+- [ ] "Parameter als neues Preset speichern" (Custom Presets)
 
-**Output**: Robustes, production-ready Plugin
+**Output**: Maximale Flexibilität für erfahrene Nutzer
+
+---
+
+### ⏳ Phase 5: KI-Optimierung (Zukunftsvision)
+**Ziel**: Automatische Parameter-Anpassung durch Audio-Analyse
+
+**Konzept**:
+- [ ] Automatische Instrument-Erkennung (ML-Klassifikator)
+- [ ] Adaptive Parameter-Anpassung basierend auf Audio-Features
+- [ ] LLM-basiertes Preset-Interview (siehe Strategie 6)
+- [ ] Feedback-Loop: Nutzer-Korrekturen → Parameter-Lernen
+- [ ] Custom-Presets pro Nutzer/Schule
+- [ ] A/B-Testing verschiedener Preset-Kombinationen
+
+**Output**: Selbst-optimierende Konversion, keine manuelle Preset-Auswahl nötig
+
+---
 
 ---
 
@@ -707,71 +632,85 @@ Für die Analyse durch ein KI-System
 
 ---
 
-### TD-2: Warum 4 Takte pro Segment?
-**Entscheidung**: Gruppierung in 4-Takt-Phrasen
+### TD-2: Warum Preset-System statt Generic-Parameter?
+**Entscheidung**: 7 instrument-spezifische Presets statt universeller Einstellungen
 
 **Begründung**:
-- ✅ Musikalisch sinnvoll (Standard-Phrasen-Länge)
-- ✅ Balance: Granular genug für Feedback, nicht zu detailliert für LLM
-- ✅ Flexibel: In `config.yaml` anpassbar
+- ✅ Bessere Ergebnisse durch optimierte Parameter pro Instrument-Typ
+- ✅ Einfachere UX für Zielgruppe (12-16 Jahre) - keine technischen Parameter nötig
+- ✅ Frequenzbereiche angepasst (z.B. Gesang 80-1200Hz, Klavier 27.5-4186Hz)
+- ✅ melodia_trick für Monophon-Instrumente aktiviert (Gesang, Holzbläser, Blechbläser)
+- ✅ minimum_note_length angepasst (8-20 Frames je nach Instrument)
 
-**Konfigurierbar in**: `config.yaml` → `bars_per_segment: 4`
+**Konfigurierbar in**: Presets unter `presets/*.json`
 
 ---
 
-### TD-3: Warum Start bei Takt 0?
-**Entscheidung**: Takt-Nummerierung beginnt bei 0
+### TD-3: Keine integrierte MIDI-Analyse
+**Entscheidung**: Plugin liefert nur MIDI-Dateien, keine Analyse
 
 **Begründung**:
-- ✅ Unterstützt Auftakte (Pickup-Bars)
-- ✅ Konsistent mit MIDI-Standard (Tick 0 = Beginn)
-- ✅ `calculate_bar_and_beat()` kann Takt 0 verarbeiten
+- ✅ Separation of Concerns - MIDI-Comparison-Plugin macht Analyse bereits
+- ✅ Reduziert Komplexität dieses Plugins
+- ✅ Vermeidet Code-Duplication
+- ✅ Modularer: MIDI-Dateien können in anderen Workflows genutzt werden
+- ✅ Fokus auf optimale Konversion, nicht auf Analyse
+
+**Workflow**: MP3 → Conversion (dieses Plugin) → Analysis (MIDI-Comparison-Plugin)
 
 ---
 
-### TD-4: Keine Audio-Feature-Extraktion (vorerst)
-**Entscheidung**: Fokus auf MIDI-Comparison, keine Audio-Features
+### TD-4: Confidence-Scores als Qualitätsindikator
+**Entscheidung**: Nutze Basic Pitch Confidence-Scores für Qualitätsbewertung
 
 **Begründung**:
-- ✅ Reduziert Komplexität in Phase 1-3
-- ✅ Audio-Feedback-Plugin macht das bereits
-- ✅ MIDI-Comparison ist präziser als spektrale Features
-- ✅ Kann später ergänzt werden (Phase 4+)
+- ✅ Direktes Feedback zur Konversionsqualität
+- ✅ Hilft Nutzern schlechte Aufnahmen zu identifizieren
+- ✅ Basis für spätere Pre/Post-Processing-Entscheidungen
+- ✅ Warnung: "Niedrige Confidence → Bitte neu aufnehmen"
 
 ---
 
-### TD-5: Wiederverwendung von MidiAnalyzer
-**Entscheidung**: Nutze bestehenden `MidiAnalyzer` aus MIDI-Comparison
+### TD-5: Deutsche Beschreibungen für Jugendliche
+**Entscheidung**: Preset-Beschreibungen auf Deutsch, altersgerecht formuliert
 
 **Begründung**:
-- ✅ Bewährt, getestet
-- ✅ Liefert bereits taktbasierte Comparison
-- ✅ Kein Code-Duplication
-- ✅ Konsistenter Output-Format
+- ✅ Zielgruppe: 12-16-jährige Schüler in Deutschland
+- ✅ Vermeidet technisches Jargon (Onset Threshold, Frame Threshold)
+- ✅ Icons als visuelle Anker (🎹🎸🎤🎺🎷🎻👥)
+- ✅ Instrument-Liste zeigt Anwendungsfälle klar
+
+**Beispiel**: "Perfekt für Klavieraufnahmen mit klaren Anschlägen" statt "High onset threshold for percussive onsets"
 
 ---
 
 ## 📈 Erfolgs-Kriterien
 
 ### Funktionale Kriterien
-- [ ] MP3-Upload funktioniert (beide Dateien, max 100MB)
-- [ ] Basic Pitch konvertiert zuverlässig (>90% success rate)
-- [ ] Takt-Struktur wird korrekt extrahiert (Tempo, Taktart, Grenzen)
-- [ ] Audio-Segmentierung erfolgt taktbasiert (4-Takt-Gruppen)
-- [ ] MIDI-Comparison liefert Takt-für-Takt-Unterschiede
-- [ ] Report ist strukturiert und LLM-lesbar
-- [ ] Frontend ermöglicht nahtlosen Workflow (Upload → Report)
+- [x] MP3-Upload funktioniert (max 100MB)
+- [x] Preset-Auswahl mit Icons funktioniert
+- [x] Basic Pitch konvertiert mit Preset-Parametern
+- [ ] MIDI-Download funktioniert
+- [ ] Confidence-Scores werden angezeigt
+- [ ] Qualitätswarnungen bei niedriger Confidence (<70%)
 
 ### Qualitäts-Kriterien
 - [ ] Basic Pitch Confidence > 80% bei sauberen Aufnahmen
-- [ ] MIDI-Comparison Similarity-Score korrekt (manuelle Validierung)
-- [ ] Report-Struktur folgt Template (Übersicht → Details → Zusammenfassung)
+- [ ] Preset-Parameter liefern bessere Ergebnisse als Generic-Einstellungen
+- [ ] MIDI-Dateien können im MIDI-Comparison-Plugin genutzt werden
 - [ ] Keine Code-Duplication mit bestehenden Plugins
 - [ ] Fehlerbehandlung für alle bekannten Edge-Cases
 
+### Usability-Kriterien
+- [x] Preset-Beschreibungen verständlich für 12-16-Jährige
+- [x] Icons erleichtern Instrument-Erkennung
+- [ ] Workflow intuitiv: Upload → Preset → Konversion → Download
+- [ ] Klare Fehlermeldungen bei Problemen
+- [ ] Fortschrittsanzeige während Konversion
+
 ### Performance-Kriterien
 - [ ] Basic Pitch Conversion: <30s pro Minute Audio
-- [ ] Gesamtdurchlauf (Upload → Report): <90s für 2min Audio
+- [ ] Gesamtdurchlauf (Upload → MIDI): <60s für 2min Audio
 - [ ] Frontend bleibt responsiv (Progress-Updates alle 2s)
 
 ---
@@ -780,9 +719,8 @@ Für die Analyse durch ein KI-System
 
 ### Code-Referenzen (bestehende Plugins)
 - `Backend/app/plugins/audio_feedback/` - Upload-Pattern, Service-Struktur
-- `Backend/app/plugins/midi_comparison/` - MIDI-Analyse, Report-Generierung
-- `Backend/app/shared/libs/midi_analyzer/` - MIDI-Parser, Comparison-Engine
-- `Backend/app/shared/services/` - Session, Storage, Audio-Service
+- `Backend/app/plugins/midi_comparison/` - MIDI-Analyse (separate Verantwortung)
+- `Backend/app/shared/services/` - Session, Storage Services
 - `Backend/app/plugins/base/` - Plugin-Interface
 
 ### Externe Libraries
@@ -796,6 +734,39 @@ Für die Analyse durch ein KI-System
 - `docs/ArchitectureOptimizationPlan.md` - Service-Layer-Design
 
 ---
+
+**Ende des Lastenhefts**
+
+---
+
+## 🔄 Änderungshistorie
+
+### v1.3 (17. Dezember 2025)
+- **Scope-Reduktion**: Plugin fokussiert sich auf MP3-to-MIDI-Konversion
+- **Entfernt**: Taktbasierte Segmentierung, MIDI-Analyse, Report-Generierung
+- **Begründung**: MIDI-Comparison-Plugin übernimmt Analyse-Verantwortung
+- **Neuer Fokus**: Optimale MIDI-Konversion mit Preset-System
+- **Workflow**: Upload → Preset-Auswahl → Konversion → MIDI-Download
+- **Weiterverwendung**: MIDI-Dateien können im MIDI-Comparison-Plugin analysiert werden
+
+### v1.2 (17. Dezember 2025)
+- Preset-System auf 7 instrument-spezifische Presets reduziert
+- Drums-Preset entfernt (ungeeignet für pitch transcription)
+- Deutsche Beschreibungen für 12-16-Jährige
+- Icons für visuelle Erkennbarkeit integriert
+- Backend: Preset-Parameter in Konverter integriert, Legacy-Alias-Support
+- Frontend: Icon-Display in Dropdown und Detail-View
+
+### v1.1 (16. Dezember 2025)
+- Initiale Konzeption mit vollständiger Analyse-Pipeline
+- Taktbasierte Segmentierung konzipiert
+- MIDI-Comparison-Integration geplant
+- Report-Generierung definiert
+
+### v1.0 (15. Dezember 2025)
+- Erstes Lastenheft erstellt
+- Basic Pitch als Konversions-Engine ausgewählt
+- Plugin-Architektur definiert---
 
 **Ende des Lastenhefts**
 
