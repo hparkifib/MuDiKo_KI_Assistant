@@ -27,7 +27,5 @@ Anweisungen:
 Technische Hinweise: 
 - Die Aufnahmen können unterschiedlich lang sein. Falls du Stille bei einer Aufnahme identifizierst, dann ignorier dies
 
-
 Hinweis zur gewünschten Feedbackpersonalisierung von der/dem Schüler*in: 
-
 {personalization_section}
