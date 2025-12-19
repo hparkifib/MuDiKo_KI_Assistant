@@ -211,7 +211,7 @@ Ein innovatives Tool für den digitalen Musikunterricht, das Schüler*innen spie
 ## 🎨 Nicht-funktionale Anforderungen
 
 ### NFA-1: Usability
-- **Einfachheit**: UI für Grundschüler verständlich
+- **Einfachheit**: UI für Schüler im Alter von 12-16 verständlich
 - **Intuitivität**: Keine Schulung erforderlich
 - **Feedback**: Sofortige visuelle Rückmeldung bei Aktionen
 - **Fehlertoleranz**: Klare Fehlermeldungen, keine Abstürze
@@ -1065,25 +1065,6 @@ class MarkovGeneratorService:
 - [ ] Visualisierung vermittelt Konzept intuitiv
 - [ ] Spaßfaktor: Schüler*innen experimentieren gerne
 - [ ] Lehrkraft kann Tool ohne Schulung einsetzen
-
----
-
-## 📚 Offene Fragen & Risiken
-
-### Offene Fragen
-1. **Seed-Auswahl**: Soll es eine "Surprise me"-Funktion geben, die besonders ungewöhnliche Seeds wählt?
-2. **Geschwindigkeitsvarianz**: Sollen Schüler*innen das Playback-Tempo anpassen können?
-3. **Mehrsprachigkeit**: Soll das Tool auf Englisch verfügbar sein?
-
-### Technische Risiken
-- **Browser-Kompatibilität**: Web Audio API nicht in allen Browsern identisch → Testing auf Safari, Firefox, Chrome
-- **Performance**: Bei 30+ Schüler*innen sehr große Transition Matrix → Lazy Loading oder Pagination
-- **Persistierung**: JSON-Dateien können groß werden → Kompression erwägen
-
-### Pädagogische Risiken
-- **Überforderung**: Visualisierung zu komplex für jüngere Schüler*innen → Vereinfachte Ansicht anbieten
-- **Motivationsverlust**: Generierte Melodien klingen nicht gut → Sicherstellen, dass Modell musikalisch sinnvolle Ergebnisse produziert
-- **Vertrauen**: Schüler*innen manipulieren fremde Melodien → Dokumentation über Vertrauenskultur im Klassenzimmer
 
 ---
 
