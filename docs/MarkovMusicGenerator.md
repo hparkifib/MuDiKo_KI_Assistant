@@ -36,7 +36,7 @@ Ein innovatives Tool für den digitalen Musikunterricht, das Schüler*innen spie
 ## 👥 Zielgruppen
 
 ### Primäre Nutzer
-- **Schüler*innen** (Grundschule bis Sekundarstufe I): Komponieren einfache Melodien, erkunden generierte Musik
+- **Schüler*innen** (Sekundarstufe I): Komponieren einfache Melodien, erkunden generierte Musik
 - **Lehrkräfte**: Moderieren Klassenaktivitäten, exportieren/importieren Modelle für spätere Stunden
 
 ### Nutzungskontext
