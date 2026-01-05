@@ -34,7 +34,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
           fontSize: '22px',
           zIndex: 1
         }}>
-          Welches Dateiformat möchtest du analysieren?
+          Mit welchem Tool möchtest du arbeiten?
         </h1>
 
         <div style={{
@@ -79,7 +79,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
               lineHeight: '1.4',
               fontSize: '14px'
             }}>
-              Vergleiche deine Aufnahme mit einer Vorspiel-Aufnahme und lass dir Feedback erstellen.
+              Vergleiche deine Aufnahme mit einer Referenz-Aufnahme und lass dir Feedback erstellen.
             </p>
             <div style={{
               marginTop: '12px',
@@ -124,7 +124,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
             lineHeight: '1.4',
             fontSize: '14px'
           }}>
-            Vergleiche deine MIDI-Datei mit einer Vorlage und lass dir Feedback erstellen.
+            Vergleiche deine MIDI-Datei mit einer Referenz und lass dir Feedback erstellen.
           </p>
           <div style={{
             marginTop: '12px',
@@ -169,7 +169,7 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
             lineHeight: '1.4',
             fontSize: '14px'
           }}>
-            Wandle deine Aufnahme in MIDI-Noten um - optimiert für dein Instrument.
+            Wandle deine Aufnahme in MIDI-Dateien um. Vorsicht: Hierbei können Ungenauigkeiten auftreten.
           </p>
           <div style={{
             marginTop: '12px',

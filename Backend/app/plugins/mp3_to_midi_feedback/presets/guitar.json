@@ -2,7 +2,7 @@
   "id": "guitar",
   "name": "Gitarre",
   "icon": "🎸",
-  "description": "Für Akustik- und E-Gitarre. Erkennt sowohl einzelne Melodien als auch Akkorde. Funktioniert gut bei Fingerpicking und schnellen Riffs. Filtert störende Plektrum-Geräusche heraus.",
+  "description": "Für Akustik- und E-Gitarre.",
   "instruments": ["Akustikgitarre", "E-Gitarre"],
   "parameters": {
     "onset_threshold": 0.5,

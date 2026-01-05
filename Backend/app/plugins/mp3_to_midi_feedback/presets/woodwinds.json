@@ -2,7 +2,7 @@
   "id": "woodwinds",
   "name": "Holzbläser",
   "icon": "🎺",
-  "description": "Für Flöte, Klarinette, Oboe und Fagott. Erkennt sanfte Melodielinien und Legato-Bögen (gebundene Töne). Filtert Atemgeräusche beim Blasen heraus. Ideal für Orchester- und Kammermusik.",
+  "description": "Für Flöte, Klarinette, Oboe, Fagott und Blockflöte.",
   "instruments": ["Flöte", "Klarinette", "Oboe", "Fagott", "Blockflöte"],
   "parameters": {
     "onset_threshold": 0.4,

@@ -2,7 +2,7 @@
   "id": "strings",
   "name": "Streicher",
   "icon": "🎻",
-  "description": "Für Geige, Bratsche, Cello und Kontrabass. Kommt gut mit Vibrato und Glissandi (Tonrutscher) zurecht. Kann auch Doppelgriffe (zwei Saiten gleichzeitig) erkennen. Ideal für Orchester und Streichquartett.",
+  "description": "Für Geige, Bratsche, Cello und Kontrabass.",
   "instruments": ["Geige", "Violine", "Bratsche", "Viola", "Cello", "Kontrabass"],
   "parameters": {
     "onset_threshold": 0.4,

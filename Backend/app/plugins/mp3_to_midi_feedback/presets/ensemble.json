@@ -2,7 +2,7 @@
   "id": "ensemble",
   "name": "Ensemble",
   "icon": "👥",
-  "description": "Für gemischte Instrumente und komplexe Arrangements. Ausgewogene Einstellungen, die für verschiedene Instrumente gleichzeitig funktionieren. Perfekt für Orchester, Band, Kammermusik oder wenn mehrere Instrumente zusammen spielen.",
+  "description": "Für gemischte Instrumente und Ensembles.",
   "instruments": ["Gemischtes Ensemble", "Orchester", "Band"],
   "parameters": {
     "onset_threshold": 0.5,
