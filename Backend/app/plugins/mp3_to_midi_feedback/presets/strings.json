@@ -2,14 +2,15 @@
   "id": "strings",
   "name": "Streicher",
   "icon": "🎻",
-  "description": "Für Geige, Bratsche, Cello und Kontrabass.",
+  "description": "Für Geige, Bratsche, Cello und Kontrabass. Optimiert für Schüleraufnahmen.",
   "instruments": ["Geige", "Violine", "Bratsche", "Viola", "Cello", "Kontrabass"],
   "parameters": {
-    "onset_threshold": 0.4,
-    "frame_threshold": 0.35,
-    "minimum_note_length": 12,
+    "onset_threshold": 0.6,
+    "frame_threshold": 0.55,
+    "minimum_note_length": 140,
     "minimum_frequency": 41,
     "maximum_frequency": 3520,
-    "melodia_trick": false
-  }
+    "melodia_trick": true
+  },
+  "_comment": "minimum_note_length=140ms für Legato-Passagen. melodia_trick=true verbessert monophone Erkennung bei Streichern."
 }

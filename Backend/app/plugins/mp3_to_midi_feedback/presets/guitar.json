@@ -2,14 +2,15 @@
   "id": "guitar",
   "name": "Gitarre",
   "icon": "🎸",
-  "description": "Für Akustik- und E-Gitarre.",
+  "description": "Für Akustik- und E-Gitarre. Optimiert für Schüleraufnahmen.",
   "instruments": ["Akustikgitarre", "E-Gitarre"],
   "parameters": {
-    "onset_threshold": 0.5,
-    "frame_threshold": 0.3,
-    "minimum_note_length": 8,
+    "onset_threshold": 0.6,
+    "frame_threshold": 0.5,
+    "minimum_note_length": 127,
     "minimum_frequency": 82,
     "maximum_frequency": 1319,
     "melodia_trick": false
-  }
+  },
+  "_comment": "minimum_note_length=127ms entspricht ca. Sechzehntelnoten bei 120 BPM. Filtert Anschlagsgeräusche."
 }

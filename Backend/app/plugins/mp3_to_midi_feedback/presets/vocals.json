@@ -2,14 +2,15 @@
   "id": "vocals",
   "name": "Gesang",
   "icon": "🎤",
-  "description": "Für Gesang und Stimme.",
+  "description": "Für Gesang und Stimme. Optimiert für Schüleraufnahmen.",
   "instruments": ["Gesang", "Stimme", "Chor"],
   "parameters": {
-    "onset_threshold": 0.3,
-    "frame_threshold": 0.4,
-    "minimum_note_length": 15,
+    "onset_threshold": 0.55,
+    "frame_threshold": 0.6,
+    "minimum_note_length": 150,
     "minimum_frequency": 80,
     "maximum_frequency": 1200,
     "melodia_trick": true
-  }
+  },
+  "_comment": "minimum_note_length=150ms für stabilere Gesangserkennung. Höhere Schwellenwerte filtern Atmer und Nebengeräusche."
 }

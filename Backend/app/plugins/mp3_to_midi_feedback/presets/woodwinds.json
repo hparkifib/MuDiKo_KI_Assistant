@@ -2,14 +2,15 @@
   "id": "woodwinds",
   "name": "Holzbläser",
   "icon": "🎺",
-  "description": "Für Flöte, Klarinette, Oboe, Fagott und Blockflöte.",
+  "description": "Für Flöte, Klarinette, Oboe, Fagott und Blockflöte. Optimiert für Schüleraufnahmen.",
   "instruments": ["Flöte", "Klarinette", "Oboe", "Fagott", "Blockflöte"],
   "parameters": {
-    "onset_threshold": 0.4,
-    "frame_threshold": 0.35,
-    "minimum_note_length": 15,
+    "onset_threshold": 0.6,
+    "frame_threshold": 0.55,
+    "minimum_note_length": 140,
     "minimum_frequency": 41,
     "maximum_frequency": 3136,
     "melodia_trick": true
-  }
+  },
+  "_comment": "minimum_note_length=140ms filtert Ansatzgeräusche. Höhere Schwellenwerte reduzieren Atemgeräusche."
 }

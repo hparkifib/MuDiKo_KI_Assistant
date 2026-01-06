@@ -2,14 +2,15 @@
   "id": "piano",
   "name": "Klavier",
   "icon": "🎹",
-  "description": "Für Klavier, Keyboard und E-Piano.",
+  "description": "Für Klavier, Keyboard und E-Piano. Optimiert für Schüleraufnahmen.",
   "instruments": ["Klavier", "Keyboard", "E-Piano"],
   "parameters": {
-    "onset_threshold": 0.5,
-    "frame_threshold": 0.3,
-    "minimum_note_length": 8,
+    "onset_threshold": 0.65,
+    "frame_threshold": 0.55,
+    "minimum_note_length": 127,
     "minimum_frequency": 27.5,
     "maximum_frequency": 4186,
     "melodia_trick": false
-  }
+  },
+  "_comment": "minimum_note_length=127ms entspricht ca. Sechzehntelnoten bei 120 BPM. Höhere Schwellenwerte reduzieren fragmentierte Noten."
 }
