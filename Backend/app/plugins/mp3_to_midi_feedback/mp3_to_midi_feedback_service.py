@@ -5,6 +5,8 @@ from typing import Dict, Optional
 import logging
 
 from .mp3_to_midi_converter import Mp3ToMidiConverter
+from .conversion_optimizer import ConversionParameterOptimizer
+from app.core.exceptions import AudioAnalysisError
 
 
 class Mp3ToMidiFeedbackService:
@@ -30,6 +32,9 @@ class Mp3ToMidiFeedbackService:
         
         # Initialisiere Converter
         self.converter = Mp3ToMidiConverter(plugin_config)
+        
+        # Initialisiere Parameter-Optimizer
+        self.optimizer = ConversionParameterOptimizer(audio_service)
         
         logging.info("🎹 Mp3ToMidiFeedbackService initialisiert")
     
@@ -97,9 +102,26 @@ class Mp3ToMidiFeedbackService:
         midi_dir = session_dir / "midi"
         midi_dir.mkdir(exist_ok=True)
         
-        # Konvertiere beide Dateien mit Preset-Parametern
+        # Optimiere Parameter basierend auf Referenz-Audio-Analyse
+        # Mit preset_params: Preset als Basis, Optimizer verfeinert
+        # Ohne preset_params: Optimizer berechnet alle Parameter aus Analyse
+        referenz_path = audio_files.get('referenz')
+        if referenz_path:
+            try:
+                # Optimizer arbeitet mit oder ohne Preset
+                optimized_params = self.optimizer.optimize(referenz_path, preset_params)
+                logging.info(f"🔧 Parameter {'optimiert' if preset_params else 'berechnet (Auto-Modus)'}")
+            except AudioAnalysisError as e:
+                # Analyse fehlgeschlagen = Problem mit der Audio-Datei
+                logging.error(f"❌ Audio-Analyse fehlgeschlagen: {e}")
+                raise
+        else:
+            # Kein Referenz-Pfad (sollte nicht passieren)
+            optimized_params = preset_params
+        
+        # Konvertiere beide Dateien mit optimierten Parametern
         logging.info(f"📁 Konvertiere Dateien: {list(audio_files.keys())}")
-        results = self.converter.batch_convert(audio_files, midi_dir, preset_params)
+        results = self.converter.batch_convert(audio_files, midi_dir, optimized_params)
         
         # Speichere MIDI-Pfade in Session
         session.set_data('midi_files', {

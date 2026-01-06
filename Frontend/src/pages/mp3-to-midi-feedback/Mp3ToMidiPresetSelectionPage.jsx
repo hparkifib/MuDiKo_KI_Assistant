@@ -1,11 +1,20 @@
 import { useState, useEffect } from 'react';
 
 export default function Mp3ToMidiPresetSelectionPage({ onBack, onNext }) {
-  const [selectedPreset, setSelectedPreset] = useState('piano');
+  const [selectedPreset, setSelectedPreset] = useState('auto');
   const [presets, setPresets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [converting, setConverting] = useState(false);
+
+  // Auto-Modus Option (kein Preset, Optimizer berechnet alles)
+  const autoOption = {
+    id: 'auto',
+    name: 'Automatisch',
+    icon: '🤖',
+    description: 'Parameter werden automatisch aus der Audio-Analyse berechnet. Ideal wenn du unsicher bist.',
+    instruments: ['Alle Instrumente']
+  };
 
   // Lade Presets vom Backend
   useEffect(() => {
@@ -48,7 +57,7 @@ export default function Mp3ToMidiPresetSelectionPage({ onBack, onNext }) {
         },
         body: JSON.stringify({ 
           sessionId,
-          presetId: selectedPreset
+          presetId: selectedPreset === 'auto' ? null : selectedPreset
         })
       });
 
@@ -66,7 +75,9 @@ export default function Mp3ToMidiPresetSelectionPage({ onBack, onNext }) {
     }
   };
 
-  const currentPreset = presets.find(p => p.id === selectedPreset);
+  // Alle Optionen: Auto + Backend-Presets
+  const allOptions = [autoOption, ...presets];
+  const currentPreset = allOptions.find(p => p.id === selectedPreset);
 
   return (
     <div style={{ 
@@ -152,7 +163,7 @@ export default function Mp3ToMidiPresetSelectionPage({ onBack, onNext }) {
                         fontFamily: "'Nunito', sans-serif"
                       }}
                     >
-                      {presets.map((preset) => (
+                      {allOptions.map((preset) => (
                         <option key={preset.id} value={preset.id}>
                           {preset.icon} {preset.name}
                         </option>

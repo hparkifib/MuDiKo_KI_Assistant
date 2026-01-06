@@ -1,256 +1,243 @@
 """
 Comparison Engine - Vergleicht zwei MIDI-Analysen
+
+Liefert nur Rohdaten und Basis-Statistiken - keine Fehlermarkierungen.
+Das LLM entscheidet selbst, was ein echter Fehler ist.
+
+Unterstützt First-Note-Synchronisation für Schüleraufnahmen mit
+anfänglicher Stille oder ungewollten Pausen.
 """
 
-from typing import List, Dict, Any
-from ..models.midi_data import TrackData, Note
-from ..models.analysis_result import AnalysisResult, TrackAnalysis
-from ..models.comparison_result import Difference, ComparisonSummary, ComparisonResult
-from ..utils import get_position_key
+from typing import Dict, Any, Optional
+from copy import deepcopy
+from ..models.analysis_result import AnalysisResult
+from ..models.comparison_result import ComparisonSummary, ComparisonResult
+
+
+# Mindest-Velocity für "echte" Noten (filtert leise Fehlnoten/Geräusche)
+MIN_VELOCITY_THRESHOLD = 30
 
 
 class ComparisonEngine:
-    """Vergleicht zwei MIDI-Analysen und findet Unterschiede"""
+    """Vergleicht zwei MIDI-Analysen.
+    
+    Liefert nur Rohdaten ohne Fehlermarkierungen.
+    Das LLM kann den musikalischen Kontext besser einschätzen.
+    
+    Unterstützt automatische Synchronisation der ersten Note, um
+    anfängliche Stille in Schüleraufnahmen auszugleichen.
+    """
     
     def compare(
         self,
         analysis1: AnalysisResult,
-        analysis2: AnalysisResult
+        analysis2: AnalysisResult,
+        auto_sync: bool = True
     ) -> ComparisonResult:
         """
-        Vergleicht zwei Analyse-Ergebnisse
+        Vergleicht zwei Analyse-Ergebnisse.
+        
+        Liefert nur die synchronisierten Rohdaten und Basis-Statistiken.
+        Keine Fehlermarkierungen - das LLM entscheidet selbst.
         
         Args:
             analysis1: Erste Analyse (Referenz)
-            analysis2: Zweite Analyse (Vergleich)
+            analysis2: Zweite Analyse (Vergleich/Schüler)
+            auto_sync: Wenn True, wird die Schüleraufnahme automatisch
+                      zur ersten Note der Referenz synchronisiert
         
         Returns:
-            ComparisonResult-Objekt mit allen Unterschieden
+            ComparisonResult-Objekt mit Rohdaten
         """
-        differences = []
+        # Optional: Synchronisiere Schüleraufnahme zur ersten Note
+        sync_info = None
+        if auto_sync:
+            analysis2, sync_info = self._sync_to_first_note(analysis1, analysis2)
         
-        # Vergleiche jeden Track
-        max_tracks = max(len(analysis1.tracks), len(analysis2.tracks))
-        
-        for i in range(max_tracks):
-            if i < len(analysis1.tracks) and i < len(analysis2.tracks):
-                track_diffs = self._compare_tracks(
-                    analysis1.tracks[i],
-                    analysis2.tracks[i],
-                    i
-                )
-                differences.extend(track_diffs)
-        
-        # Erstelle Summary
-        summary = self._create_summary(analysis1, analysis2, differences)
+        # Erstelle Summary (nur Basis-Statistiken, keine Fehler)
+        summary = self._create_summary(analysis1, analysis2, sync_info)
         
         return ComparisonResult(
             file1_analysis=analysis1,
             file2_analysis=analysis2,
-            differences=differences,
+            differences=[],  # Keine Fehlermarkierungen mehr
             summary=summary
         )
     
-    def _compare_tracks(
+    def _sync_to_first_note(
         self,
-        track1: TrackAnalysis,
-        track2: TrackAnalysis,
-        track_num: int
-    ) -> List[Difference]:
+        reference: AnalysisResult,
+        student: AnalysisResult
+    ) -> tuple:
         """
-        Vergleicht zwei Tracks und findet Unterschiede
+        Synchronisiert die Schüleraufnahme zur ersten Note der Referenz.
+        
+        Findet die erste "echte" Note (velocity > threshold) in beiden
+        Aufnahmen und verschiebt die Takt/Schlag-Positionen der Schüler-Noten
+        entsprechend.
         
         Args:
-            track1: Erster Track
-            track2: Zweiter Track
-            track_num: Track-Nummer
+            reference: Referenz-Analyse
+            student: Schüler-Analyse
         
         Returns:
-            Liste von Difference-Objekten
+            Tuple (synchronisierte_analyse, sync_info_dict)
         """
-        differences = []
+        # Finde erste echte Note in Referenz
+        ref_first = self._find_first_significant_note(reference)
+        # Finde erste echte Note in Schüleraufnahme
+        student_first = self._find_first_significant_note(student)
         
-        # Vergleiche Noten wenn vorhanden
-        if track1.note_analysis and track2.note_analysis:
-            note_diffs = self._compare_notes(
-                track1.note_analysis.note_list,
-                track2.note_analysis.note_list,
-                track_num
-            )
-            differences.extend(note_diffs)
+        if ref_first is None or student_first is None:
+            return student, {'synced': False, 'reason': 'Keine Noten gefunden'}
         
-        return differences
+        # Berechne Offset in Takten und Schlägen
+        bar_offset = student_first['bar'] - ref_first['bar']
+        beat_offset = student_first['beat'] - ref_first['beat']
+        
+        # Wenn kein Offset nötig, gib Original zurück
+        if bar_offset == 0 and beat_offset == 0:
+            return student, {'synced': False, 'reason': 'Kein Offset nötig'}
+        
+        # Erstelle tiefe Kopie und verschiebe alle Noten
+        synced_student = self._apply_offset(student, bar_offset, beat_offset)
+        
+        sync_info = {
+            'synced': True,
+            'bar_offset': bar_offset,
+            'beat_offset': beat_offset,
+            'ref_first_note': f"Takt {ref_first['bar']}, Schlag {ref_first['beat']}",
+            'student_first_note': f"Takt {student_first['bar']}, Schlag {student_first['beat']}"
+        }
+        
+        return synced_student, sync_info
     
-    def _compare_notes(
+    def _find_first_significant_note(
         self,
-        notes1: List[Dict[str, Any]],
-        notes2: List[Dict[str, Any]],
-        track_num: int
-    ) -> List[Difference]:
+        analysis: AnalysisResult
+    ) -> Optional[Dict[str, Any]]:
         """
-        Vergleicht Noten an denselben Positionen
+        Findet die erste Note mit ausreichender Velocity.
         
         Args:
-            notes1: Noten von Track 1
-            notes2: Noten von Track 2
-            track_num: Track-Nummer
-        
-        Returns:
-            Liste von Unterschieden
-        """
-        differences = []
-        
-        # Gruppiere Noten nach Takt.Schlag
-        notes1_by_pos = self._group_notes_by_position(notes1)
-        notes2_by_pos = self._group_notes_by_position(notes2)
-        
-        # Finde alle Positionen
-        all_positions = sorted(
-            set(list(notes1_by_pos.keys()) + list(notes2_by_pos.keys())),
-            key=lambda x: (int(x.split(',')[0].split()[1]), 
-                          int(x.split(',')[1].split()[1]))
-        )
-        
-        for pos in all_positions:
-            n1 = notes1_by_pos.get(pos, [])
-            n2 = notes2_by_pos.get(pos, [])
+            analysis: Analyse-Ergebnis
             
-            if self._notes_differ(n1, n2):
-                bar, beat = self._parse_position(pos)
+        Returns:
+            Dict mit 'bar', 'beat', 'note' oder None
+        """
+        first_note = None
+        
+        for track in analysis.tracks:
+            if not track.note_analysis or not track.note_analysis.note_list:
+                continue
                 
-                diff = Difference(
-                    track=track_num,
-                    bar=bar,
-                    beat=beat,
-                    type='note_difference',
-                    expected=self._format_notes(n1),
-                    actual=self._format_notes(n2),
-                    message=f"In Takt {bar}, Schlag {beat}: Unterschied in Noten",
-                    severity='medium'
-                )
-                differences.append(diff)
+            for note in track.note_analysis.note_list:
+                # Filtere leise Noten (Geräusche, Fehlnoten)
+                velocity = note.get('velocity', 0)
+                if velocity < MIN_VELOCITY_THRESHOLD:
+                    continue
+                
+                bar = note.get('bar', 0)
+                beat = note.get('beat', 0)
+                
+                # Prüfe ob diese Note früher ist
+                if first_note is None:
+                    first_note = {'bar': bar, 'beat': beat, 'note': note.get('note', '?')}
+                elif (bar < first_note['bar']) or \
+                     (bar == first_note['bar'] and beat < first_note['beat']):
+                    first_note = {'bar': bar, 'beat': beat, 'note': note.get('note', '?')}
         
-        return differences
+        return first_note
     
-    def _group_notes_by_position(
-        self, notes: List[Dict[str, Any]]
-    ) -> Dict[str, List[Dict[str, Any]]]:
+    def _apply_offset(
+        self,
+        analysis: AnalysisResult,
+        bar_offset: int,
+        beat_offset: int
+    ) -> AnalysisResult:
         """
-        Gruppiert Noten nach Takt.Schlag Position
+        Wendet einen Takt/Schlag-Offset auf alle Noten an.
         
         Args:
-            notes: Liste von Noten
-        
+            analysis: Original-Analyse
+            bar_offset: Offset in Takten (wird subtrahiert)
+            beat_offset: Offset in Schlägen (wird subtrahiert)
+            
         Returns:
-            Dict mit Position als Key und Notenliste als Value
+            Neue AnalysisResult mit verschobenen Noten
         """
-        grouped = {}
+        # Tiefe Kopie erstellen
+        synced = deepcopy(analysis)
         
-        for note in notes:
-            pos = get_position_key(note['bar'], note['beat'])
-            if pos not in grouped:
-                grouped[pos] = []
-            grouped[pos].append(note)
+        for track in synced.tracks:
+            if not track.note_analysis or not track.note_analysis.note_list:
+                continue
+            
+            adjusted_notes = []
+            for note in track.note_analysis.note_list:
+                # Kopiere Note und passe Position an
+                new_note = dict(note)
+                new_bar = note.get('bar', 0) - bar_offset
+                new_beat = note.get('beat', 0) - beat_offset
+                
+                # Handle negative beats (Übertrag zum vorherigen Takt)
+                # Annahme: 4/4 Takt = 4 Schläge pro Takt
+                while new_beat < 1:
+                    new_beat += 4
+                    new_bar -= 1
+                while new_beat > 4:
+                    new_beat -= 4
+                    new_bar += 1
+                
+                # Ignoriere Noten die vor Takt 1 landen würden
+                if new_bar < 1:
+                    continue
+                
+                new_note['bar'] = new_bar
+                new_note['beat'] = new_beat
+                adjusted_notes.append(new_note)
+            
+            track.note_analysis.note_list = adjusted_notes
+            track.note_analysis.count = len(adjusted_notes)
         
-        return grouped
-    
-    def _notes_differ(
-        self, notes1: List[Dict[str, Any]], notes2: List[Dict[str, Any]]
-    ) -> bool:
-        """
-        Prüft ob zwei Notenlisten unterschiedlich sind
-        
-        Args:
-            notes1: Erste Notenliste
-            notes2: Zweite Notenliste
-        
-        Returns:
-            True wenn unterschiedlich
-        """
-        # Vergleiche Noten-Namen und Längen
-        str1 = self._format_notes(notes1)
-        str2 = self._format_notes(notes2)
-        
-        return str1 != str2
-    
-    def _format_notes(self, notes: List[Dict[str, Any]]) -> str:
-        """
-        Formatiert Notenliste zu String für Vergleich
-        
-        Args:
-            notes: Notenliste
-        
-        Returns:
-            Formatierter String
-        """
-        if not notes:
-            return "keine Noten"
-        
-        formatted = []
-        for note in notes:
-            duration = note.get('duration', 'unbekannt')
-            formatted.append(f"{note['note']} ({duration})")
-        
-        return ", ".join(formatted)
-    
-    def _parse_position(self, pos: str) -> tuple:
-        """
-        Parst Position-String zu Takt und Schlag
-        
-        Args:
-            pos: String wie "Takt 3, Zählzeit 2"
-        
-        Returns:
-            Tuple (bar, beat)
-        """
-        parts = pos.split(',')
-        bar = int(parts[0].split()[1])
-        beat = int(parts[1].split()[1])
-        return bar, beat
-    
+        return synced
+
     def _create_summary(
         self,
         analysis1: AnalysisResult,
         analysis2: AnalysisResult,
-        differences: List[Difference]
+        sync_info: Optional[Dict[str, Any]] = None
     ) -> ComparisonSummary:
         """
-        Erstellt eine Zusammenfassung des Vergleichs
+        Erstellt eine Zusammenfassung mit Basis-Statistiken.
+        
+        Keine Fehler-Zählung mehr - nur Rohdaten für das LLM.
         
         Args:
             analysis1: Erste Analyse
             analysis2: Zweite Analyse
-            differences: Liste der Unterschiede
+            sync_info: Optional - Info zur First-Note-Synchronisation
         
         Returns:
             ComparisonSummary-Objekt
         """
-        total_diffs = len(differences)
-        
-        # Zähle Fehlertypen
-        note_errors = len([d for d in differences if 'note' in d.type.lower()])
-        rhythm_errors = len([d for d in differences if 'rhythm' in d.type.lower() or 'duration' in d.type.lower()])
-        dynamics_errors = len([d for d in differences if 'velocity' in d.type.lower() or 'dynamic' in d.type.lower()])
-        
-        # Berechne Similarity Score (vereinfacht)
-        max_notes = max(analysis1.total_notes, analysis2.total_notes)
-        if max_notes > 0:
-            similarity = 1.0 - (total_diffs / max_notes)
-            similarity = max(0.0, min(1.0, similarity))
-            similarity *= 100.0  # in Prozent
-        else:
-            similarity = 1.0
-            similarity *= 100.0  # in Prozent
-        
         length_diff = abs(analysis1.length_seconds - analysis2.length_seconds)
         note_diff = abs(analysis1.total_notes - analysis2.total_notes)
         
-        return ComparisonSummary(
-            total_differences=total_diffs,
-            note_errors=note_errors,
-            rhythm_errors=rhythm_errors,
-            dynamics_errors=dynamics_errors,
-            similarity_score=similarity,
+        summary = ComparisonSummary(
+            total_differences=0,  # Keine Fehler-Zählung mehr
+            note_errors=0,
+            rhythm_errors=0,
+            dynamics_errors=0,
+            similarity_score=0.0,  # LLM bewertet selbst
             length_difference=length_diff,
             note_count_difference=note_diff
         )
+        
+        # Füge Sync-Info hinzu wenn vorhanden
+        if sync_info and sync_info.get('synced'):
+            summary.sync_applied = True
+            summary.sync_bar_offset = sync_info.get('bar_offset', 0)
+            summary.sync_beat_offset = sync_info.get('beat_offset', 0)
+        
+        return summary

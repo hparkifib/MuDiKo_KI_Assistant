@@ -50,9 +50,13 @@ class ComparisonSummary:
     similarity_score: float = 1.0
     length_difference: float = 0.0
     note_count_difference: int = 0
+    # First-Note-Synchronisation Info
+    sync_applied: bool = False
+    sync_bar_offset: int = 0
+    sync_beat_offset: int = 0
     
     def to_dict(self) -> Dict[str, Any]:
-        return {
+        result = {
             'total_differences': self.total_differences,
             'error_types': {
                 'note_errors': self.note_errors,
@@ -65,6 +69,17 @@ class ComparisonSummary:
                 'note_count': self.note_count_difference
             }
         }
+        
+        # Füge Sync-Info hinzu wenn angewendet
+        if self.sync_applied:
+            result['synchronization'] = {
+                'applied': True,
+                'bar_offset': self.sync_bar_offset,
+                'beat_offset': self.sync_beat_offset,
+                'note': 'Schüleraufnahme wurde automatisch zur ersten Note synchronisiert'
+            }
+        
+        return result
 
 
 @dataclass

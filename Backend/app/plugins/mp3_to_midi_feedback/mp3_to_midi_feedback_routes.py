@@ -3,7 +3,7 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 
-from app.core.exceptions import SessionNotFoundException, SessionExpiredException, InvalidFileFormatException
+from app.core.exceptions import SessionNotFoundException, SessionExpiredException, InvalidFileFormatException, AudioAnalysisError
 
 
 def create_routes(plugin_name, session_service, storage_service, feedback_service, plugin_config) -> Blueprint:
@@ -164,6 +164,12 @@ def create_routes(plugin_name, session_service, storage_service, feedback_servic
                 "sessionId": session_id,
                 "result": result
             }), 200
+            
+        except AudioAnalysisError as e:
+            return jsonify({
+                "error": f"Audio-Analyse fehlgeschlagen: {str(e)}",
+                "success": False
+            }), 400
             
         except Exception as e:
             return jsonify({

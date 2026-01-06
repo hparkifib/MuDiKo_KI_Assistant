@@ -23,3 +23,12 @@ class PluginNotFoundException(MuDiKoException):
 class PluginInitializationException(MuDiKoException):
     """Fehler beim Initialisieren eines Plugins."""
     pass
+
+
+class AudioAnalysisError(MuDiKoException):
+    """Fehler bei der Audio-Analyse.
+    
+    Wird geworfen wenn die Audio-Datei nicht analysiert werden kann,
+    z.B. wegen beschädigter Datei oder ungültigem Format.
+    """
+    pass

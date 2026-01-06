@@ -64,15 +64,10 @@ class MidiComparisonService(BasePromptBuilder):
         # Formatiere Ergebnis als Text (für LLM) mit TextFormatter
         raw_text = self.text_formatter.format_comparison(comparison_result)
 
-        # Baue einen minimalen Output: nur Zusammenfassung (Ähnlichkeit, Fehleranzahl) und die Tabelle.
+        # Baue einen minimalen Output: nur die Tabelle.
+        # Keine Fehleranzahl mehr - das LLM analysiert selbst.
         try:
-            similarity = comparison_result.summary.similarity_score if comparison_result.summary else 0
-            differences = comparison_result.summary.total_differences if comparison_result.summary else 0
-
-            header_lines = [
-                f"Ähnlichkeit: {similarity:.2f}%",
-                f"Fehleranzahl: {differences}"
-            ]
+            header_lines = []
 
             # Extrahiere mehrere Tabellen (pro Spur) inkl. Spur-Header
             sections = []
@@ -170,22 +165,16 @@ class MidiComparisonService(BasePromptBuilder):
 
             text_output = "\n".join(header_lines + [""] + body_lines).strip()
         except Exception:
-            # Bei Fehler: Minimalen Header + Originaltext liefern
-            similarity = comparison_result.summary.similarity_score if comparison_result.summary else 0
-            differences = comparison_result.summary.total_differences if comparison_result.summary else 0
-            text_output = "\n".join([
-                f"Ähnlichkeit: {similarity:.2f}%",
-                f"Fehleranzahl: {differences}",
-                "",
-                raw_text
-            ])
+            # Bei Fehler: Originaltext liefern
+            text_output = raw_text
         
         return {
             "success": True,
             "comparison_text": text_output,
             "summary": {
-                "similarity_score": comparison_result.summary.similarity_score if comparison_result.summary else 0,
-                "total_differences": comparison_result.summary.total_differences if comparison_result.summary else 0,
+                "reference_notes": comparison_result.file1_analysis.total_notes,
+                "student_notes": comparison_result.file2_analysis.total_notes,
+                "sync_applied": getattr(comparison_result.summary, 'sync_applied', False) if comparison_result.summary else False,
                 # Einheitliche, LLM-freundliche Labels statt Dateinamen
                 "file1": "Referenz",
                 "file2": "Schüler*in"

@@ -43,8 +43,8 @@ class PitchAnalyzer(BaseAnalyzer):
         """Analysiert die Grundtonhöhe."""
         pitches = librosa.yin(
             y, 
-            fmin=librosa.note_to_hz("C2"), 
-            fmax=librosa.note_to_hz("C7"), 
+            fmin=librosa.note_to_hz("C2"),  # ~65 Hz
+            fmax=librosa.note_to_hz("C8"),  # ~4186 Hz (höchste Klaviertaste)
             sr=sr
         )
         valid_pitches = pitches[pitches > 0]

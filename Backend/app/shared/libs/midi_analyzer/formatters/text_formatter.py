@@ -67,15 +67,14 @@ class TextFormatter(BaseFormatter):
         output.append("\n" + "=" * 80)
         output.append("DETAILLIERTER VERGLEICH: TAKT FÜR TAKT")
         output.append("=" * 80)
-        output.append("\nHier werden beide Musikstücke Takt für Takt verglichen.")
-        output.append("Unterschiede sind mit ⚠️ markiert.\n")
+        output.append("\nHier werden beide Musikstücke Takt für Takt verglichen.\n")
         
-        output.extend(self._format_differences(result))
+        output.extend(self._format_side_by_side(result))
         
         return "\n".join(output)
     
-    def _format_differences(self, result: ComparisonResult) -> List[str]:
-        """Formatiert den vollständigen Takt-für-Takt Vergleich (mit allen Takten)"""
+    def _format_side_by_side(self, result: ComparisonResult) -> List[str]:
+        """Formatiert den vollständigen Takt-für-Takt Vergleich (ohne Fehlermarkierung)"""
         output = []
         
         # Finde alle Tracks, die in mindestens einer Datei existieren
@@ -117,7 +116,7 @@ class TextFormatter(BaseFormatter):
             output.append("Position            | Referenz                                                  | Vergleich")
             output.append("-" * 130)
             
-            # Zeige alle Positionen
+            # Zeige alle Positionen (ohne Fehlermarkierung - das LLM entscheidet selbst)
             for bar, beat in all_positions:
                 pos_str = f"Takt {bar}, Zählzeit {beat}"
                 notes1 = notes1_by_pos.get((bar, beat), [])
@@ -127,12 +126,8 @@ class TextFormatter(BaseFormatter):
                 notes1_str = self._format_notes(notes1) if notes1 else "keine Noten"
                 notes2_str = self._format_notes(notes2) if notes2 else "keine Noten"
                 
-                # Markiere Unterschiede
-                marker = ""
-                if notes1_str != notes2_str:
-                    marker = "  ⚠️ UNTERSCHIED"
-                
-                output.append(f"{pos_str:19s} | {notes1_str:57s} | {notes2_str:57s}{marker}")
+                # Keine Fehlermarkierung mehr - das LLM analysiert selbst
+                output.append(f"{pos_str:19s} | {notes1_str:57s} | {notes2_str:57s}")
         
         return output
     
