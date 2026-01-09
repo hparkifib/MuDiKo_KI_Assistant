@@ -128,9 +128,10 @@ def create_routes(plugin_name, session_service, storage_service, feedback_servic
     def convert():
         """Konvertiert beide MP3s zu MIDI via Basic Pitch.
         
+        Parameter werden automatisch aus der Audio-Analyse berechnet.
+        
         JSON Body:
             sessionId: Session-ID
-            presetId: Optional - ID des zu verwendenden Presets (z.B. 'klavier')
             
         Returns:
             JSON Response mit Konversions-Status
@@ -138,7 +139,6 @@ def create_routes(plugin_name, session_service, storage_service, feedback_servic
         try:
             data = request.get_json()
             session_id = data.get("sessionId")
-            preset_id = data.get("presetId")  # Optional
             
             if not session_id:
                 return jsonify({
@@ -155,8 +155,8 @@ def create_routes(plugin_name, session_service, storage_service, feedback_servic
                     "success": False
                 }), 404
             
-            # Rufe Service für Konversion auf (mit optional Preset)
-            result = feedback_service.convert_mp3_to_midi(session_id, preset_id)
+            # Rufe Service für Konversion auf (Auto-Modus)
+            result = feedback_service.convert_mp3_to_midi(session_id)
             
             return jsonify({
                 "success": True,
@@ -174,60 +174,6 @@ def create_routes(plugin_name, session_service, storage_service, feedback_servic
         except Exception as e:
             return jsonify({
                 "error": f"Konversion fehlgeschlagen: {str(e)}",
-                "success": False
-            }), 500
-    
-    @bp.route('/presets', methods=['GET'])
-    def get_presets():
-        """Gibt alle verfügbaren Conversion-Presets zurück.
-        
-        Returns:
-            JSON Response mit Liste aller Presets
-        """
-        try:
-            from app.plugins.mp3_to_midi_feedback.presets import list_presets
-            
-            presets = list_presets()
-            
-            return jsonify({
-                "success": True,
-                "presets": presets
-            }), 200
-            
-        except Exception as e:
-            return jsonify({
-                "error": f"Fehler beim Laden der Presets: {str(e)}",
-                "success": False
-            }), 500
-    
-    @bp.route('/preset/<preset_id>', methods=['GET'])
-    def get_preset(preset_id):
-        """Gibt ein einzelnes Preset mit allen Details zurück.
-        
-        Args:
-            preset_id: ID des Presets (z.B. 'klavier', 'gesang')
-            
-        Returns:
-            JSON Response mit Preset-Details
-        """
-        try:
-            from app.plugins.mp3_to_midi_feedback.presets import get_preset as load_preset
-            
-            preset = load_preset(preset_id)
-            
-            return jsonify({
-                "success": True,
-                "preset": preset
-            }), 200
-            
-        except FileNotFoundError:
-            return jsonify({
-                "error": f"Preset '{preset_id}' nicht gefunden",
-                "success": False
-            }), 404
-        except Exception as e:
-            return jsonify({
-                "error": f"Fehler beim Laden des Presets: {str(e)}",
                 "success": False
             }), 500
     

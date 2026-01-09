@@ -16,6 +16,12 @@ import AudioFeedbackInstrumentsPage from './pages/audio-feedback/AudioFeedbackIn
 import CommonPersonalizationPage from './pages/common/CommonPersonalizationPage.jsx'
 import MidiComparisonPersonalizationPage from './pages/midi-comparison/MidiComparisonPersonalizationPage.jsx'
 import CommonPromptPage from './pages/common/CommonPromptPage.jsx'
+// Easy Feedback Pages
+import { 
+  EasyFeedbackUploadPage, 
+  EasyFeedbackPreviewPage, 
+  EasyFeedbackResultPage 
+} from './pages/easy-feedback'
 
 export default function App() {
   const [page, setPage] = useState('home')
@@ -26,7 +32,30 @@ export default function App() {
       onSelectAudio={() => setPage('AudioUpload_Page')} 
       onSelectMidi={() => setPage('midi-upload')}
       onSelectMp3ToMidi={() => setPage('mp3-to-midi-upload')}
+      onSelectEasyFeedback={() => setPage('easy-feedback-upload')}
       onBack={() => setPage('home')} 
+    />
+  }
+
+  // Easy Feedback Flow (simplified: Upload → Preview → Result)
+  if (page === 'easy-feedback-upload') {
+    return <EasyFeedbackUploadPage 
+      onNext={() => setPage('easy-feedback-preview')} 
+      onBack={() => setPage('tool-selection')} 
+    />
+  }
+
+  if (page === 'easy-feedback-preview') {
+    return <EasyFeedbackPreviewPage 
+      onNext={() => setPage('easy-feedback-result')} 
+      onBack={() => setPage('easy-feedback-upload')} 
+    />
+  }
+
+  if (page === 'easy-feedback-result') {
+    return <EasyFeedbackResultPage 
+      onBack={() => setPage('easy-feedback-preview')} 
+      onHome={() => setPage('home')} 
     />
   }
 

@@ -1,0 +1,34 @@
+# Easy Feedback Plugin - Vereinfachte Pipeline für den Unterrichtseinsatz
+# Linearer Workflow: Upload/Aufnahme → Einstellungen → Feedback
+
+enabled: true
+class: "EasyFeedbackPlugin"
+display_name: "Easy Feedback"
+description: "Vereinfachte Audio-Feedback-Pipeline für den Unterrichtseinsatz"
+version: "1.0.0"
+icon: "🎓"
+
+# Frontend-Routes für dieses Plugin
+frontend_routes:
+  - "/easy-feedback"
+  - "/easy-feedback/*"
+
+# Plugin-spezifische Einstellungen
+settings:
+  # Unterstützte Audio-Formate
+  supported_formats:
+    - "audio/mp3"
+    - "audio/mpeg"
+    - "audio/wav"
+    - "audio/x-wav"
+    - "audio/webm"
+    - "audio/ogg"
+    - "audio/midi"
+    - "audio/x-midi"
+    - "audio/mid"
+  
+  # Max Upload-Größe in MB
+  max_upload_size_mb: 100
+  
+  # Standard-Sprache
+  default_language: "Deutsch"

@@ -1,7 +1,7 @@
 // Tool Selection Page - Wähle zwischen Audio und MIDI Tool
 import { PageLayout, Card } from '../../components/common';
 
-export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelectMp3ToMidi, onBack }) {
+export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelectMp3ToMidi, onSelectEasyFeedback, onBack }) {
   const toolCardStyle = {
     width: '280px',
     minWidth: '280px',
@@ -182,6 +182,51 @@ export default function ToolSelectionPage({ onSelectAudio, onSelectMidi, onSelec
             textAlign: 'center'
           }}>
             MP3, WAV, MP4 → MIDI
+          </div>
+        </Card>
+
+        {/* Easy Feedback Tool */}
+        <Card
+          style={toolCardStyle}
+          onClick={onSelectEasyFeedback}
+          onMouseEnter={(e) => handleCardHover(e, true)}
+          onMouseLeave={(e) => handleCardHover(e, false)}
+        >
+          <div style={{
+            fontSize: '40px',
+            textAlign: 'center',
+            marginBottom: '12px'
+          }}>
+            🎓
+          </div>
+            <h2 style={{
+              color: 'var(--font-color)',
+              textAlign: 'center',
+              marginBottom: '10px',
+              fontSize: '20px'
+            }}>
+            Easy Feedback
+          </h2>
+          <p style={{
+            color: 'var(--font-color)',
+            textAlign: 'center',
+            opacity: 0.8,
+            lineHeight: '1.4',
+            fontSize: '14px'
+          }}>
+            Vereinfachte Feedback-Pipeline für den Unterrichtseinsatz. Ideal für Schüler*innen.
+          </p>
+          <div style={{
+            marginTop: '12px',
+            padding: '6px',
+            backgroundColor: 'rgba(128, 128, 128, 0.1)',
+            borderRadius: '8px',
+            fontSize: '13px',
+            color: 'var(--font-color)',
+            opacity: 0.7,
+            textAlign: 'center'
+          }}>
+            MP3, WAV, MIDI
           </div>
         </Card>
         </div>

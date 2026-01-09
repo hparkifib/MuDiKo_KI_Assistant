@@ -1,0 +1,35 @@
+{
+  "title": "Was ist MIDI und wie funktioniert das?",
+  "sections": [
+    {
+      "heading": "🎵 Was ist MIDI?",
+      "content": "MIDI ist wie eine digitale Musiknoten-Sprache. Statt den Klang selbst zu speichern, merkt sich MIDI nur: \"Welche Note? Wie lange? Wie laut?\" Aus diesem Grund kann man die selben Noten mit unterschiedlichen digitalen Instrumenten abspielen, sogenannten Synthesizer!"
+    },
+    {
+      "heading": "🔄 Was passiert bei der Konvertierung von MP3 zu MIDI?",
+      "content": "Der Computer \"hört\" deine Aufnahme und versucht, die Töne zu erkennen - Er analysiert die Schallwellen und versucht herauszufinden: Wann beginnt ein Ton? Welche Tonhöhe hat er? Wie lange dauert er?"
+    },
+    {
+      "heading": "🤔 Warum klingt es manchmal anders als das Original?",
+      "content": "Der Computer kann nicht so gut hören wie Menschen. Besonders schwierig sind:",
+      "list": [
+        "Schnelle Passagen – die Noten \"verschwimmen\" ineinander",
+        "Leise Töne – werden manchmal überhört",
+        "Hintergrundgeräusche – werden versehentlich als Noten erkannt",
+        "Mehrere Stimmen gleichzeitig – schwer auseinanderzuhalten",
+        "Instrumente werden unterschiedlich gut erkannt - Klavier-Noten können besser erkannt werden als z.B. Gitarren-Noten"
+      ]
+    },
+    {
+      "heading": "👍 Tipps für eine gute Erkennung",
+      "content": "Für eine gute MIDI-Konvertierung:",
+      "list": [
+        "Deutlich und klar spielen",
+        "Ruhige Umgebung ohne Hintergrundgeräusche",
+        "Nicht zu schnell spielen",
+        "Einzelne Töne statt Akkorde funktionieren besser",
+        "Gute Mikrofonqualität hilft"
+      ]
+    }
+  ]
+}

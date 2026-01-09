@@ -13,7 +13,7 @@ class Mp3ToMidiFeedbackService:
     """Service für MP3-to-MIDI Konversion.
     
     Konvertiert MP3/WAV-Aufnahmen mit Spotify's Basic Pitch zu MIDI-Dateien.
-    Unterstützt instrument-spezifische Presets für optimale Ergebnisse.
+    Parameter werden automatisch aus der Audio-Analyse berechnet.
     """
     
     def __init__(self, session_service, storage_service, audio_service, plugin_config: Optional[Dict] = None):
@@ -38,44 +38,26 @@ class Mp3ToMidiFeedbackService:
         
         logging.info("🎹 Mp3ToMidiFeedbackService initialisiert")
     
-    def convert_mp3_to_midi(self, session_id: str, preset_id: Optional[str] = None) -> Dict:
+    def convert_mp3_to_midi(self, session_id: str) -> Dict:
         """Konvertiert beide MP3-Dateien (Referenz + Schüler) zu MIDI.
         
-        Phase 1 Implementation: Nur Konversion, keine Analyse.
+        Parameter werden automatisch aus der Audio-Analyse der Referenz berechnet.
         
         Args:
             session_id: Session-ID
-            preset_id: Optional - ID des zu verwendenden Presets (z.B. 'klavier', 'gesang')
             
         Returns:
             Dict mit:
                 - referenz: Konversions-Result für Referenz
                 - schueler: Konversions-Result für Schüler
                 - summary: Zusammenfassung
-                - preset_used: Verwendetes Preset (falls angegeben)
                 
         Raises:
             SessionNotFoundException: Session nicht gefunden
             FileNotFoundError: Audio-Dateien nicht gefunden
+            AudioAnalysisError: Audio-Analyse fehlgeschlagen
         """
         logging.info(f"🎵 Starte MP3-to-MIDI Konversion für Session {session_id}")
-        
-        # Lade Preset-Parameter falls angegeben
-        preset_params = None
-        preset_info = None
-        if preset_id:
-            try:
-                from app.plugins.mp3_to_midi_feedback.presets import preset_manager
-                preset = preset_manager.load_preset(preset_id)
-                preset_params = preset.get('parameters', {})
-                preset_info = {
-                    'id': preset.get('id'),
-                    'name': preset.get('name'),
-                    'icon': preset.get('icon')
-                }
-                logging.info(f"🎼 Verwende Preset: {preset.get('name')} {preset.get('icon')}")
-            except Exception as e:
-                logging.warning(f"⚠️ Konnte Preset '{preset_id}' nicht laden: {e}. Verwende Defaults.")
         
         # Hole Session
         session = self.session_service.get_session(session_id)
@@ -102,22 +84,15 @@ class Mp3ToMidiFeedbackService:
         midi_dir = session_dir / "midi"
         midi_dir.mkdir(exist_ok=True)
         
-        # Optimiere Parameter basierend auf Referenz-Audio-Analyse
-        # Mit preset_params: Preset als Basis, Optimizer verfeinert
-        # Ohne preset_params: Optimizer berechnet alle Parameter aus Analyse
+        # Berechne optimale Parameter aus Referenz-Audio-Analyse
         referenz_path = audio_files.get('referenz')
-        if referenz_path:
-            try:
-                # Optimizer arbeitet mit oder ohne Preset
-                optimized_params = self.optimizer.optimize(referenz_path, preset_params)
-                logging.info(f"🔧 Parameter {'optimiert' if preset_params else 'berechnet (Auto-Modus)'}")
-            except AudioAnalysisError as e:
-                # Analyse fehlgeschlagen = Problem mit der Audio-Datei
-                logging.error(f"❌ Audio-Analyse fehlgeschlagen: {e}")
-                raise
-        else:
-            # Kein Referenz-Pfad (sollte nicht passieren)
-            optimized_params = preset_params
+        try:
+            optimized_params = self.optimizer.optimize(referenz_path)
+            logging.info("🔧 Parameter aus Audio-Analyse berechnet")
+        except AudioAnalysisError as e:
+            # Analyse fehlgeschlagen = Problem mit der Audio-Datei
+            logging.error(f"❌ Audio-Analyse fehlgeschlagen: {e}")
+            raise
         
         # Konvertiere beide Dateien mit optimierten Parametern
         logging.info(f"📁 Konvertiere Dateien: {list(audio_files.keys())}")
@@ -151,14 +126,8 @@ class Mp3ToMidiFeedbackService:
             f"{summary['successful']}/{summary['total_files']} erfolgreich"
         )
         
-        result = {
+        return {
             "referenz": results.get("referenz", {}),
             "schueler": results.get("schueler", {}),
             "summary": summary
         }
-        
-        # Füge Preset-Info hinzu falls verwendet
-        if preset_info:
-            result["preset_used"] = preset_info
-        
-        return result
